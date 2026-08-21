@@ -1,0 +1,119 @@
+<div class="editor-bar">
+  <button type="button" class="btn btn--primary btn--sm" (click)="startAdd()">
+    <app-icon name="zap" [size]="15" />
+    Add {{ section().label.toLowerCase() }}
+  </button>
+  <span class="editor-bar__count mono">{{ rows().length }} entries</span>
+</div>
+
+<div class="split">
+  <!-- ---------- Rows ---------- -->
+  <ol class="rows">
+    @for (row of rows(); track $index) {
+      <li class="row" [class.is-active]="editing() === $index">
+        <button type="button" class="row__main" (click)="startEdit($index)">
+          <span class="row__num mono">{{ $index + 1 }}</span>
+          <span class="row__text">
+            <strong>{{ label(row) }}</strong>
+            @if (sublabel(row)) {
+              <small>{{ sublabel(row) }}</small>
+            }
+          </span>
+        </button>
+
+        <span class="row__tools">
+          <button
+            type="button"
+            (click)="move($index, -1)"
+            [disabled]="$first"
+            aria-label="Move up"
+            title="Move up"
+          >
+            <app-icon name="arrowUp" [size]="14" />
+          </button>
+          <button
+            type="button"
+            (click)="move($index, 1)"
+            [disabled]="$last"
+            aria-label="Move down"
+            title="Move down"
+          >
+            <app-icon name="arrowDown" [size]="14" />
+          </button>
+          <button
+            type="button"
+            class="is-danger"
+            (click)="askDelete($index)"
+            aria-label="Delete"
+            title="Delete"
+          >
+            <app-icon name="close" [size]="14" />
+          </button>
+        </span>
+
+        @if (confirmingDelete() === $index) {
+          <p class="row__confirm">
+            Delete <strong>{{ label(row) }}</strong>?
+            <button type="button" class="link link--danger" (click)="confirmDelete($index)">
+              Yes, delete
+            </button>
+            <button type="button" class="link" (click)="cancelDelete()">Keep it</button>
+          </p>
+        }
+      </li>
+    } @empty {
+      <li class="rows__empty">
+        Nothing here yet. Add the first entry to see it on the site.
+      </li>
+    }
+  </ol>
+
+  <!-- ---------- Form ---------- -->
+  @if (editing() !== null) {
+    <form class="panel" (ngSubmit)="save()" novalidate>
+      <p class="panel__head">
+        <span class="mono">{{ isNew() ? 'New entry' : 'Editing entry ' + (editing()! + 1) }}</span>
+        <button type="button" class="link" (click)="cancel()">Close</button>
+      </p>
+
+      <div class="form-grid">
+        @for (field of section().fields; track field.key) {
+          <pc-field
+            [field]="field"
+            [value]="draft.valueOf(field.key)"
+            [touched]="draft.touched()"
+            (changed)="draft.set(field.key, $event)"
+          />
+        }
+      </div>
+
+      <footer class="panel__foot">
+        <button type="submit" class="btn btn--primary btn--sm" [disabled]="draft.pristine()">
+          {{ isNew() ? 'Add entry' : 'Save changes' }}
+        </button>
+        <button
+          type="button"
+          class="btn btn--ghost btn--sm"
+          (click)="cancel()"
+        >
+          {{ draft.pristine() ? 'Close' : 'Discard' }}
+        </button>
+
+        @if (draft.touched() && !draft.valid()) {
+          <p class="panel__warn">
+            <app-icon name="zap" [size]="14" />
+            {{ draft.missing().length }} required field(s) still empty.
+          </p>
+        }
+      </footer>
+    </form>
+  } @else {
+    <div class="panel panel--idle">
+      <app-icon [name]="section().icon" [size]="26" />
+      <p><strong>{{ rows().length }}</strong> {{ section().label.toLowerCase() }} on the site.</p>
+      <p class="panel--idle__hint">
+        Pick an entry to edit it, drag order with the arrows, or add a new one.
+      </p>
+    </div>
+  }
+</div>

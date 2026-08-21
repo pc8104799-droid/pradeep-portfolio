@@ -1,0 +1,287 @@
+:host {
+  display: block;
+}
+
+.timeline {
+  position: relative;
+  display: grid;
+  gap: clamp(1.25rem, 2.5vw, 2rem);
+  padding-left: clamp(1.6rem, 4vw, 3rem);
+}
+
+/* ---------- Rail ---------- */
+.rail {
+  position: absolute;
+  top: .5rem;
+  bottom: .5rem;
+  left: 0;
+  width: 2px;
+}
+
+.rail__track,
+.rail__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 99px;
+}
+
+.rail__track {
+  background: var(--stroke);
+}
+
+.rail__fill {
+  background: var(--grad-brand);
+  transform-origin: 50% 0;
+  box-shadow: 0 0 16px rgb(124 92 255 / 70%);
+  transition: transform 140ms linear;
+}
+
+/* ---------- Entry ---------- */
+.entry {
+  position: relative;
+}
+
+.entry__dot {
+  position: absolute;
+  top: 1.9rem;
+  left: calc(clamp(1.6rem, 4vw, 3rem) * -1 - 5px);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  background: var(--ink-3);
+  transition: background var(--t) var(--ease-out), box-shadow var(--t) var(--ease-out);
+}
+
+.entry:hover .entry__dot {
+  background: var(--cyan);
+  box-shadow: 0 0 0 4px rgb(0 212 255 / 18%);
+}
+
+.entry__dot.is-current {
+  background: var(--lime);
+  box-shadow: 0 0 14px var(--lime);
+}
+
+.entry__dot.is-current::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: var(--lime);
+  animation: pulseRing 2.4s var(--ease-out) infinite;
+}
+
+.entry__card {
+  display: grid;
+  gap: 1.1rem;
+  padding: clamp(1.25rem, 2.4vw, 1.9rem);
+  transition: transform var(--t) var(--ease-spring), box-shadow var(--t) var(--ease-out),
+    border-color var(--t) var(--ease-out);
+}
+
+.entry__card:hover {
+  transform: translateX(6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.entry__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .8rem 1.5rem;
+}
+
+.entry__role {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+}
+
+.entry__company {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .7rem;
+  margin-top: .3rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.entry__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .18rem .55rem;
+  border-radius: 99px;
+  border: 1px solid color-mix(in srgb, var(--lime) 35%, transparent);
+  background: color-mix(in srgb, var(--lime) 12%, transparent);
+  color: var(--lime);
+  font-family: var(--font-mono);
+  font-size: .58rem;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.entry__badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentcolor;
+  animation: blink 1.6s var(--ease-in-out) infinite;
+}
+
+.entry__meta {
+  display: grid;
+  gap: .3rem;
+  text-align: right;
+}
+
+.entry__meta li {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .45rem;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  letter-spacing: .05em;
+  white-space: nowrap;
+}
+
+.entry__points {
+  display: grid;
+  gap: .55rem;
+  max-width: var(--measure);
+}
+
+.entry__points li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .65rem;
+  color: var(--ink-2);
+  font-size: .92rem;
+  line-height: 1.6;
+}
+
+.entry__points app-icon {
+  margin-top: .28rem;
+  color: var(--cyan);
+}
+
+/* ---------- Key project ---------- */
+.keyproj {
+  display: grid;
+  gap: .6rem;
+  max-width: var(--measure);
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--stroke);
+  border-left: 2px solid var(--violet);
+  background: color-mix(in srgb, var(--violet) 7%, transparent);
+}
+
+.keyproj__label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: .64rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.keyproj__label app-icon {
+  color: var(--magenta);
+}
+
+.keyproj__label strong {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: .92rem;
+  letter-spacing: -.01em;
+  text-transform: none;
+}
+
+.keyproj ul {
+  display: grid;
+  gap: .4rem;
+}
+
+.keyproj li {
+  position: relative;
+  padding-left: 1rem;
+  color: var(--ink-2);
+  font-size: .87rem;
+  line-height: 1.6;
+}
+
+.keyproj li::before {
+  content: "";
+  position: absolute;
+  top: .62em;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--grad-brand);
+}
+
+.entry__stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+}
+
+/* ---------- Wide layout ---------- */
+/* A full-width card with an 82ch text block wastes about a thousand pixels, so
+   past this size the bullets and the key project sit side by side and the cap
+   comes off — the columns constrain the measure instead. */
+@container page (min-width: 1100px) {
+  .entry__card {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+    column-gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: start;
+  }
+
+  .entry__head {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .entry__points {
+    grid-column: 1;
+    grid-row: 2;
+    max-width: none;
+  }
+
+  .keyproj {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    max-width: none;
+  }
+
+  .entry__stack {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: end;
+  }
+}
+
+/* ---------- Responsive ---------- */
+@container page (max-width: 700px) {
+  .entry__meta {
+    text-align: left;
+  }
+
+  .entry__meta li {
+    justify-content: flex-start;
+  }
+
+  .entry__card:hover {
+    transform: none;
+  }
+}

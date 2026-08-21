@@ -1,0 +1,83 @@
+<section id="experience" class="section experience">
+  <div class="shell">
+    <app-section-heading
+      index="04"
+      eyebrow="Professional experience"
+      title="Where I have shipped, and"
+      accent="what changed because of it."
+      lede="Four teams, four domains — banking, logistics, real estate and consumer web."
+    />
+
+    <div #timeline class="timeline">
+      <!-- Rail: static track plus a fill tied to scroll position -->
+      <div class="rail" aria-hidden="true">
+        <span class="rail__track"></span>
+        <span class="rail__fill" [style.transform]="'scaleY(' + railFill() + ')'"></span>
+      </div>
+
+      @for (role of roles; track role.company) {
+        <article class="entry" appReveal="right" [revealDelay]="$index * 80">
+          <span class="entry__dot" [class.is-current]="role.current" aria-hidden="true"></span>
+
+          <div class="entry__card glass halo">
+            <header class="entry__head">
+              <div>
+                <h3 class="entry__role">{{ role.role }}</h3>
+                <p class="entry__company">
+                  <span class="grad-text">{{ role.company }}</span>
+                  @if (role.current) {
+                    <span class="entry__badge">
+                      <span class="entry__badge-dot"></span>
+                      Current
+                    </span>
+                  }
+                </p>
+              </div>
+
+              <ul class="entry__meta">
+                <li>
+                  <app-icon name="calendar" [size]="14" />
+                  {{ role.period }}
+                </li>
+                <li>
+                  <app-icon name="location" [size]="14" />
+                  {{ role.location }}
+                </li>
+              </ul>
+            </header>
+
+            <ul class="entry__points">
+              @for (point of role.points; track point) {
+                <li>
+                  <app-icon name="check" [size]="14" />
+                  <span>{{ point }}</span>
+                </li>
+              }
+            </ul>
+
+            @if (role.keyProject) {
+              <div class="keyproj">
+                <p class="keyproj__label">
+                  <app-icon name="zap" [size]="14" />
+                  Key project
+                  <strong>{{ role.keyProject.title }}</strong>
+                </p>
+                <ul>
+                  @for (point of role.keyProject.points; track point) {
+                    <li>{{ point }}</li>
+                  }
+                </ul>
+              </div>
+            }
+
+            <ul class="entry__stack">
+              @for (tech of role.stack; track tech) {
+                <li class="chip">{{ tech }}</li>
+              }
+            </ul>
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+</section>

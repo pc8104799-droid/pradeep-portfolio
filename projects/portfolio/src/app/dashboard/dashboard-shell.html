@@ -1,0 +1,152 @@
+<!-- ---------- Header ---------- -->
+<header class="head">
+  <button
+    type="button"
+    class="icon-btn burger"
+    (click)="toggleNav()"
+    [attr.aria-expanded]="navOpen()"
+    aria-controls="workspace-nav"
+    [attr.aria-label]="navOpen() ? 'Close sections' : 'Open sections'"
+  >
+    <app-icon [name]="navOpen() ? 'close' : 'menu'" [size]="19" />
+  </button>
+
+  <a class="brand" routerLink="/dashboard">
+    <span class="brand__mark">PC</span>
+    <span class="brand__text">
+      <strong>Portfolio workspace</strong>
+      <em>{{ content.profile().name }}</em>
+    </span>
+  </a>
+
+  <div class="head__actions">
+    @if (content.dirty()) {
+      <span class="pill">
+        <span class="pill__dot"></span>
+        <span class="hide-sm">Unsaved edits</span>
+      </span>
+    }
+
+    <a class="btn btn--ghost btn--sm" routerLink="/portfolio" target="_blank">
+      <app-icon name="external" [size]="15" />
+      <span class="hide-md">View site</span>
+    </a>
+
+    <button
+      type="button"
+      class="icon-btn"
+      (click)="theme.toggle()"
+      [attr.aria-label]="theme.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+    >
+      <app-icon [name]="theme.theme() === 'dark' ? 'moon' : 'sun'" [size]="17" />
+    </button>
+
+    <!-- Account -->
+    <div class="account">
+      <button
+        type="button"
+        class="account__chip"
+        (click)="menuOpen.set(!menuOpen())"
+        [attr.aria-expanded]="menuOpen()"
+        aria-label="Account menu"
+      >
+        <span class="account__initials">{{ initials() }}</span>
+        <span class="account__name hide-md">{{ auth.user()?.name }}</span>
+        <app-icon name="arrowDown" [size]="14" />
+      </button>
+
+      @if (menuOpen()) {
+        <div class="account__menu">
+          <p class="account__who">
+            <strong>{{ auth.user()?.name }}</strong>
+            <small>{{ auth.user()?.email }}</small>
+          </p>
+          <button type="button" class="account__item" (click)="content.download()">
+            <app-icon name="download" [size]="15" />
+            Export content.json
+          </button>
+          <a class="account__item" routerLink="/dashboard/data" (click)="menuOpen.set(false)">
+            <app-icon name="code" [size]="15" />
+            Export &amp; import
+          </a>
+          <button type="button" class="account__item is-danger" (click)="signOut()">
+            <app-icon name="close" [size]="15" />
+            Sign out
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</header>
+
+<!-- ---------- Body ---------- -->
+<div class="body">
+  <!-- Left: the resume, section by section -->
+  <nav id="workspace-nav" class="side" aria-label="Resume sections">
+    <p class="side__label mono">Resume</p>
+
+    <ul class="side__list">
+      @for (page of pages; track page.id) {
+        <li>
+          <a
+            [routerLink]="['/dashboard', page.id]"
+            routerLinkActive="is-active"
+            (click)="closeNav()"
+          >
+            <span class="side__icon">
+              <app-icon [name]="page.icon" [size]="17" />
+            </span>
+            <span class="side__text">{{ page.label }}</span>
+            @if (counts()[page.id] !== null) {
+              <span class="side__count mono">{{ counts()[page.id] }}</span>
+            }
+          </a>
+        </li>
+      }
+    </ul>
+
+    <p class="side__label mono">Workspace</p>
+
+    <ul class="side__list">
+      <li>
+        <a routerLink="/dashboard/data" routerLinkActive="is-active" (click)="closeNav()">
+          <span class="side__icon">
+            <app-icon name="code" [size]="17" />
+          </span>
+          <span class="side__text">Export &amp; import</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/portfolio" (click)="closeNav()">
+          <span class="side__icon">
+            <app-icon name="star" [size]="17" />
+          </span>
+          <span class="side__text">Public portfolio</span>
+        </a>
+      </li>
+    </ul>
+
+    <p class="side__hint">
+      Changes show on the public site straight away and are kept in this browser. Export the
+      JSON to make them permanent.
+    </p>
+  </nav>
+
+  <!-- Only this pane changes -->
+  <main class="pane">
+    <router-outlet />
+  </main>
+</div>
+
+<button type="button" class="scrim" (click)="closeNav()" tabindex="-1" aria-hidden="true"></button>
+
+<!-- ---------- Footer ---------- -->
+<footer class="foot">
+  <p class="foot__source">
+    <span class="foot__dot" [class.is-dirty]="content.dirty()"></span>
+    {{ sourceLabel() }}
+  </p>
+  <p class="foot__meta">
+    Angular 22 monorepo · <a routerLink="/portfolio">public portfolio</a>
+  </p>
+</footer>

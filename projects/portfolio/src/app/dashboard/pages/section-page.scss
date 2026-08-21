@@ -1,0 +1,101 @@
+:host {
+  display: block;
+}
+
+/* ---------- Page header ---------- */
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: clamp(1.1rem, 2.5vw, 1.75rem);
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--stroke);
+}
+
+.head h1 {
+  max-width: 60ch;
+  margin-top: .45rem;
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: -.02em;
+  color: var(--ink-2);
+}
+
+/* ---------- Preview / Edit tabs ---------- */
+.tabs {
+  display: inline-flex;
+  gap: .2rem;
+  padding: .25rem;
+  border-radius: 99px;
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+  flex: none;
+}
+
+.tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .45rem .95rem;
+  border-radius: 99px;
+  color: var(--ink-3);
+  font-family: var(--font-display);
+  font-size: .85rem;
+  font-weight: 600;
+  transition: color var(--t) var(--ease-out), background var(--t) var(--ease-out);
+}
+
+.tabs button:hover {
+  color: var(--ink);
+}
+
+.tabs button.is-active {
+  color: #07070c;
+  background: var(--grad-brand);
+  box-shadow: 0 10px 24px -14px rgb(124 92 255 / 75%);
+}
+
+/* ---------- Preview ---------- */
+.preview {
+  display: grid;
+  gap: .75rem;
+}
+
+.preview__note {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  color: var(--ink-3);
+  font-size: .6rem;
+  letter-spacing: .12em;
+}
+
+.preview__stage {
+  position: relative;
+  border-radius: var(--radius);
+  border: 1px solid var(--stroke);
+  background: var(--bg-2);
+  overflow: hidden;
+}
+
+/* ---------- Editors ---------- */
+.editors {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.editor__title {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .9rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.editor__title app-icon {
+  color: var(--cyan);
+}

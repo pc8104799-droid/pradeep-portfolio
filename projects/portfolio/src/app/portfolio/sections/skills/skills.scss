@@ -1,0 +1,193 @@
+:host {
+  display: block;
+}
+
+/* ---------- Core stack strip ---------- */
+.core {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .7rem;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.core__item {
+  display: grid;
+  gap: .1rem;
+  padding: .7rem 1.15rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+  transition: transform var(--t) var(--ease-spring), border-color var(--t) var(--ease-out),
+    background var(--t) var(--ease-out), box-shadow var(--t) var(--ease-out);
+}
+
+.core__item:hover {
+  transform: translateY(-4px);
+  border-color: transparent;
+  background: var(--grad-brand-soft);
+  box-shadow: var(--shadow-glow);
+}
+
+.core__name {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.core__note {
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+/* ---------- Group cards ---------- */
+/* Explicit counts rather than auto-fit: there are six groups, and 1/2/3 columns
+   all divide evenly, so no row is ever left with an orphan card. auto-fit gave
+   five columns at 1920px, which stranded the sixth on its own row. */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@container page (min-width: 720px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container page (min-width: 1180px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.card {
+  display: grid;
+  align-content: start;
+  overflow: hidden;
+  transition: transform var(--t) var(--ease-spring), box-shadow var(--t) var(--ease-out);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card__head {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  padding: 1.25rem 1.3rem 1.1rem;
+}
+
+.card__icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border-radius: 12px;
+  border: 1px solid var(--stroke);
+  background: var(--grad-brand-soft);
+  color: var(--violet);
+  transition: transform var(--t) var(--ease-spring), color var(--t) var(--ease-out);
+}
+
+.card:hover .card__icon {
+  transform: rotate(-8deg) scale(1.05);
+  color: var(--cyan);
+}
+
+.card__titles {
+  display: grid;
+  gap: .15rem;
+  min-width: 0;
+}
+
+.card__title {
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.card__blurb {
+  color: var(--ink-3);
+  font-size: .78rem;
+  line-height: 1.45;
+}
+
+.card__index {
+  margin-left: auto;
+  align-self: start;
+  color: var(--ink-3);
+  font-size: .64rem;
+  opacity: .55;
+  flex: none;
+}
+
+/* ---------- Skill tags ---------- */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  padding: 0 1.3rem 1.4rem;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .4rem .8rem;
+  border-radius: 99px;
+  border: 1px solid var(--stroke);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: .84rem;
+  letter-spacing: -.005em;
+  white-space: nowrap;
+  /* Staggered entrance — replaces the animation the old meters carried. */
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 420ms var(--ease-out), transform 420ms var(--ease-out),
+    color var(--t) var(--ease-out), border-color var(--t) var(--ease-out),
+    background var(--t) var(--ease-out);
+  transition-delay: calc(var(--i) * 45ms);
+}
+
+.card.is-visible .tag {
+  opacity: 1;
+  transform: none;
+}
+
+.tag:hover {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--cyan) 45%, transparent);
+  background: var(--grad-brand-soft);
+}
+
+.tag__dot {
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--grad-brand);
+  opacity: .8;
+  transition: transform var(--t) var(--ease-spring), opacity var(--t) var(--ease-out);
+}
+
+.tag:hover .tag__dot {
+  transform: scale(1.5);
+  opacity: 1;
+}
+
+/* Tags are content, not decoration — never leave them hidden. */
+@media (prefers-reduced-motion: reduce) {
+  .tag {
+    opacity: 1;
+    transform: none;
+  }
+}

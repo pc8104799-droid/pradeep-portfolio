@@ -1,0 +1,86 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.orb {
+  position: absolute;
+  width: clamp(320px, 46vw, 720px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: .5;
+  will-change: transform;
+}
+
+.orb--violet {
+  top: -14%;
+  left: -8%;
+  background: radial-gradient(circle at 30% 30%, var(--violet), transparent 68%);
+  animation: drift 26s var(--ease-in-out) infinite;
+}
+
+.orb--cyan {
+  top: 32%;
+  right: -14%;
+  background: radial-gradient(circle at 60% 40%, var(--cyan), transparent 68%);
+  animation: drift 32s var(--ease-in-out) infinite reverse;
+  opacity: .38;
+}
+
+.orb--magenta {
+  bottom: -18%;
+  left: 24%;
+  background: radial-gradient(circle at 50% 50%, var(--magenta), transparent 68%);
+  animation: drift 38s var(--ease-in-out) infinite;
+  opacity: .34;
+}
+
+.constellation {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: .85;
+}
+
+/* Faint blueprint grid, faded out toward the edges. */
+.grid-veil {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--stroke) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--stroke) 1px, transparent 1px);
+  background-size: 68px 68px;
+  opacity: .55;
+  mask-image: radial-gradient(ellipse 85% 70% at 50% 40%, #000 30%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 70% at 50% 40%, #000 30%, transparent 78%);
+}
+
+/* SVG fractal-noise grain kills gradient banding on wide screens. */
+.grain {
+  position: absolute;
+  inset: -50%;
+  opacity: .035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+:host-context(:root[data-theme="light"]) {
+  .orb {
+    opacity: .3;
+    filter: blur(110px);
+  }
+
+  .constellation {
+    opacity: .4;
+  }
+
+  .grain {
+    opacity: .02;
+    mix-blend-mode: multiply;
+  }
+}

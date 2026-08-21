@@ -1,0 +1,68 @@
+@let def = field();
+
+<label class="wrap">
+  <span class="label">
+    {{ def.label }}
+    @if (def.required) {
+      <span class="req" aria-hidden="true">*</span>
+    }
+  </span>
+
+  @switch (def.type) {
+    @case ('textarea') {
+      <textarea [value]="asText()" [rows]="rows()" (input)="onText($event)"></textarea>
+    }
+
+    @case ('list') {
+      <textarea
+        class="is-list"
+        [value]="asText()"
+        [rows]="rows()"
+        (input)="onText($event)"
+        spellcheck="false"
+      ></textarea>
+    }
+
+    @case ('number') {
+      <input type="number" [value]="asNumber()" (input)="onNumber($event)" />
+    }
+
+    @case ('boolean') {
+      <span class="toggle">
+        <input type="checkbox" [checked]="asBoolean()" (change)="onBoolean($event)" />
+        <span class="toggle__track" aria-hidden="true"><i></i></span>
+        <span class="toggle__state">{{ asBoolean() ? 'Yes' : 'No' }}</span>
+      </span>
+    }
+
+    @case ('color') {
+      <span class="color">
+        <input type="color" [value]="asText()" (input)="onText($event)" />
+        <input class="color__hex" type="text" [value]="asText()" (input)="onText($event)" />
+      </span>
+    }
+
+    @case ('icon') {
+      <span class="icon-pick">
+        <span class="icon-pick__preview">
+          <app-icon [name]="asText()" [size]="18" />
+        </span>
+        <select [value]="asText()" (change)="onSelect($event)">
+          @for (name of iconNames; track name) {
+            <option [value]="name" [selected]="name === asText()">{{ name }}</option>
+          }
+        </select>
+      </span>
+    }
+
+    @default {
+      <input type="text" [value]="asText()" (input)="onText($event)" />
+    }
+  }
+
+  @if (invalid()) {
+    <span class="msg msg--error">{{ def.label }} is required.</span>
+  } @else if (def.hint) {
+    <span class="msg">{{ def.hint }}</span>
+  }
+</label>

@@ -1,0 +1,309 @@
+:host {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 1000;
+  display: block;
+  transition: background var(--t) var(--ease-out), border-color var(--t) var(--ease-out),
+    backdrop-filter var(--t) var(--ease-out);
+  border-bottom: 1px solid transparent;
+}
+
+:host(.is-stuck) {
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  border-bottom-color: var(--stroke);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+}
+
+.skip {
+  position: absolute;
+  top: -100px;
+  left: 1rem;
+  padding: .6rem 1rem;
+  border-radius: 8px;
+  background: var(--bg-2);
+  border: 1px solid var(--stroke-strong);
+  transition: top var(--t) var(--ease-out);
+  z-index: 2;
+}
+
+.skip:focus-visible {
+  top: .6rem;
+}
+
+.bar {
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* ---------- Brand ---------- */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .7rem;
+  flex: none;
+}
+
+.brand__mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--grad-brand);
+  background-size: 200% 100%;
+  color: #07070c;
+  font-family: var(--font-display);
+  font-size: .82rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  box-shadow: 0 10px 26px -12px rgb(124 92 255 / 80%);
+  transition: transform var(--t) var(--ease-spring), background-position var(--t-slow) var(--ease-out);
+}
+
+.brand:hover .brand__mark {
+  transform: rotate(-8deg) scale(1.06);
+  background-position: 100% 0;
+}
+
+.brand__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+  font-family: var(--font-display);
+}
+
+.brand__text strong {
+  font-size: .95rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.brand__text em {
+  font-style: normal;
+  font-size: .7rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* ---------- Desktop links ---------- */
+.links {
+  display: flex;
+  align-items: center;
+  gap: .2rem;
+  padding: .3rem;
+  border-radius: 99px;
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+}
+
+.link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .5rem .95rem;
+  border-radius: 99px;
+  color: var(--ink-3);
+  font-family: var(--font-display);
+  font-size: .88rem;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  transition: color var(--t) var(--ease-out), background var(--t) var(--ease-out);
+}
+
+.link:hover {
+  color: var(--ink);
+  background: var(--surface-2);
+}
+
+.link.is-active {
+  color: var(--ink);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--stroke-strong);
+}
+
+.link.is-active .link__index {
+  color: var(--cyan);
+  opacity: 1;
+}
+
+.link__index {
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  opacity: .55;
+  transition: color var(--t) var(--ease-out), opacity var(--t) var(--ease-out);
+}
+
+/* ---------- Actions ---------- */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex: none;
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+  color: var(--ink-2);
+  transition: color var(--t) var(--ease-out), border-color var(--t) var(--ease-out),
+    transform var(--t) var(--ease-spring), background var(--t) var(--ease-out);
+}
+
+.icon-btn:hover {
+  color: var(--ink);
+  border-color: var(--stroke-strong);
+  background: var(--surface-2);
+  transform: translateY(-2px);
+}
+
+/* Sun/moon crossfade — both icons stacked, one rotated out of view. */
+.icon-btn__swap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+}
+
+.icon-btn__swap app-icon {
+  position: absolute;
+  transition: opacity var(--t) var(--ease-out), transform 520ms var(--ease-spring);
+}
+
+.icon-btn__swap app-icon:first-child {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+.icon-btn__swap app-icon:last-child {
+  opacity: 0;
+  transform: rotate(-90deg) scale(.4);
+}
+
+.icon-btn__swap.is-light app-icon:first-child {
+  opacity: 0;
+  transform: rotate(90deg) scale(.4);
+}
+
+.icon-btn__swap.is-light app-icon:last-child {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+.burger {
+  display: none;
+}
+
+/* ---------- Mobile drawer ---------- */
+.drawer {
+  position: absolute;
+  inset: var(--nav-h) 0 auto;
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.5rem var(--gutter) 2rem;
+  background: color-mix(in srgb, var(--bg) 96%, transparent);
+  border-bottom: 1px solid var(--stroke);
+  backdrop-filter: blur(22px);
+  clip-path: inset(0 0 100% 0);
+  opacity: 0;
+  visibility: hidden;
+  transition: clip-path 520ms var(--ease-out), opacity var(--t) var(--ease-out), visibility var(--t);
+}
+
+.drawer.is-open {
+  clip-path: inset(0 0 0 0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.drawer__links {
+  display: grid;
+}
+
+.drawer__link {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  padding: .95rem .25rem;
+  border-bottom: 1px solid var(--stroke);
+  color: var(--ink-2);
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -.025em;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: color var(--t) var(--ease-out), opacity 420ms var(--ease-out) var(--stagger, 0ms),
+    transform 420ms var(--ease-out) var(--stagger, 0ms);
+}
+
+.drawer.is-open .drawer__link {
+  opacity: 1;
+  transform: none;
+}
+
+.drawer__link .mono {
+  color: var(--cyan);
+  font-size: .68rem;
+}
+
+.drawer__link app-icon {
+  margin-left: auto;
+  color: var(--ink-3);
+}
+
+.drawer__link.is-active,
+.drawer__link:hover {
+  color: var(--ink);
+}
+
+.drawer__foot {
+  display: grid;
+  gap: .5rem;
+}
+
+.drawer__contact {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  color: var(--ink-3);
+  font-size: .9rem;
+  word-break: break-all;
+}
+
+.drawer__contact:hover {
+  color: var(--cyan);
+}
+
+@media (max-width: 1000px) {
+  .links {
+    display: none;
+  }
+
+  .burger {
+    display: grid;
+  }
+}
+
+@media (max-width: 560px) {
+  .hire,
+  .resume {
+    display: none;
+  }
+
+  .brand__text em {
+    display: none;
+  }
+}

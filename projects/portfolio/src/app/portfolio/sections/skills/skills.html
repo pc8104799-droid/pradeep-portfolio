@@ -1,0 +1,50 @@
+<section id="skills" class="section skills">
+  <div class="shell">
+    <app-section-heading
+      index="03"
+      eyebrow="Technical skills"
+      title="The toolkit behind"
+      accent="every shipped release."
+      [lede]="totalSkills() + ' tools and practices, grouped the way I actually reach for them.'"
+    />
+
+    <!-- Core stack strip -->
+    <ul class="core" appReveal>
+      @for (item of coreStack; track item.name) {
+        <li class="core__item">
+          <span class="core__name">{{ item.name }}</span>
+          <span class="core__note">{{ item.note }}</span>
+        </li>
+      }
+    </ul>
+
+    <!-- Grouped skills -->
+    <div class="grid">
+      @for (group of groups; track group.title) {
+        <article class="card glass halo" appReveal [revealDelay]="$index * 90">
+          <header class="card__head">
+            <span class="card__icon">
+              <app-icon [name]="group.icon" [size]="20" />
+            </span>
+
+            <span class="card__titles">
+              <h3 class="card__title">{{ group.title }}</h3>
+              <span class="card__blurb">{{ group.blurb }}</span>
+            </span>
+
+            <span class="card__index mono">{{ pad($index + 1) }}</span>
+          </header>
+
+          <ul class="tags">
+            @for (skill of group.skills; track skill) {
+              <li class="tag" [style.--i]="$index">
+                <span class="tag__dot"></span>
+                {{ skill }}
+              </li>
+            }
+          </ul>
+        </article>
+      }
+    </div>
+  </div>
+</section>

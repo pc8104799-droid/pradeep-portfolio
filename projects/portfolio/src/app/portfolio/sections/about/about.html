@@ -1,0 +1,100 @@
+<app-marquee [items]="marqueeItems" [duration]="42" />
+
+<section id="about" class="section about">
+  <div class="shell">
+    <app-section-heading
+      index="02"
+      eyebrow="About me"
+      title="Five years of turning designs into"
+      accent="fast, maintainable interfaces."
+      lede="I care about two things above everything else: that the interface feels instant, and that the next developer to open the file understands it immediately."
+    />
+
+    <div class="about__grid">
+      <!-- Monogram / identity card. Swap the monogram for a photo by dropping an
+           image in public/ and replacing .mono-card__face with an <img>. -->
+      <aside class="about__aside" appReveal="left">
+        <div class="mono-card" [appTilt]="6">
+          <div class="mono-card__face">
+            <span class="mono-card__initials">{{ initials }}</span>
+            <span class="mono-card__ring"></span>
+          </div>
+
+          <div class="mono-card__body">
+            <h3>{{ profile.name }}</h3>
+            <p class="mono-card__role">{{ profile.role }}</p>
+
+            <dl class="mono-card__list">
+              <div>
+                <dt><app-icon name="location" [size]="15" /> Based in</dt>
+                <dd>{{ profile.location }}</dd>
+              </div>
+              <div>
+                <dt><app-icon name="graduation" [size]="15" /> Education</dt>
+                <dd>{{ education.degree }} — {{ education.field }}</dd>
+              </div>
+              <div>
+                <dt><app-icon name="quote" [size]="15" /> Languages</dt>
+                <dd>{{ languages.join(' · ') }}</dd>
+              </div>
+            </dl>
+
+            <a class="btn btn--ghost btn--sm mono-card__cta" [href]="'mailto:' + profile.email">
+              <app-icon name="mail" [size]="15" />
+              Get in touch
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Narrative + stats -->
+      <div class="about__main">
+        <div class="about__prose" appReveal="right">
+          <p class="about__summary">{{ profile.summary }}</p>
+          <p>
+            My work has run from a secure banking platform with role-based access control, through a
+            logistics ERP moving thousands of shipments a day, to property search experiences built
+            mobile-first. Different domains, the same discipline — a component architecture that
+            scales, reactive data flows that stay predictable under load, and a bundle that stays
+            small as the product grows.
+          </p>
+          <p>
+            Along the way I have mentored junior developers, run code reviews, and worked shoulder
+            to shoulder with designers in Agile teams to get the last five per cent of polish that
+            makes a product feel considered.
+          </p>
+        </div>
+
+        <ul class="stats">
+          @for (stat of stats; track stat.label) {
+            <li class="stat glass halo" appReveal="scale" [revealDelay]="$index * 90">
+              <span class="stat__value" [appCountUp]="stat.value" [countUpSuffix]="stat.suffix"></span>
+              <span class="stat__label">{{ stat.label }}</span>
+              <span class="stat__detail">{{ stat.detail }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+
+    <!-- What I do -->
+    <div class="services">
+      <h3 class="services__title" appReveal>
+        What I bring to a <span class="grad-text">team</span>
+      </h3>
+
+      <ul class="services__grid">
+        @for (service of services; track service.title) {
+          <li class="service glass halo" appReveal [revealDelay]="$index * 110" [appTilt]="4">
+            <span class="service__icon">
+              <app-icon [name]="service.icon" [size]="22" />
+            </span>
+            <h4>{{ service.title }}</h4>
+            <p>{{ service.copy }}</p>
+            <span class="service__index mono">0{{ $index + 1 }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</section>

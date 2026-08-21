@@ -1,0 +1,62 @@
+:host {
+  position: fixed;
+  right: clamp(1rem, 3vw, 2.25rem);
+  bottom: clamp(1rem, 3vw, 2.25rem);
+  z-index: 1050;
+}
+
+.fab {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--stroke-strong);
+  background: color-mix(in srgb, var(--bg-2) 82%, transparent);
+  color: var(--ink);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translateY(16px) scale(.8);
+  visibility: hidden;
+  transition: opacity var(--t) var(--ease-out), transform var(--t) var(--ease-spring),
+    visibility var(--t), color var(--t) var(--ease-out);
+}
+
+.fab.is-shown {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.fab:hover {
+  color: var(--cyan);
+  transform: translateY(-3px);
+}
+
+.ring {
+  position: absolute;
+  inset: -3px;
+  width: calc(100% + 6px);
+  height: calc(100% + 6px);
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.ring circle {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.ring__track {
+  stroke: var(--stroke);
+}
+
+.ring__value {
+  stroke: var(--cyan);
+  stroke-dasharray: 125.66;
+  transition: stroke-dashoffset 90ms linear;
+  filter: drop-shadow(0 0 6px rgb(0 212 255 / 70%));
+}

@@ -1,0 +1,85 @@
+<header class="head">
+  <div class="head__text">
+    <p class="eyebrow">{{ page.label }}</p>
+    <h1>{{ page.blurb }}</h1>
+  </div>
+
+  @if (page.preview) {
+    <div class="tabs" role="tablist" aria-label="View mode">
+      <button
+        type="button"
+        role="tab"
+        [class.is-active]="tab() === 'preview'"
+        [attr.aria-selected]="tab() === 'preview'"
+        (click)="show('preview')"
+      >
+        <app-icon name="star" [size]="15" />
+        Preview
+      </button>
+      <button
+        type="button"
+        role="tab"
+        [class.is-active]="tab() === 'edit'"
+        [attr.aria-selected]="tab() === 'edit'"
+        (click)="show('edit')"
+      >
+        <app-icon name="tools" [size]="15" />
+        Edit
+      </button>
+    </div>
+  }
+</header>
+
+@if (tab() === 'preview' && page.preview) {
+  <div class="preview preview-frame">
+    <p class="preview__note mono">
+      <app-icon name="zap" [size]="13" />
+      Live section — exactly what the public site renders
+    </p>
+
+    <div class="preview__stage">
+      @switch (page.preview) {
+        @case ('hero') {
+          <app-hero />
+        }
+        @case ('about') {
+          <app-about />
+        }
+        @case ('skills') {
+          <app-skills />
+        }
+        @case ('experience') {
+          <app-experience />
+        }
+        @case ('projects') {
+          <app-projects />
+        }
+        @case ('education') {
+          <app-education />
+        }
+        @case ('contact') {
+          <app-contact />
+        }
+      }
+    </div>
+  </div>
+} @else {
+  <div class="editors">
+    @for (section of sections(); track section.id) {
+      <section class="editor">
+        @if (sections().length > 1) {
+          <h2 class="editor__title">
+            <app-icon [name]="section.icon" [size]="16" />
+            {{ section.label }}
+          </h2>
+        }
+
+        @if (section.kind === 'list') {
+          <app-collection-editor [section]="section" />
+        } @else {
+          <app-object-editor [section]="section" />
+        }
+      </section>
+    }
+  </div>
+}

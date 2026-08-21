@@ -1,0 +1,179 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+:host(.is-wide) {
+  grid-column: 1 / -1;
+}
+
+.wrap {
+  display: grid;
+  gap: .4rem;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.req {
+  color: var(--magenta);
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+  width: 100%;
+  padding: .7rem .85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: .92rem;
+  transition: border-color var(--t) var(--ease-out), background var(--t) var(--ease-out),
+    box-shadow var(--t) var(--ease-out);
+}
+
+textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+textarea.is-list {
+  font-family: var(--font-mono);
+  font-size: .82rem;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--violet);
+  background: var(--surface-2);
+  box-shadow: 0 0 0 4px rgb(124 92 255 / 14%);
+}
+
+:host(.is-invalid) input,
+:host(.is-invalid) textarea {
+  border-color: #ff6b8a;
+  box-shadow: 0 0 0 4px rgb(255 107 138 / 12%);
+}
+
+.msg {
+  color: var(--ink-3);
+  font-size: .74rem;
+  line-height: 1.5;
+}
+
+.msg--error {
+  color: #ff8ba3;
+}
+
+/* ---------- Boolean toggle ---------- */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle__track {
+  position: relative;
+  width: 46px;
+  height: 26px;
+  border-radius: 99px;
+  border: 1px solid var(--stroke-strong);
+  background: var(--surface);
+  transition: background var(--t) var(--ease-out), border-color var(--t) var(--ease-out);
+}
+
+.toggle__track i {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  transition: transform var(--t) var(--ease-spring), background var(--t) var(--ease-out);
+}
+
+.toggle input:checked + .toggle__track {
+  border-color: transparent;
+  background: var(--grad-brand);
+}
+
+.toggle input:checked + .toggle__track i {
+  transform: translateX(20px);
+  background: #07070c;
+}
+
+.toggle input:focus-visible + .toggle__track {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+.toggle__state {
+  color: var(--ink-2);
+  font-size: .88rem;
+}
+
+/* ---------- Colour ---------- */
+.color {
+  display: flex;
+  gap: .5rem;
+}
+
+.color input[type="color"] {
+  width: 52px;
+  height: 42px;
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.color__hex {
+  font-family: var(--font-mono);
+  font-size: .82rem;
+}
+
+/* ---------- Icon picker ---------- */
+.icon-pick {
+  display: flex;
+  gap: .5rem;
+  align-items: stretch;
+}
+
+.icon-pick__preview {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--stroke);
+  background: var(--grad-brand-soft);
+  color: var(--cyan);
+}
+
+.icon-pick select {
+  font-family: var(--font-mono);
+  font-size: .82rem;
+}

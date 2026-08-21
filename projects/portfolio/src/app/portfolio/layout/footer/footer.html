@@ -1,0 +1,59 @@
+<div class="cta">
+  <div class="shell cta__inner">
+    <p class="eyebrow">Available for work</p>
+    <h2 class="cta__title">
+      Let us build something<br />
+      <span class="grad-text">worth shipping.</span>
+    </h2>
+    <div class="cta__actions">
+      <a class="btn btn--primary" [href]="'mailto:' + profile.email" [appMagnetic]="10">
+        {{ profile.email }}
+        <app-icon name="arrowUpRight" [size]="16" />
+      </a>
+      <a class="btn btn--ghost" [href]="'tel:' + profile.phone.replace(' ', '')" [appMagnetic]="10">
+        <app-icon name="phone" [size]="16" />
+        {{ profile.phone }}
+      </a>
+    </div>
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="shell foot__inner">
+    <div class="foot__brand">
+      <span class="foot__mark">PC</span>
+      <div>
+        <strong>{{ profile.name }}</strong>
+        <small>{{ profile.role }}</small>
+      </div>
+    </div>
+
+    <nav class="foot__nav" aria-label="Footer">
+      @for (item of navItems; track item.id) {
+        <a [href]="'#' + item.id" (click)="go(item.id, $event)">{{ item.label }}</a>
+      }
+    </nav>
+
+    <ul class="foot__socials">
+      @for (social of socials; track social.label) {
+        <li>
+          <a
+            [href]="social.href"
+            [attr.target]="social.icon === 'linkedin' || social.icon === 'whatsapp' ? '_blank' : null"
+            rel="noopener"
+            [attr.aria-label]="social.label"
+          >
+            <app-icon [name]="social.icon" [size]="17" />
+          </a>
+        </li>
+      }
+    </ul>
+  </div>
+
+  <div class="shell foot__legal">
+    <p>© {{ year }} {{ profile.name }}. All rights reserved.</p>
+    <p class="foot__built">
+      Hand-built with Angular 22, signals and zero UI libraries.
+    </p>
+  </div>
+</footer>

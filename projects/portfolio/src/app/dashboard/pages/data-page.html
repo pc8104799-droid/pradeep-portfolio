@@ -1,0 +1,126 @@
+<header class="page-head">
+  <div>
+    <p class="eyebrow">Data</p>
+    <h1 class="page-title">Export your edits as content.json, or load a file back in.</h1>
+  </div>
+</header>
+
+<div class="cards">
+  <!-- How this works -->
+  <section class="card card--wide">
+    <h2>
+      <app-icon name="zap" [size]="18" />
+      How saving works
+    </h2>
+    <p>
+      There is no server behind this site. Every edit is stored in
+      <strong>this browser</strong> and applied to the live portfolio immediately, so you can
+      review it at once. To make a change permanent for visitors, download the file below and
+      replace <code>src/app/core/data/content.json</code> in the repo, then redeploy.
+    </p>
+    <p class="card__note">
+      The same file is also copied to the site root at build time, so you can edit
+      <code>content.json</code> on the deployed host to change the site without rebuilding.
+    </p>
+  </section>
+
+  <!-- Export -->
+  <section class="card">
+    <h2>
+      <app-icon name="download" [size]="18" />
+      Export
+    </h2>
+    <p>{{ sizeKb() }} kB of content, ready to commit.</p>
+    <div class="card__actions">
+      <button type="button" class="btn btn--primary btn--sm" (click)="download()">
+        <app-icon name="download" [size]="15" />
+        Download content.json
+      </button>
+      <button type="button" class="btn btn--ghost btn--sm" (click)="copy()">
+        <app-icon [name]="copied() ? 'check' : 'copy'" [size]="15" />
+        {{ copied() ? 'Copied' : 'Copy JSON' }}
+      </button>
+    </div>
+  </section>
+
+  <!-- Import -->
+  <section class="card">
+    <h2>
+      <app-icon name="external" [size]="18" />
+      Import
+    </h2>
+    <p>Load a previously exported file. Missing branches fall back to the shipped content.</p>
+    <div class="card__actions">
+      <label class="btn btn--ghost btn--sm file">
+        <app-icon name="copy" [size]="15" />
+        Choose a JSON file
+        <input type="file" accept="application/json,.json" (change)="onFile($event)" />
+      </label>
+      @if (imported()) {
+        <span class="ok">
+          <app-icon name="check" [size]="15" />
+          Imported
+        </span>
+      }
+    </div>
+  </section>
+
+  <!-- Reset -->
+  <section class="card">
+    <h2>
+      <app-icon name="close" [size]="18" />
+      Discard local edits
+    </h2>
+    <p>Clears this browser's copy and reloads the content shipped with the site.</p>
+    <div class="card__actions">
+      @if (confirmingReset()) {
+        <button type="button" class="btn btn--sm danger" (click)="reset()">
+          Yes, discard everything
+        </button>
+        <button type="button" class="btn btn--ghost btn--sm" (click)="confirmingReset.set(false)">
+          Cancel
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="btn btn--ghost btn--sm"
+          (click)="confirmingReset.set(true)"
+          [disabled]="!content.dirty()"
+        >
+          Reset content
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- Counts -->
+  <section class="card">
+    <h2>
+      <app-icon name="layers" [size]="18" />
+      What is in here
+    </h2>
+    <ul class="counts">
+      @for (row of counts(); track row.label) {
+        <li>
+          <span>{{ row.label }}</span>
+          <strong>{{ row.value }}</strong>
+        </li>
+      }
+    </ul>
+  </section>
+</div>
+
+@if (error()) {
+  <p class="error">
+    <app-icon name="zap" [size]="15" />
+    {{ error() }}
+  </p>
+}
+
+<section class="raw">
+  <h2 class="raw__head">
+    <app-icon name="code" [size]="16" />
+    content.json
+  </h2>
+  <pre class="raw__body"><code>{{ json() }}</code></pre>
+</section>

@@ -1,0 +1,39 @@
+<form class="panel" (ngSubmit)="save()" novalidate>
+  <div class="form-grid">
+    @for (field of section().fields; track field.key) {
+      <pc-field
+        [field]="field"
+        [value]="draft.valueOf(field.key)"
+        [touched]="draft.touched()"
+        (changed)="draft.set(field.key, $event)"
+      />
+    }
+  </div>
+
+  <footer class="panel__foot">
+    <button type="submit" class="btn btn--primary btn--sm" [disabled]="draft.pristine()">
+      @if (saved()) {
+        <app-icon name="check" [size]="15" />
+        Saved
+      } @else {
+        Save changes
+      }
+    </button>
+
+    <button
+      type="button"
+      class="btn btn--ghost btn--sm"
+      (click)="revert()"
+      [disabled]="draft.pristine()"
+    >
+      Discard
+    </button>
+
+    @if (draft.touched() && !draft.valid()) {
+      <p class="panel__warn">
+        <app-icon name="zap" [size]="14" />
+        {{ draft.missing().length }} required field(s) still empty.
+      </p>
+    }
+  </footer>
+</form>

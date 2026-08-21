@@ -1,0 +1,130 @@
+<section id="contact" class="section contact">
+  <div class="shell">
+    <app-section-heading
+      index="06"
+      eyebrow="Contact"
+      title="Have a role or a product"
+      accent="that needs a front-end lead?"
+      lede="Tell me what you are building. I reply to every genuine message, usually within a day."
+      [centered]="true"
+    />
+
+    <div class="contact__grid">
+      <!-- Direct channels -->
+      <aside class="channels" appReveal="left">
+        <div class="channels__card glass">
+          <p class="channels__eyebrow mono">Direct lines</p>
+
+          <div class="channels__email">
+            <span>{{ profile.email }}</span>
+            <button
+              type="button"
+              class="copy"
+              (click)="copyEmail()"
+              [attr.aria-label]="copied() ? 'Email copied' : 'Copy email address'"
+            >
+              <app-icon [name]="copied() ? 'check' : 'copy'" [size]="16" />
+              <span>{{ copied() ? 'Copied' : 'Copy' }}</span>
+            </button>
+          </div>
+
+          <ul class="channels__list">
+            @for (social of socials; track social.label) {
+              <li>
+                <a
+                  [href]="social.href"
+                  [attr.target]="social.icon === 'linkedin' || social.icon === 'whatsapp' ? '_blank' : null"
+                  rel="noopener"
+                  [appMagnetic]="4"
+                >
+                  <span class="channels__icon">
+                    <app-icon [name]="social.icon" [size]="17" />
+                  </span>
+                  <span class="channels__text">
+                    <strong>{{ social.label }}</strong>
+                    <small>{{ social.handle }}</small>
+                  </span>
+                  <app-icon name="arrowUpRight" [size]="15" class="channels__go" />
+                </a>
+              </li>
+            }
+          </ul>
+
+          <p class="channels__note">
+            <app-icon name="location" [size]="15" />
+            {{ profile.location }} — open to hybrid and remote roles.
+          </p>
+        </div>
+
+        <div class="channels__status glass">
+          <span class="channels__pulse"></span>
+          <div>
+            <strong>{{ profile.availability }}</strong>
+            <small>Typically responds within 24 hours</small>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Form -->
+      <form class="form glass" [formGroup]="form" (ngSubmit)="submit()" appReveal="right" novalidate>
+        <div class="form__row">
+          <label class="field" [class.is-invalid]="invalid('name')">
+            <span class="field__label">Your name</span>
+            <input type="text" formControlName="name" placeholder="Priya Sharma" autocomplete="name" />
+            @if (invalid('name')) {
+              <span class="field__error">{{ errorFor('name') }}</span>
+            }
+          </label>
+
+          <label class="field" [class.is-invalid]="invalid('email')">
+            <span class="field__label">Email</span>
+            <input type="email" formControlName="email" placeholder="you@company.com" autocomplete="email" />
+            @if (invalid('email')) {
+              <span class="field__error">{{ errorFor('email') }}</span>
+            }
+          </label>
+        </div>
+
+        <label class="field" [class.is-invalid]="invalid('subject')">
+          <span class="field__label">Subject</span>
+          <input type="text" formControlName="subject" placeholder="Senior Angular role at ..." />
+          @if (invalid('subject')) {
+            <span class="field__error">{{ errorFor('subject') }}</span>
+          }
+        </label>
+
+        <label class="field" [class.is-invalid]="invalid('message')">
+          <span class="field__label">Message</span>
+          <textarea
+            formControlName="message"
+            rows="5"
+            placeholder="A little about the team, the product and what you need built."
+          ></textarea>
+          <span class="field__meta">
+            @if (invalid('message')) {
+              <span class="field__error">{{ errorFor('message') }}</span>
+            } @else {
+              <span class="field__hint">{{ form.controls.message.value.length }} characters</span>
+            }
+          </span>
+        </label>
+
+        <div class="form__foot">
+          <button type="submit" class="btn btn--primary" [appMagnetic]="8">
+            @if (sent()) {
+              <app-icon name="check" [size]="17" />
+              Opening your mail app
+            } @else {
+              Send message
+              <app-icon name="send" [size]="16" />
+            }
+          </button>
+
+          <p class="form__note">
+            This composes the message in your own mail client — nothing is stored on this site.
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

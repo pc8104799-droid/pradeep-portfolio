@@ -1,0 +1,16 @@
+<section class="section section--tight education">
+  <div class="shell">
+    <ul class="ways">
+      @for (way of ways(); track way.label) {
+        <li class="way glass halo" appReveal [revealDelay]="$index * 100">
+          <span class="way__icon">
+            <app-icon [name]="way.icon" [size]="20" />
+          </span>
+          <span class="way__label mono">{{ way.label }}</span>
+          <h3 class="way__title">{{ way.title }}</h3>
+          <p class="way__detail">{{ way.detail }}</p>
+        </li>
+      }
+    </ul>
+  </div>
+</section>

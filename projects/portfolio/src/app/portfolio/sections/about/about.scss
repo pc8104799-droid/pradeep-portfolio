@@ -1,0 +1,313 @@
+:host {
+  display: block;
+}
+
+.about__grid {
+  display: grid;
+  /* The aside is a fixed-size card, so it gets a bounded track rather than a
+     fraction — the narrative takes every remaining pixel. */
+  grid-template-columns: minmax(260px, 460px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: start;
+}
+
+/* ---------- Monogram card ---------- */
+.about__aside {
+  position: sticky;
+  top: calc(var(--nav-h) + 2rem);
+  /* Capped explicitly: the card face is aspect-ratio driven, so an uncapped
+     column would grow it to several hundred pixels tall on a wide monitor. */
+  width: 100%;
+  max-width: 460px;
+}
+
+.mono-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--stroke);
+  background: linear-gradient(170deg, var(--surface-2), transparent 60%);
+  overflow: hidden;
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 420ms var(--ease-out), box-shadow var(--t) var(--ease-out);
+}
+
+.mono-card:hover {
+  box-shadow: var(--shadow-glow);
+}
+
+.mono-card__face {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3.2;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgb(124 92 255 / 30%), transparent 65%),
+    radial-gradient(90% 80% at 20% 100%, rgb(0 212 255 / 22%), transparent 60%),
+    var(--bg-3);
+  border-bottom: 1px solid var(--stroke);
+  overflow: hidden;
+}
+
+.mono-card__initials {
+  font-family: var(--font-display);
+  font-size: clamp(3.4rem, 8vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -.06em;
+  background: var(--grad-brand);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradientPan 8s var(--ease-in-out) infinite;
+}
+
+.mono-card__ring {
+  position: absolute;
+  width: 72%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px dashed var(--stroke-strong);
+  animation: spinSlow 26s linear infinite;
+}
+
+.mono-card__ring::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 14px var(--cyan);
+  transform: translateX(-50%);
+}
+
+.mono-card__body {
+  display: grid;
+  gap: .85rem;
+  padding: 1.4rem;
+}
+
+.mono-card__role {
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.mono-card__list {
+  display: grid;
+  gap: .8rem;
+  margin-top: .3rem;
+}
+
+.mono-card__list dt {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: .64rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.mono-card__list dd {
+  margin-top: .15rem;
+  color: var(--ink-2);
+  font-size: .92rem;
+}
+
+.mono-card__cta {
+  justify-self: start;
+  margin-top: .4rem;
+}
+
+/* ---------- Narrative ---------- */
+.about__main {
+  display: grid;
+  gap: clamp(1.6rem, 3vw, 2.4rem);
+}
+
+/* With the full width available the stats become a rail beside the prose rather
+   than a row beneath it — three effective columns across the section. */
+@container page (min-width: 1240px) {
+  .about__main {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    column-gap: clamp(1.5rem, 2.5vw, 2.75rem);
+    align-items: start;
+  }
+
+  /* Scoped to .about__main so it beats the generic .stats rule further down. */
+  .about__main .stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+.about__prose {
+  display: grid;
+  gap: 1.1rem;
+  max-width: var(--measure);
+  color: var(--ink-2);
+}
+
+.about__summary {
+  position: relative;
+  padding-left: 1.2rem;
+  color: var(--ink);
+  font-size: clamp(1.02rem, .6vw + .9rem, 1.2rem);
+  font-weight: 500;
+}
+
+.about__summary::before {
+  content: "";
+  position: absolute;
+  inset: .25rem auto .25rem 0;
+  width: 3px;
+  border-radius: 99px;
+  background: var(--grad-brand);
+}
+
+/* ---------- Stats ---------- */
+/* Four stats, so a fixed 2-up never leaves an orphan. auto-fit produced four
+   151px columns at 900px, which was too cramped for value + label + detail. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .9rem;
+}
+
+@container page (max-width: 460px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat {
+  display: grid;
+  gap: .3rem;
+  padding: 1.15rem 1.1rem;
+  transition: transform var(--t) var(--ease-spring);
+}
+
+.stat:hover {
+  transform: translateY(-5px);
+}
+
+.stat__value {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -.04em;
+  background: var(--grad-brand);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.stat__label {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: .9rem;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+.stat__detail {
+  color: var(--ink-3);
+  font-size: .78rem;
+  line-height: 1.5;
+}
+
+/* ---------- Services ---------- */
+.services {
+  margin-top: clamp(3.5rem, 7vw, 6rem);
+}
+
+.services__title {
+  margin-bottom: 1.8rem;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+}
+
+.services__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.service {
+  position: relative;
+  display: grid;
+  gap: .7rem;
+  align-content: start;
+  padding: 1.5rem 1.4rem;
+  overflow: hidden;
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transition: transform 420ms var(--ease-out), background var(--t) var(--ease-out);
+}
+
+/* Same reason as the project cards: take the transform back after the reveal. */
+.service[data-reveal].is-visible {
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+}
+
+.service::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    320px circle at var(--glare-x, 50%) var(--glare-y, 0%),
+    rgb(0 212 255 / 10%),
+    transparent 70%
+  );
+  opacity: var(--tilt-active, 0);
+  transition: opacity var(--t) var(--ease-out);
+  pointer-events: none;
+}
+
+.service__icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: var(--grad-brand-soft);
+  color: var(--cyan);
+  transition: transform var(--t) var(--ease-spring), color var(--t) var(--ease-out);
+}
+
+.service:hover .service__icon {
+  transform: translateY(-3px) rotate(-6deg);
+  color: var(--magenta);
+}
+
+.service p {
+  color: var(--ink-3);
+  font-size: .89rem;
+  line-height: 1.65;
+}
+
+.service__index {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.2rem;
+  color: var(--ink-3);
+  font-size: .66rem;
+  opacity: .5;
+}
+
+/* ---------- Responsive ---------- */
+@container page (max-width: 980px) {
+  .about__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about__aside {
+    position: static;
+  }
+}

@@ -1,0 +1,82 @@
+:host {
+  display: none;
+}
+
+/* Only where the gutter is wide enough to hold them — see the matching
+   --gutter bump in styles.scss. */
+@media (min-width: 1400px) {
+  :host {
+    display: block;
+  }
+}
+
+.rail {
+  position: fixed;
+  bottom: 0;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  animation: railIn 900ms var(--ease-out) 1.2s both;
+}
+
+.rail--left {
+  left: clamp(1.5rem, 3vw, 3rem);
+}
+
+.rail--right {
+  right: clamp(1.5rem, 3vw, 3rem);
+}
+
+.rail__line {
+  width: 1px;
+  height: clamp(80px, 12vh, 130px);
+  background: linear-gradient(var(--stroke-strong), transparent);
+}
+
+.rail__links {
+  display: grid;
+  gap: .5rem;
+}
+
+.rail__links a {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  color: var(--ink-3);
+  transition: color var(--t) var(--ease-out), background var(--t) var(--ease-out);
+}
+
+.rail__links a:hover {
+  color: var(--cyan);
+  background: var(--surface-2);
+}
+
+.rail__mail {
+  writing-mode: vertical-rl;
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .18em;
+  color: var(--ink-3);
+  transition: color var(--t) var(--ease-out), letter-spacing var(--t) var(--ease-out);
+}
+
+.rail__mail:hover {
+  color: var(--cyan);
+  letter-spacing: .26em;
+}
+
+@keyframes railIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

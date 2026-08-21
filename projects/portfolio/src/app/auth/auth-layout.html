@@ -1,0 +1,40 @@
+<app-aurora />
+
+<div class="frame">
+  <!-- Brand / pitch side -->
+  <aside class="pitch">
+    <a class="pitch__brand" href="/portfolio">
+      <span class="pitch__mark">PC</span>
+      <span>
+        <strong>Pradeep Chauhan</strong>
+        <em>Portfolio workspace</em>
+      </span>
+    </a>
+
+    <div class="pitch__body">
+      <h1 class="pitch__title">
+        Your resume,<br />
+        <span class="grad-text">managed properly.</span>
+      </h1>
+      <p class="pitch__lede">
+        One workspace for every part of the portfolio — profile, skills, experience, projects.
+        Edit a section and the public site updates with it.
+      </p>
+
+      <ul class="pitch__points">
+        <li><span></span> Every section add, edit and delete in one place</li>
+        <li><span></span> Content kept as a single JSON file you own</li>
+        <li><span></span> Built with Angular 22, signals and zero UI libraries</li>
+      </ul>
+    </div>
+
+    <p class="pitch__foot">
+      <a href="/portfolio">View the public portfolio →</a>
+    </p>
+  </aside>
+
+  <!-- Form side -->
+  <main class="card-side">
+    <router-outlet />
+  </main>
+</div>

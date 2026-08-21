@@ -1,0 +1,67 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--t) var(--ease-out);
+}
+
+:host(.is-live) {
+  opacity: 1;
+}
+
+.dot,
+.ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  background: var(--cyan);
+  box-shadow: 0 0 12px rgb(0 212 255 / 90%);
+  transition: width var(--t-fast) var(--ease-out), height var(--t-fast) var(--ease-out),
+    background var(--t-fast) var(--ease-out);
+}
+
+.ring {
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid rgb(124 92 255 / 65%);
+  background: rgb(124 92 255 / 6%);
+  backdrop-filter: invert(6%);
+  transition: width var(--t) var(--ease-spring), height var(--t) var(--ease-spring),
+    border-color var(--t) var(--ease-out), background var(--t) var(--ease-out);
+}
+
+/* Over an interactive target */
+:host(.is-hot) .ring {
+  width: 62px;
+  height: 62px;
+  border-color: rgb(0 212 255 / 80%);
+  background: rgb(0 212 255 / 10%);
+}
+
+:host(.is-hot) .dot {
+  width: 4px;
+  height: 4px;
+  background: var(--magenta);
+}
+
+:host(.is-down) .ring {
+  width: 26px;
+  height: 26px;
+  border-color: var(--magenta);
+}
+
+/* No custom cursor on touch or when motion is reduced. */
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  :host {
+    display: none;
+  }
+}

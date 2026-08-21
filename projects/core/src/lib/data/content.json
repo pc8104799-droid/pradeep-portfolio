@@ -1,0 +1,492 @@
+{
+  "profile": {
+    "name": "Pradeep Chauhan",
+    "firstName": "Pradeep",
+    "role": "Senior Front-End Developer",
+    "tagline": "I build fast, scalable Angular products that people actually enjoy using.",
+    "rotatingRoles": [
+      "Angular Specialist",
+      "TypeScript Engineer",
+      "RxJS & Reactive Systems",
+      "Performance Optimiser",
+      "UI Architecture"
+    ],
+    "summary": "Front-End Developer with 5+ years of experience building scalable, high-performance Single Page Applications using Angular (v12+), TypeScript and JavaScript (ES6+). Expert in RxJS, REST API integration, reusable component architecture and responsive, cross-browser UI development — with a track record of lifting application performance by up to 30% through lazy loading and code optimisation.",
+    "location": "Thane West, Mumbai — 400607",
+    "email": "chauhanpradeep826@gmail.com",
+    "phone": "+91 8104799460",
+    "availability": "Open to senior front-end roles",
+    "resumeUrl": "Pradeep_Chauhan_Resume.pdf"
+  },
+  "socials": [
+    {
+      "label": "LinkedIn",
+      "href": "https://www.linkedin.com/in/pradeep-r-chauhan",
+      "icon": "linkedin",
+      "handle": "/in/pradeep-r-chauhan"
+    },
+    {
+      "label": "Email",
+      "href": "mailto:chauhanpradeep826@gmail.com",
+      "icon": "mail",
+      "handle": "chauhanpradeep826@gmail.com"
+    },
+    {
+      "label": "Phone",
+      "href": "tel:+918104799460",
+      "icon": "phone",
+      "handle": "+91 8104799460"
+    },
+    {
+      "label": "WhatsApp",
+      "href": "https://wa.me/918104799460",
+      "icon": "whatsapp",
+      "handle": "Chat on WhatsApp"
+    }
+  ],
+  "nav": [
+    {
+      "id": "home",
+      "label": "Home",
+      "index": "01"
+    },
+    {
+      "id": "about",
+      "label": "About",
+      "index": "02"
+    },
+    {
+      "id": "skills",
+      "label": "Skills",
+      "index": "03"
+    },
+    {
+      "id": "experience",
+      "label": "Experience",
+      "index": "04"
+    },
+    {
+      "id": "projects",
+      "label": "Projects",
+      "index": "05"
+    },
+    {
+      "id": "contact",
+      "label": "Contact",
+      "index": "06"
+    }
+  ],
+  "stats": [
+    {
+      "value": 5,
+      "suffix": "+",
+      "label": "Years of experience",
+      "detail": "Shipping production front-ends since 2020"
+    },
+    {
+      "value": 30,
+      "suffix": "%",
+      "label": "Faster load times",
+      "detail": "Via lazy loading, code splitting and bundle trimming"
+    },
+    {
+      "value": 4,
+      "suffix": "",
+      "label": "Industry domains",
+      "detail": "Banking, logistics ERP, real estate and consumer web"
+    },
+    {
+      "value": 3,
+      "suffix": "+",
+      "label": "Developers mentored",
+      "detail": "Code reviews and clean-code standards"
+    }
+  ],
+  "services": [
+    {
+      "title": "Angular Application Architecture",
+      "icon": "layers",
+      "copy": "Modular, lazy-loaded Angular apps built on reusable component libraries, typed services and route guards — structured so new features land in days, not weeks."
+    },
+    {
+      "title": "Reactive State with RxJS",
+      "icon": "flow",
+      "copy": "Predictable async data flows using switchMap, mergeMap and debounceTime — live dashboards, typeahead search and real-time transactions without race conditions."
+    },
+    {
+      "title": "Performance Engineering",
+      "icon": "gauge",
+      "copy": "Change-detection tuning, code splitting and bundle optimisation that has cut initial load times by 20-30% on enterprise-scale applications."
+    },
+    {
+      "title": "Responsive & Accessible UI",
+      "icon": "sparkle",
+      "copy": "Pixel-accurate, cross-browser interfaces from a designer handoff — mobile-first, WCAG-aware, and consistent from 320px to ultrawide."
+    }
+  ],
+  "coreStack": [
+    {
+      "name": "Angular",
+      "note": "v12 → v22"
+    },
+    {
+      "name": "TypeScript",
+      "note": "strict mode"
+    },
+    {
+      "name": "RxJS",
+      "note": "streams & operators"
+    },
+    {
+      "name": "Ionic",
+      "note": "hybrid mobile"
+    },
+    {
+      "name": "SCSS",
+      "note": "design systems"
+    },
+    {
+      "name": "REST APIs",
+      "note": "HttpClient"
+    }
+  ],
+  "skillGroups": [
+    {
+      "title": "Languages & Core",
+      "icon": "code",
+      "blurb": "The foundation everything else is built on.",
+      "skills": [
+        "Angular (v12+)",
+        "TypeScript",
+        "JavaScript (ES6+)",
+        "HTML5",
+        "CSS3 / SCSS",
+        "Ionic Angular"
+      ]
+    },
+    {
+      "title": "Angular Expertise",
+      "icon": "layers",
+      "blurb": "Deep, day-to-day command of the framework internals.",
+      "skills": [
+        "Components & Modules",
+        "Services & Dependency Injection",
+        "Routing & Route Guards",
+        "Reactive Forms",
+        "Template-Driven Forms",
+        "Directives & Pipes"
+      ]
+    },
+    {
+      "title": "State & Data",
+      "icon": "flow",
+      "blurb": "Getting data in, out and everywhere it needs to be.",
+      "skills": [
+        "RxJS (Observables, Operators)",
+        "REST API Integration",
+        "HttpClient & Interceptors",
+        "JSON & Data Modelling"
+      ]
+    },
+    {
+      "title": "UI Frameworks",
+      "icon": "palette",
+      "blurb": "Design systems and component kits I move fast in.",
+      "skills": [
+        "Angular Material",
+        "PrimeNG",
+        "Bootstrap",
+        "Tailwind CSS",
+        "Responsive Design",
+        "Cross-Browser Compatibility"
+      ]
+    },
+    {
+      "title": "Performance",
+      "icon": "gauge",
+      "blurb": "Where a 30% improvement actually comes from.",
+      "skills": [
+        "Lazy Loading",
+        "Code Splitting",
+        "Change Detection Optimisation",
+        "Bundle Optimisation"
+      ]
+    },
+    {
+      "title": "Tools & Process",
+      "icon": "tools",
+      "blurb": "How the work gets planned, reviewed and shipped.",
+      "skills": [
+        "Git",
+        "JIRA",
+        "Agile / Scrum",
+        "Code Reviews",
+        "UI/UX Collaboration",
+        "Mentoring"
+      ]
+    }
+  ],
+  "experiences": [
+    {
+      "role": "Angular / Front-End Developer",
+      "company": "Consectus (India) Pvt Ltd",
+      "period": "Jul 2025 — Present",
+      "start": "Jul 2025",
+      "end": "Present",
+      "location": "Mumbai, India",
+      "current": true,
+      "points": [
+        "Developed scalable Angular applications using reusable components and modular architecture, reducing development time for new features.",
+        "Improved application performance by 30% through lazy loading, code splitting and code optimisation.",
+        "Integrated REST APIs and enhanced asynchronous data handling using RxJS operators (switchMap, mergeMap, debounceTime).",
+        "Collaborated with UI/UX teams to build responsive, accessible (WCAG-aware) interfaces across web and mobile.",
+        "Mentored 3+ junior developers and ran regular code reviews to enforce clean-code standards."
+      ],
+      "stack": [
+        "Angular",
+        "Ionic Angular",
+        "TypeScript",
+        "RxJS",
+        "REST APIs",
+        "Angular Material"
+      ],
+      "keyProject": {
+        "title": "Banking Web & Mobile Application",
+        "points": [
+          "Built a secure, scalable banking web and mobile app with role-based access control (RBAC).",
+          "Implemented real-time transactions and account management via REST API integration.",
+          "Optimised performance using lazy loading, code splitting and RxJS-based state management."
+        ]
+      }
+    },
+    {
+      "role": "Angular / Front-End Developer",
+      "company": "Jeena & Company",
+      "period": "Nov 2022 — Mar 2025",
+      "start": "Nov 2022",
+      "end": "Mar 2025",
+      "location": "Mumbai, India",
+      "current": false,
+      "points": [
+        "Built dynamic Angular/TypeScript web applications, reducing initial load time by 20%.",
+        "Integrated RESTful APIs and third-party services; used RxJS for efficient reactive state management.",
+        "Optimised application performance through lazy loading and refactoring, improving page speed by 30%.",
+        "Participated in Agile/Scrum ceremonies — sprint planning, stand-ups and retrospectives — alongside UX/UI designers."
+      ],
+      "stack": [
+        "Angular",
+        "TypeScript",
+        "RxJS",
+        "Reactive Forms",
+        "PrimeNG",
+        "JIRA"
+      ],
+      "keyProject": {
+        "title": "Logistics ERP System",
+        "points": [
+          "Developed enterprise ERP modules for shipment tracking with dynamic, real-time dashboards using Angular and RxJS.",
+          "Implemented complex reactive forms, custom validations and large-dataset handling with optimised rendering."
+        ]
+      }
+    },
+    {
+      "role": "UI / Front-End Developer",
+      "company": "Salt-tech Software Services LLP",
+      "period": "Apr 2022 — Nov 2022",
+      "start": "Apr 2022",
+      "end": "Nov 2022",
+      "location": "Thane, India",
+      "current": false,
+      "points": [
+        "Built responsive, mobile-first web applications using HTML5, CSS3 and Bootstrap with reusable Tailwind CSS components."
+      ],
+      "stack": [
+        "Angular",
+        "Bootstrap",
+        "Tailwind CSS",
+        "HTML5",
+        "CSS3"
+      ],
+      "keyProject": {
+        "title": "Real Estate Web Application",
+        "points": [
+          "Developed a responsive property listing and search UI using Angular, Bootstrap and Tailwind CSS, improving user navigation and the search experience."
+        ]
+      }
+    },
+    {
+      "role": "UI / Front-End Developer",
+      "company": "Mesbro",
+      "period": "Feb 2020 — Mar 2022",
+      "start": "Feb 2020",
+      "end": "Mar 2022",
+      "location": "Navi Mumbai, India",
+      "current": false,
+      "points": [
+        "Designed interactive, cross-browser-compatible user interfaces with responsive Bootstrap layouts."
+      ],
+      "stack": [
+        "HTML5",
+        "CSS3",
+        "JavaScript",
+        "Bootstrap"
+      ],
+      "keyProject": {
+        "title": "Google Search UI Clone",
+        "points": [
+          "Built a pixel-perfect Google search UI clone using HTML, CSS and JavaScript, demonstrating strong attention to design detail."
+        ]
+      }
+    }
+  ],
+  "projects": [
+    {
+      "title": "Banking Web & Mobile App",
+      "kind": "Fintech · Web + Mobile",
+      "year": "2025",
+      "company": "Consectus (India) Pvt Ltd",
+      "summary": "A secure banking platform delivered as a single Angular codebase for web and an Ionic Angular build for mobile, covering onboarding, accounts and real-time transactions.",
+      "highlights": [
+        "Role-based access control (RBAC) enforced through route guards and typed permission services",
+        "Real-time transaction and account management over REST APIs with resilient error handling",
+        "Lazy-loaded feature modules plus RxJS state streams kept the bundle lean as scope grew"
+      ],
+      "stack": [
+        "Angular",
+        "Ionic Angular",
+        "TypeScript",
+        "RxJS",
+        "REST API",
+        "RBAC"
+      ],
+      "accent": [
+        "#7c5cff",
+        "#00d4ff"
+      ],
+      "confidential": true
+    },
+    {
+      "title": "Logistics ERP System",
+      "kind": "Enterprise ERP · Dashboards",
+      "year": "2023 — 2025",
+      "company": "Jeena & Company",
+      "summary": "Enterprise ERP modules for shipment tracking, with live operational dashboards and heavy data-entry workflows used daily by logistics teams.",
+      "highlights": [
+        "Real-time shipment dashboards driven by RxJS streams and polling with backoff",
+        "Complex reactive forms with cross-field custom validators and dynamic form arrays",
+        "Large-dataset tables rendered smoothly through virtualisation and change-detection tuning"
+      ],
+      "stack": [
+        "Angular",
+        "TypeScript",
+        "RxJS",
+        "Reactive Forms",
+        "PrimeNG"
+      ],
+      "accent": [
+        "#00d4ff",
+        "#a6ff4d"
+      ],
+      "confidential": true
+    },
+    {
+      "title": "Real Estate Web Application",
+      "kind": "Property Listings · Search",
+      "year": "2022",
+      "company": "Salt-tech Software Services LLP",
+      "summary": "A responsive property listing and discovery experience with faceted search, map-adjacent browsing and a mobile-first layout.",
+      "highlights": [
+        "Debounced, filter-aware property search that stayed responsive on slow networks",
+        "Reusable Tailwind + Bootstrap component set for cards, filters and detail pages",
+        "Measurably smoother navigation and a clearer path from listing to enquiry"
+      ],
+      "stack": [
+        "Angular",
+        "Bootstrap",
+        "Tailwind CSS",
+        "HTML5",
+        "CSS3"
+      ],
+      "accent": [
+        "#ff5cf1",
+        "#7c5cff"
+      ],
+      "confidential": false
+    },
+    {
+      "title": "Google Search UI Clone",
+      "kind": "Pixel-Perfect UI Study",
+      "year": "2021",
+      "company": "Mesbro",
+      "summary": "A hand-built, pixel-accurate recreation of the Google search interface — a deliberate exercise in typography, spacing and cross-browser fidelity.",
+      "highlights": [
+        "Matched spacing, type scale and interaction states against the reference UI",
+        "Written in vanilla HTML, CSS and JavaScript with no framework or UI kit",
+        "Verified across Chrome, Firefox and Edge at every breakpoint"
+      ],
+      "stack": [
+        "HTML5",
+        "CSS3",
+        "JavaScript"
+      ],
+      "accent": [
+        "#a6ff4d",
+        "#00d4ff"
+      ],
+      "confidential": false
+    },
+    {
+      "title": "This Portfolio",
+      "kind": "Personal · Open Build",
+      "year": "2026",
+      "company": "Personal project",
+      "summary": "The site you are reading — a zoneless Angular 22 application built on signals, standalone components and custom directives, with every animation hand-written in CSS and the Web APIs.",
+      "highlights": [
+        "Signal-driven state with zoneless change detection — no zone.js in the bundle",
+        "Custom directives for scroll reveal, 3D pointer tilt, magnetic hover and count-up",
+        "Canvas particle field, animated aurora mesh and a fully honoured prefers-reduced-motion"
+      ],
+      "stack": [
+        "Angular 22",
+        "Signals",
+        "TypeScript",
+        "SCSS",
+        "Canvas API"
+      ],
+      "accent": [
+        "#ff5cf1",
+        "#00d4ff"
+      ],
+      "confidential": false
+    }
+  ],
+  "education": {
+    "degree": "Bachelor of Science (BSc)",
+    "field": "Information Technology",
+    "institute": "Mumbai University",
+    "location": "Navi Mumbai, India",
+    "period": "2014 — 2017"
+  },
+  "languages": [
+    "English",
+    "Hindi",
+    "Marathi"
+  ],
+  "marquee": [
+    "Angular",
+    "TypeScript",
+    "RxJS",
+    "Signals",
+    "Ionic",
+    "Angular Material",
+    "PrimeNG",
+    "Tailwind CSS",
+    "Bootstrap",
+    "SCSS",
+    "REST APIs",
+    "Reactive Forms",
+    "Lazy Loading",
+    "Git",
+    "Agile / Scrum"
+  ]
+}

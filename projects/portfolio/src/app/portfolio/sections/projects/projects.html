@@ -1,0 +1,96 @@
+<section id="projects" class="section projects">
+  <div class="shell">
+    <app-section-heading
+      index="05"
+      eyebrow="Selected work"
+      title="Products I have built,"
+      accent="end to end."
+      lede="Client work is under NDA, so these are described by what was built and what it achieved rather than by screenshots."
+    />
+
+    <!-- Filters -->
+    <div class="filters" appReveal role="group" aria-label="Filter projects by technology">
+      @for (filter of filters(); track filter) {
+        <button
+          type="button"
+          class="filter"
+          [class.is-active]="activeFilter() === filter"
+          (click)="setFilter(filter)"
+          [attr.aria-pressed]="activeFilter() === filter"
+        >
+          {{ filter }}
+        </button>
+      }
+      <span class="filters__count mono">{{ visible().length }} of {{ total }}</span>
+    </div>
+
+    <!-- Cards -->
+    <div class="grid" [class.is-sparse]="visible().length < 3">
+      @for (project of visible(); track project.title) {
+        <article
+          class="proj"
+          [class.is-featured]="$first && visible().length > 2"
+          [class.is-open]="expanded() === project.title"
+          [style.--a1]="project.accent[0]"
+          [style.--a2]="project.accent[1]"
+          appReveal="scale"
+          [revealDelay]="$index * 90"
+          [appTilt]="5"
+        >
+          <div class="proj__sheen"></div>
+
+          <header class="proj__head">
+            <span class="proj__kind mono">{{ project.kind }}</span>
+
+            <h3 class="proj__title">{{ project.title }}</h3>
+
+            <p class="proj__meta">
+              <span>{{ project.company }}</span>
+              <span class="proj__dot"></span>
+              <span>{{ project.year }}</span>
+              @if (project.confidential) {
+                <span class="proj__nda">
+                  <app-icon name="lock" [size]="12" />
+                  NDA
+                </span>
+              }
+            </p>
+          </header>
+
+          <p class="proj__summary">{{ project.summary }}</p>
+
+          <button
+            type="button"
+            class="proj__toggle"
+            (click)="toggle(project.title)"
+            [attr.aria-expanded]="expanded() === project.title"
+          >
+            {{ expanded() === project.title ? 'Hide highlights' : 'What I built' }}
+            <app-icon name="arrowDown" [size]="15" />
+          </button>
+
+          <div class="proj__detail">
+            <ul class="proj__highlights">
+              @for (highlight of project.highlights; track highlight) {
+                <li>
+                  <span class="proj__bullet"></span>
+                  {{ highlight }}
+                </li>
+              }
+            </ul>
+          </div>
+
+          <ul class="proj__stack">
+            @for (tech of project.stack; track tech) {
+              <li>{{ tech }}</li>
+            }
+          </ul>
+
+          <span class="proj__num">{{ pad($index + 1) }}</span>
+        </article>
+      } @empty {
+        <p class="empty">No projects match that filter.</p>
+      }
+    </div>
+  </div>
+</section>

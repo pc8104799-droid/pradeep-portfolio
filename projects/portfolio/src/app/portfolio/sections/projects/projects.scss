@@ -1,0 +1,341 @@
+:host {
+  display: block;
+}
+
+/* ---------- Filters ---------- */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: clamp(1.75rem, 3.5vw, 2.75rem);
+}
+
+.filter {
+  padding: .5rem 1.05rem;
+  border-radius: 99px;
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+  color: var(--ink-3);
+  font-family: var(--font-display);
+  font-size: .84rem;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  transition: color var(--t) var(--ease-out), border-color var(--t) var(--ease-out),
+    background var(--t) var(--ease-out), transform var(--t) var(--ease-spring);
+}
+
+.filter:hover {
+  color: var(--ink);
+  transform: translateY(-2px);
+}
+
+.filter.is-active {
+  color: #07070c;
+  border-color: transparent;
+  background: var(--grad-brand);
+  box-shadow: 0 12px 30px -14px rgb(124 92 255 / 70%);
+}
+
+.filters__count {
+  margin-left: auto;
+  color: var(--ink-3);
+  font-size: .66rem;
+}
+
+/* ---------- Grid ---------- */
+/* Five projects never divide neatly, so the lead project spans two tracks: at
+   three columns that fills row one with featured + one card and row two with
+   three, and at two columns it takes a full-bleed row of its own. */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.1rem;
+}
+
+@container page (min-width: 760px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .proj.is-featured {
+    grid-column: span 2;
+  }
+}
+
+@container page (min-width: 1180px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* A filter can leave one or two matches; a fixed three-track grid would strand
+   them in a narrow column with two empty tracks beside them. */
+.grid.is-sparse {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr));
+}
+
+.empty {
+  color: var(--ink-3);
+  padding: 2rem 0;
+}
+
+/* ---------- Card ---------- */
+.proj {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: .9rem;
+  padding: clamp(1.35rem, 2.4vw, 1.9rem);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--stroke);
+  background:
+    radial-gradient(120% 80% at 100% 0%, color-mix(in srgb, var(--a1) 14%, transparent), transparent 60%),
+    var(--surface);
+  overflow: hidden;
+  isolation: isolate;
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 420ms var(--ease-out), box-shadow var(--t) var(--ease-out),
+    border-color var(--t) var(--ease-out);
+}
+
+/* The reveal transition ends on `transform: none`, which would cancel the tilt.
+   Re-asserting it at higher specificity hands the transform back to the tilt
+   directive once the card has finished revealing. */
+.proj[data-reveal].is-visible {
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+}
+
+.proj:hover {
+  border-color: color-mix(in srgb, var(--a2) 45%, transparent);
+  box-shadow: 0 30px 70px -34px color-mix(in srgb, var(--a1) 70%, transparent);
+}
+
+/* Accent bar along the top edge */
+.proj::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--a1), var(--a2));
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 520ms var(--ease-out);
+}
+
+.proj:hover::before {
+  transform: scaleX(1);
+}
+
+/* Pointer-following sheen */
+.proj__sheen {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    360px circle at var(--glare-x, 50%) var(--glare-y, 50%),
+    color-mix(in srgb, var(--a2) 18%, transparent),
+    transparent 70%
+  );
+  opacity: var(--tilt-active, 0);
+  transition: opacity var(--t) var(--ease-out);
+  pointer-events: none;
+}
+
+.proj__head {
+  display: grid;
+  gap: .45rem;
+}
+
+.proj__kind {
+  color: color-mix(in srgb, var(--a2) 80%, var(--ink-2));
+  font-size: .64rem;
+  letter-spacing: .14em;
+}
+
+.proj__title {
+  font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+}
+
+.proj__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  color: var(--ink-3);
+  font-size: .78rem;
+}
+
+.proj__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  opacity: .6;
+}
+
+.proj__nda {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .1rem .45rem;
+  border-radius: 6px;
+  border: 1px solid var(--stroke);
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  font-size: .58rem;
+  letter-spacing: .12em;
+}
+
+.proj__summary {
+  color: var(--ink-2);
+  font-size: .91rem;
+  line-height: 1.65;
+}
+
+/* ---------- Featured lead card ---------- */
+@container page (min-width: 760px) {
+  .proj.is-featured {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+    column-gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: start;
+  }
+
+  .proj.is-featured .proj__head,
+  .proj.is-featured .proj__summary,
+  .proj.is-featured .proj__stack {
+    grid-column: 1;
+  }
+
+  .proj.is-featured .proj__title {
+    font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+  }
+
+  .proj.is-featured .proj__summary {
+    font-size: .98rem;
+  }
+
+  /* The lead card has the room to show its highlights outright. */
+  .proj.is-featured .proj__toggle {
+    display: none;
+  }
+
+  .proj.is-featured .proj__detail {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    max-height: none;
+    opacity: 1;
+    padding-left: clamp(1.25rem, 2vw, 2rem);
+    border-left: 1px solid var(--stroke);
+  }
+
+  .proj.is-featured .proj__num {
+    font-size: 6rem;
+  }
+}
+
+/* ---------- Expandable highlights ---------- */
+.proj__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  justify-self: start;
+  color: color-mix(in srgb, var(--a2) 85%, var(--ink));
+  font-family: var(--font-display);
+  font-size: .84rem;
+  font-weight: 600;
+  transition: gap var(--t) var(--ease-out);
+}
+
+.proj__toggle:hover {
+  gap: .75rem;
+}
+
+.proj__toggle app-icon {
+  transition: transform var(--t) var(--ease-spring);
+}
+
+.proj.is-open .proj__toggle app-icon {
+  transform: rotate(180deg);
+}
+
+.proj__detail {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 560ms var(--ease-out), opacity var(--t) var(--ease-out);
+}
+
+.proj.is-open .proj__detail {
+  max-height: 24rem;
+  opacity: 1;
+}
+
+.proj__highlights {
+  display: grid;
+  gap: .55rem;
+  padding-top: .35rem;
+}
+
+.proj__highlights li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .6rem;
+  color: var(--ink-2);
+  font-size: .86rem;
+  line-height: 1.6;
+}
+
+.proj__bullet {
+  margin-top: .5em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: linear-gradient(120deg, var(--a1), var(--a2));
+}
+
+/* ---------- Stack ---------- */
+.proj__stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-top: .2rem;
+}
+
+.proj__stack li {
+  padding: .28rem .65rem;
+  border-radius: 7px;
+  border: 1px solid var(--stroke);
+  background: var(--surface-2);
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: .64rem;
+  letter-spacing: .04em;
+  transition: color var(--t) var(--ease-out), border-color var(--t) var(--ease-out);
+}
+
+.proj:hover .proj__stack li {
+  color: var(--ink-2);
+  border-color: var(--stroke-strong);
+}
+
+.proj__num {
+  position: absolute;
+  right: 1.1rem;
+  bottom: .4rem;
+  font-family: var(--font-display);
+  font-size: 4.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -.06em;
+  color: color-mix(in srgb, var(--a1) 16%, transparent);
+  pointer-events: none;
+  user-select: none;
+  transition: color var(--t) var(--ease-out), transform var(--t) var(--ease-out);
+}
+
+.proj:hover .proj__num {
+  color: color-mix(in srgb, var(--a2) 26%, transparent);
+  transform: translateY(-4px);
+}

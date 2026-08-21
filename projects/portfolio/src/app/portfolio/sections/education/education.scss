@@ -1,0 +1,60 @@
+:host {
+  display: block;
+}
+
+.section--tight {
+  padding-block: clamp(2rem, 4vw, 3.5rem);
+}
+
+.ways {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.way {
+  display: grid;
+  gap: .45rem;
+  padding: 1.5rem 1.4rem;
+  transition: transform var(--t) var(--ease-spring), box-shadow var(--t) var(--ease-out);
+}
+
+.way:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.way__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: .35rem;
+  border-radius: 13px;
+  border: 1px solid var(--stroke);
+  background: var(--grad-brand-soft);
+  color: var(--violet);
+  transition: transform var(--t) var(--ease-spring), color var(--t) var(--ease-out);
+}
+
+.way:hover .way__icon {
+  transform: rotate(8deg) scale(1.05);
+  color: var(--cyan);
+}
+
+.way__label {
+  color: var(--ink-3);
+  font-size: .62rem;
+  letter-spacing: .16em;
+}
+
+.way__title {
+  font-size: 1.02rem;
+  line-height: 1.35;
+}
+
+.way__detail {
+  color: var(--ink-3);
+  font-size: .84rem;
+  line-height: 1.6;
+}

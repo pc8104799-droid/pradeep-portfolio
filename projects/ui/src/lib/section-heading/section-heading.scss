@@ -1,0 +1,85 @@
+.head {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+/* Editorial split: once there is room, the title holds the left column and the
+   lede sits in its own column on the right instead of stacking underneath and
+   leaving the rest of a full-width row empty. */
+@container page (min-width: 1040px) {
+  .head:not(.head--center) {
+    /* A bounded second track pins the lede to the right edge of the row, so the
+       heading reads as a deliberate spread rather than a title with trailing
+       empty space. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 32rem);
+    column-gap: clamp(2rem, 4vw, 5rem);
+    align-items: end;
+    padding-bottom: clamp(1.25rem, 2vw, 2rem);
+    border-bottom: 1px solid var(--stroke);
+  }
+
+  .head:not(.head--center) .head__meta {
+    grid-column: 1 / -1;
+  }
+
+  .head:not(.head--center) .head__title {
+    grid-column: 1;
+    grid-row: 2;
+    max-width: 24ch;
+  }
+
+  .head:not(.head--center) .head__lede {
+    grid-column: 2;
+    grid-row: 2;
+    /* The track already caps the measure. */
+    max-width: none;
+    margin-top: 0;
+    padding-bottom: .35rem;
+  }
+}
+
+.head--center {
+  align-items: center;
+  text-align: center;
+
+  .head__lede {
+    margin-inline: auto;
+  }
+}
+
+.head__meta {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+}
+
+.head__index {
+  display: grid;
+  place-items: center;
+  min-width: 2.2rem;
+  height: 2.2rem;
+  padding-inline: .4rem;
+  border-radius: 8px;
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+  color: var(--cyan);
+  font-size: .72rem;
+  letter-spacing: .06em;
+}
+
+.head__title {
+  max-width: 22ch;
+
+  span {
+    display: inline;
+  }
+}
+
+.head--center .head__title {
+  max-width: 26ch;
+}
+
+.head__lede {
+  margin-top: .25rem;
+}

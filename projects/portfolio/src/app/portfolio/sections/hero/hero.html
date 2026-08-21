@@ -1,0 +1,136 @@
+<section id="home" class="hero">
+  <div class="shell hero__grid">
+    <!-- ---------- Copy ---------- -->
+    <div class="hero__copy">
+      <p class="status">
+        <span class="status__pulse" aria-hidden="true"></span>
+        {{ profile.availability }}
+      </p>
+
+      <h1 class="hero__name">
+        <span class="hero__hello">Hello, I am</span>
+        <span class="hero__letters" [attr.aria-label]="profile.name">
+          @for (letter of letters(); track $index) {
+            <span
+              class="hero__letter"
+              [class.is-space]="letter === ' '"
+              [style.--i]="$index"
+              aria-hidden="true"
+            >{{ letter }}</span>
+          }
+        </span>
+      </h1>
+
+      <p class="hero__role">
+        <span class="hero__role-prefix">I build as a</span>
+        <span class="hero__typed">
+          <span class="hero__ghost" aria-hidden="true">{{ widestRole() }}</span>
+          <span class="hero__typed-text grad-text">{{ typedRole() }}</span><span
+            class="hero__caret"
+            aria-hidden="true"
+          ></span>
+        </span>
+      </p>
+
+      <p class="lede hero__lede">{{ profile.tagline }}</p>
+
+      <ul class="hero__facts">
+        <li>
+          <app-icon name="briefcase" [size]="15" />
+          {{ current.role }} at {{ current.company }}
+        </li>
+        <li>
+          <app-icon name="location" [size]="15" />
+          {{ profile.location }}
+        </li>
+      </ul>
+
+      <div class="hero__cta">
+        <a class="btn btn--primary" href="#projects" (click)="jumpTo('projects', $event)" [appMagnetic]="10">
+          View my work
+          <app-icon name="arrowRight" [size]="17" />
+        </a>
+        <a class="btn btn--ghost" href="#contact" (click)="jumpTo('contact', $event)" [appMagnetic]="10">
+          Let us talk
+          <app-icon name="send" [size]="16" />
+        </a>
+        <a
+          class="btn btn--ghost"
+          [href]="profile.resumeUrl"
+          target="_blank"
+          rel="noopener"
+          [appMagnetic]="10"
+        >
+          <app-icon name="download" [size]="16" />
+          Résumé
+        </a>
+      </div>
+
+      <ul class="hero__socials">
+        @for (social of socials; track social.label) {
+          <li>
+            <a
+              class="social"
+              [href]="social.href"
+              [attr.target]="social.icon === 'linkedin' || social.icon === 'whatsapp' ? '_blank' : null"
+              rel="noopener"
+              [attr.aria-label]="social.label"
+              [appMagnetic]="6"
+            >
+              <app-icon [name]="social.icon" [size]="18" />
+              <span class="social__tip">{{ social.handle }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <!-- ---------- Visual ---------- -->
+    <aside class="hero__visual" aria-hidden="true">
+      <div class="stage" [appTilt]="7">
+        <div class="card">
+          <div class="card__bar">
+            <span class="card__dots"><i></i><i></i><i></i></span>
+            <span class="card__file mono">portfolio.ts</span>
+          </div>
+
+          <div class="card__code">
+            @for (line of snippet; track $index) {
+              <div class="code-line" [style.--i]="$index">
+                <span class="code-line__no">{{ $index + 1 }}</span>
+                <span class="code-line__body">
+                  @for (token of line; track $index) {
+                    <span class="tk" [class]="'tk tk--' + token.c">{{ token.t }}</span>
+                  }
+                </span>
+              </div>
+            }
+          </div>
+
+          <div class="card__glare"></div>
+        </div>
+
+        <div class="orbit">
+          <span class="orbit__chip orbit__chip--1">Angular 22</span>
+          <span class="orbit__chip orbit__chip--2">RxJS</span>
+          <span class="orbit__chip orbit__chip--3">TypeScript</span>
+        </div>
+
+        <div class="badge badge--perf">
+          <strong>+30%</strong>
+          <span>faster loads</span>
+        </div>
+
+        <div class="badge badge--exp">
+          <strong>5+ yrs</strong>
+          <span>front-end</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <a class="cue" href="#about" (click)="jumpTo('about', $event)" aria-label="Scroll to about">
+    <span class="mono">scroll</span>
+    <app-icon name="arrowDown" [size]="16" />
+  </a>
+</section>

@@ -1,0 +1,64 @@
+<form class="card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <header class="card__head">
+    <p class="eyebrow">Sign in</p>
+    <h2>Welcome back</h2>
+    <p class="card__lede">Sign in to manage the portfolio content.</p>
+  </header>
+
+  @if (noAccounts) {
+    <p class="notice">
+      <app-icon name="zap" [size]="16" />
+      <span>
+        No account exists on this browser yet.
+        <a routerLink="/register">Create one first</a>.
+      </span>
+    </p>
+  }
+
+  <label class="field" [class.is-invalid]="invalid('email')">
+    <span class="field__label">Email</span>
+    <input type="email" formControlName="email" autocomplete="email" placeholder="you@example.com" />
+    @if (invalid('email')) {
+      <span class="field__error">Enter a valid email address.</span>
+    }
+  </label>
+
+  <label class="field" [class.is-invalid]="invalid('password')">
+    <span class="field__label">Password</span>
+    <input
+      type="password"
+      formControlName="password"
+      autocomplete="current-password"
+      placeholder="••••••••"
+    />
+    @if (invalid('password')) {
+      <span class="field__error">Enter your password.</span>
+    }
+  </label>
+
+  @if (error()) {
+    <p class="alert">
+      <app-icon name="zap" [size]="15" />
+      {{ error() }}
+    </p>
+  }
+
+  <button type="submit" class="btn btn--primary card__submit" [disabled]="busy()">
+    @if (busy()) {
+      Checking…
+    } @else {
+      Sign in
+      <app-icon name="arrowRight" [size]="16" />
+    }
+  </button>
+
+  <p class="card__foot">
+    No account yet?
+    <a routerLink="/register">Create an account</a>
+  </p>
+
+  <p class="card__disclaimer">
+    Accounts are stored in this browser only — there is no server behind this site, so this
+    screen is a convenience, not real security.
+  </p>
+</form>
