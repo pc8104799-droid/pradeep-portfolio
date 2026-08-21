@@ -7,6 +7,8 @@ component, icon and animation here is hand-written.
 ## Run it
 
 ```bash
+git clone https://github.com/pc8104799-droid/pradeep-portfolio.git
+cd pradeep-portfolio
 npm install
 npm start              # http://localhost:4200
 npm run build          # the app     -> dist/portfolio
