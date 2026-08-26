@@ -1,0 +1,174 @@
+<section class="section">
+  <div class="shell">
+    <header class="head">
+      <h1>Your cart</h1>
+      @if (!cart.isEmpty()) {
+        <p class="muted">
+          {{ cart.count() }} item{{ cart.count() === 1 ? '' : 's' }} ·
+          delivery {{ cart.slot().window }}
+        </p>
+      }
+    </header>
+
+    @if (cart.isEmpty()) {
+      <div class="empty card card--pad">
+        <p class="empty__glyph" aria-hidden="true">🛒</p>
+        <h2>Your cart is empty</h2>
+        <p class="muted">Add something hot, or stock up on vegetables.</p>
+        <div class="empty__actions">
+          <a class="btn btn--primary" routerLink="/menu">Browse food</a>
+          <a class="btn btn--outline" routerLink="/menu/vegetables">Shop vegetables</a>
+        </div>
+      </div>
+    } @else {
+      <div class="layout">
+        <!-- Lines -->
+        <div class="lines">
+          <ul class="lines__list">
+            @for (line of cart.lines(); track line.id) {
+              <li class="line">
+                <span class="line__glyph" aria-hidden="true">{{ line.glyph }}</span>
+
+                <div class="line__body">
+                  <a class="line__name" [routerLink]="['/product', line.productId]">{{ line.name }}</a>
+                  <p class="line__variant muted">{{ line.variantLabel }}</p>
+                  <p class="line__unit">
+                    {{ line.unitPrice | rupees }}
+                    @if (line.mrp) {
+                      <s>{{ line.mrp | rupees }}</s>
+                    }
+                    each
+                  </p>
+                </div>
+
+                <div class="line__controls">
+                  <shop-qty-stepper
+                    [qty]="line.qty"
+                    [label]="line.name"
+                    (incremented)="cart.increment(line.id)"
+                    (decremented)="cart.decrement(line.id)"
+                  />
+                  <button
+                    type="button"
+                    class="line__remove"
+                    (click)="remove(line.id, line.name)"
+                  >
+                    Remove
+                  </button>
+                </div>
+
+                <p class="line__total mono-num">{{ line.unitPrice * line.qty | rupees }}</p>
+              </li>
+            }
+          </ul>
+
+          <!-- Delivery slot -->
+          <section class="slots card card--pad">
+            <h2>When should it arrive?</h2>
+            <div class="slots__grid">
+              @for (slot of catalog.slots(); track slot.id) {
+                <label class="slot" [class.is-active]="slot.id === cart.slot().id">
+                  <input
+                    type="radio"
+                    name="slot"
+                    [checked]="slot.id === cart.slot().id"
+                    (change)="cart.chooseSlot(slot.id)"
+                  />
+                  <span class="slot__label">{{ slot.label }}</span>
+                  <span class="slot__window muted">{{ slot.window }}</span>
+                  @if (slot.surcharge > 0) {
+                    <span class="slot__fee">+{{ slot.surcharge | rupees }}</span>
+                  } @else {
+                    <span class="slot__fee slot__fee--free">No extra charge</span>
+                  }
+                </label>
+              }
+            </div>
+          </section>
+
+          <!-- Suggestions -->
+          @if (suggestions().length) {
+            <section class="also">
+              <h2>Add to your order</h2>
+              <div class="also__grid scroll-x">
+                @for (product of suggestions(); track product.id) {
+                  <div class="also__item">
+                    <shop-product-card [product]="product" />
+                  </div>
+                }
+              </div>
+            </section>
+          }
+        </div>
+
+        <!-- Summary -->
+        <aside class="summary">
+          <!-- Coupons -->
+          <section class="coupon card card--pad">
+            <h2>Offers</h2>
+
+            @if (cart.coupon(); as applied) {
+              <div class="coupon__applied">
+                <p>
+                  <strong>{{ applied.code }}</strong> — {{ applied.label }}
+                </p>
+                <button type="button" (click)="removeCoupon()">Remove</button>
+              </div>
+            } @else {
+              <div class="coupon__entry">
+                <input
+                  type="text"
+                  [value]="code()"
+                  (input)="code.set($any($event.target).value.toUpperCase())"
+                  placeholder="Enter code"
+                  aria-label="Coupon code"
+                />
+                <button type="button" class="btn btn--outline btn--sm" (click)="apply()">
+                  Apply
+                </button>
+              </div>
+
+              <ul class="coupon__list">
+                @for (coupon of coupons(); track coupon.code) {
+                  <li>
+                    <button
+                      type="button"
+                      class="coupon__pick"
+                      [disabled]="cart.itemTotal() < coupon.minOrder"
+                      (click)="apply(coupon.code)"
+                    >
+                      <span class="coupon__code">{{ coupon.code }}</span>
+                      <span class="coupon__desc">{{ coupon.label }}</span>
+                      @if (cart.itemTotal() < coupon.minOrder) {
+                        <span class="coupon__need">
+                          add {{ coupon.minOrder - cart.itemTotal() | rupees }}
+                        </span>
+                      }
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+
+            @if (couponMessage()) {
+              <p class="coupon__msg" [class.is-bad]="!couponOk()">{{ couponMessage() }}</p>
+            }
+          </section>
+
+          <!-- Bill -->
+          <section class="card card--pad">
+            <shop-bill-summary [bill]="cart.bill()" [showFreeDeliveryNudge]="true" />
+
+            <button type="button" class="btn btn--primary btn--block btn--lg pay" (click)="checkout()">
+              Proceed to checkout
+            </button>
+
+            <p class="summary__note muted">
+              UPI, card or cash on delivery. You can review everything before paying.
+            </p>
+          </section>
+        </aside>
+      </div>
+    }
+  </div>
+</section>

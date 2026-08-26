@@ -1,15 +1,17 @@
 {
   "name": "portfolio",
   "version": "1.0.0",
-  "description": "Pradeep Chauhan \u2014 Senior Front-End Developer portfolio, built with Angular 22.",
+  "description": "Pradeep Chauhan — Senior Front-End Developer portfolio, built with Angular 22.",
   "scripts": {
     "ng": "ng",
     "start": "ng serve portfolio",
+    "start:shop": "ng serve shop",
     "build": "ng build portfolio",
-    "build:libs": "ng build core && ng build ui",
-    "build:all": "npm run build:libs && ng build portfolio",
-    "watch": "ng build portfolio --watch --configuration development",
-    "test": "ng test portfolio"
+    "build:shop": "ng build shop",
+    "build:libs": "ng build core && ng build ui && ng build shop-core",
+    "build:all": "npm run build:libs && ng build portfolio && ng build shop",
+    "test": "ng test portfolio",
+    "test:shop": "ng test shop"
   },
   "prettier": {
     "overrides": [
@@ -29,6 +31,7 @@
     "@angular/forms": "^22.1.3",
     "@angular/platform-browser": "^22.1.3",
     "@angular/router": "^22.1.3",
+    "qrcode": "^1.5.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
@@ -37,6 +40,7 @@
     "@angular/cli": "^22.1.5",
     "@angular/compiler-cli": "^22.1.3",
     "@types/jasmine": "~5.1.0",
+    "@types/qrcode": "^1.5.6",
     "jasmine-core": "~5.7.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",

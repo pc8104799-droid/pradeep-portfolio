@@ -1,0 +1,198 @@
+@if (order(); as order) {
+  <section class="section">
+    <div class="shell pay">
+      <header class="head">
+        <h1>Pay for order {{ order.id }}</h1>
+        <p class="muted">
+          {{ order.lines.length }} item{{ order.lines.length === 1 ? '' : 's' }} ·
+          delivering to {{ order.address.line1 }}, {{ order.address.city }}
+        </p>
+      </header>
+
+      <div class="amount card card--pad">
+        <span class="muted">Amount payable</span>
+        <strong class="mono-num">{{ order.bill.total | rupees }}</strong>
+      </div>
+
+      <!-- ---------------- UPI ---------------- -->
+      @if (order.payment.method === 'upi') {
+        <section class="card card--pad block">
+          <h2>Scan and pay with any UPI app</h2>
+
+          @if (payments.upiConfigured()) {
+            <p class="muted">
+              Open GPay, PhonePe, Paytm or your bank app, scan this code, and the payee and
+              amount will be filled in for you.
+            </p>
+
+            <shop-upi-qr [uri]="upiUri()" />
+
+            <p class="upi__payee">
+              Paying <strong>{{ config().upiPayeeName }}</strong>
+              <span class="muted">{{ config().upiId }}</span>
+            </p>
+
+            <a class="btn btn--outline btn--block" [href]="upiUri()">
+              Open a UPI app on this device
+            </a>
+
+            <div class="upi__confirm">
+              <label class="field">
+                <span class="field__label">UPI reference number (optional)</span>
+                <input
+                  type="text"
+                  [value]="upiReference()"
+                  (input)="upiReference.set($any($event.target).value)"
+                  placeholder="e.g. 402912345678"
+                />
+                <span class="field__hint">
+                  Your UPI app shows this after paying. It helps us match the payment.
+                </span>
+              </label>
+
+              <button type="button" class="btn btn--primary btn--block" (click)="confirmUpi()">
+                I have paid
+              </button>
+            </div>
+
+            <p class="note">
+              We cannot see UPI transfers automatically — that needs a bank callback to a server.
+              Your order is recorded as awaiting verification until the payment is checked.
+            </p>
+          } @else {
+            <div class="setup">
+              <p class="setup__title">UPI is not configured yet</p>
+              <p>
+                Set <code>config.upiId</code> in
+                <code>projects/shop-core/src/lib/data/catalog.json</code>
+                to your own UPI ID — something like <code>yourname&#64;okhdfcbank</code> — and this
+                page will generate a real, scannable QR that pays that account.
+              </p>
+              <p class="muted">
+                It is intentionally blank: a QR pays whoever it names, so it must not ship with a
+                guessed ID.
+              </p>
+            </div>
+
+            <button type="button" class="btn btn--primary btn--block" (click)="switchToCod()">
+              Pay cash on delivery instead
+            </button>
+          }
+        </section>
+      }
+
+      <!-- ---------------- Card ---------------- -->
+      @if (order.payment.method === 'card') {
+        <section class="card card--pad block">
+          <h2>Card details</h2>
+
+          <p class="sandbox">
+            <strong>Sandbox.</strong> No money moves and nothing is sent anywhere. Any card that
+            passes the checksum works — try <code>4111 1111 1111 1111</code>. A number ending
+            <code>0000</code> is always declined so you can see that path.
+          </p>
+
+          <form class="form" (submit)="payByCard(); $event.preventDefault()" novalidate>
+            <label class="field" [class.is-invalid]="cardErrors()['number']">
+              <span class="field__label">Card number</span>
+              <input
+                type="text"
+                inputmode="numeric"
+                autocomplete="cc-number"
+                [value]="card().number"
+                (input)="patchCard('number', $any($event.target).value)"
+                placeholder="4111 1111 1111 1111"
+              />
+              <span class="field__hint">{{ brand() === 'Unknown' ? '' : brand() }}</span>
+              @if (cardErrors()['number']) {
+                <span class="field__error">{{ cardErrors()['number'] }}</span>
+              }
+            </label>
+
+            <label class="field" [class.is-invalid]="cardErrors()['name']">
+              <span class="field__label">Name on card</span>
+              <input
+                type="text"
+                autocomplete="cc-name"
+                [value]="card().name"
+                (input)="patchCard('name', $any($event.target).value)"
+              />
+              @if (cardErrors()['name']) {
+                <span class="field__error">{{ cardErrors()['name'] }}</span>
+              }
+            </label>
+
+            <div class="form__row">
+              <label class="field" [class.is-invalid]="cardErrors()['expiry']">
+                <span class="field__label">Expiry</span>
+                <input
+                  type="text"
+                  autocomplete="cc-exp"
+                  maxlength="5"
+                  [value]="card().expiry"
+                  (input)="patchCard('expiry', $any($event.target).value)"
+                  placeholder="MM/YY"
+                />
+                @if (cardErrors()['expiry']) {
+                  <span class="field__error">{{ cardErrors()['expiry'] }}</span>
+                }
+              </label>
+
+              <label class="field" [class.is-invalid]="cardErrors()['cvv']">
+                <span class="field__label">CVV</span>
+                <input
+                  type="password"
+                  inputmode="numeric"
+                  autocomplete="cc-csc"
+                  maxlength="4"
+                  [value]="card().cvv"
+                  (input)="patchCard('cvv', $any($event.target).value)"
+                />
+                @if (cardErrors()['cvv']) {
+                  <span class="field__error">{{ cardErrors()['cvv'] }}</span>
+                }
+              </label>
+            </div>
+
+            @if (failure()) {
+              <p class="failure">{{ failure() }}</p>
+            }
+
+            <button
+              type="submit"
+              class="btn btn--primary btn--block btn--lg"
+              [disabled]="payments.busy()"
+            >
+              @if (payments.busy()) {
+                Contacting the sandbox…
+              } @else {
+                Pay {{ order.bill.total | rupees }}
+              }
+            </button>
+          </form>
+
+          <button type="button" class="btn btn--ghost btn--block" (click)="switchToCod()">
+            Pay cash on delivery instead
+          </button>
+        </section>
+      }
+
+      <p class="back">
+        <a routerLink="/orders">View all orders</a> ·
+        <a [routerLink]="['/order', order.id]">Skip and track this order</a>
+      </p>
+    </div>
+  </section>
+} @else {
+  <section class="section">
+    <div class="shell card card--pad missing">
+      <p class="missing__glyph" aria-hidden="true">🧾</p>
+      <h1>That order is not on this device</h1>
+      <p class="muted">
+        Orders are stored in the browser that placed them, so a different browser will not show
+        it.
+      </p>
+      <a class="btn btn--primary" routerLink="/menu">Back to the store</a>
+    </div>
+  </section>
+}

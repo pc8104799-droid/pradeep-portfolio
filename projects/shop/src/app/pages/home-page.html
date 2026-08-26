@@ -1,0 +1,200 @@
+@let cfg = config();
+
+<!-- Live order strip -->
+@if (liveOrder(); as order) {
+  <section class="live">
+    <div class="shell live__inner">
+      <span class="live__dot" aria-hidden="true"></span>
+      <p class="live__text">
+        <strong>{{ orders.label(order.stage) }}</strong>
+        <span>Order {{ order.id }} · arriving in about {{ orders.minutesRemaining(order) }} min</span>
+      </p>
+      <a class="btn btn--sm btn--outline" [routerLink]="['/order', order.id]">Track</a>
+    </div>
+  </section>
+}
+
+<!-- Hero -->
+<section class="hero section">
+  <div class="shell hero__grid">
+    <div class="hero__copy">
+      <p class="hero__eyebrow">
+        <span aria-hidden="true">⚡</span>
+        Delivering across {{ cfg.serviceAreas.slice(0, 3).join(', ') }} and more
+      </p>
+
+      <h1>
+        Hot food and <span class="hero__accent">fresh vegetables</span>,
+        at your door in minutes.
+      </h1>
+
+      <p class="hero__lede">{{ cfg.tagline }}</p>
+
+      <div class="hero__cta">
+        <a class="btn btn--primary btn--lg" routerLink="/menu">Order food</a>
+        <a class="btn btn--outline btn--lg" routerLink="/menu/vegetables">Shop vegetables</a>
+      </div>
+
+      <ul class="hero__points">
+        <li><strong>Free delivery</strong> over {{ cfg.freeDeliveryOver | rupees }}</li>
+        <li><strong>UPI, cards</strong> or cash on delivery</li>
+        <li><strong>Live tracking</strong> from kitchen to door</li>
+      </ul>
+    </div>
+
+    <div class="hero__art" aria-hidden="true">
+      <span class="hero__blob hero__blob--1">🍛</span>
+      <span class="hero__blob hero__blob--2">🥦</span>
+      <span class="hero__blob hero__blob--3">🍕</span>
+      <span class="hero__blob hero__blob--4">🥭</span>
+      <span class="hero__ring"></span>
+    </div>
+  </div>
+</section>
+
+<!-- Offers -->
+<section class="section">
+  <div class="shell">
+    <header class="spread head">
+      <h2>Offers for you</h2>
+      <a class="head__link" routerLink="/menu">Browse everything →</a>
+    </header>
+
+    <ul class="offers scroll-x">
+      @for (offer of offers(); track offer.code) {
+        <li class="offer">
+          <p class="offer__label">{{ offer.label }}</p>
+          <p class="offer__code">{{ offer.code }}</p>
+          <p class="offer__terms">{{ offer.terms }}</p>
+          @if (offer.short > 0) {
+            <p class="offer__short">Add {{ offer.short | rupees }} more to use it</p>
+          } @else {
+            <p class="offer__ready">Ready to apply at checkout</p>
+          }
+        </li>
+      }
+    </ul>
+  </div>
+</section>
+
+<!-- Food categories -->
+<section class="section">
+  <div class="shell">
+    <header class="spread head">
+      <h2>What are you eating today?</h2>
+    </header>
+
+    <ul class="cats">
+      @for (category of foodCategories(); track category.id) {
+        <li>
+          <a
+            class="cat"
+            [routerLink]="['/menu', category.id]"
+            [style.--a1]="category.accent[0]"
+            [style.--a2]="category.accent[1]"
+          >
+            <span class="cat__glyph" aria-hidden="true">{{ category.glyph }}</span>
+            <span class="cat__name">{{ category.name }}</span>
+            <span class="cat__blurb">{{ category.blurb }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </div>
+</section>
+
+<!-- Bestselling food -->
+<section class="section">
+  <div class="shell">
+    <header class="spread head">
+      <h2>Bestselling dishes</h2>
+      <a class="head__link" routerLink="/menu" [queryParams]="{ kind: 'food' }">See all food →</a>
+    </header>
+
+    <div class="grid">
+      @for (product of bestFood(); track product.id) {
+        <shop-product-card [product]="product" />
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Grocery categories -->
+<section class="section section--tint">
+  <div class="shell">
+    <header class="spread head">
+      <h2>Fresh from the farm</h2>
+      <a class="head__link" routerLink="/menu" [queryParams]="{ kind: 'grocery' }">
+        See all groceries →
+      </a>
+    </header>
+
+    <ul class="cats">
+      @for (category of groceryCategories(); track category.id) {
+        <li>
+          <a
+            class="cat"
+            [routerLink]="['/menu', category.id]"
+            [style.--a1]="category.accent[0]"
+            [style.--a2]="category.accent[1]"
+          >
+            <span class="cat__glyph" aria-hidden="true">{{ category.glyph }}</span>
+            <span class="cat__name">{{ category.name }}</span>
+            <span class="cat__blurb">{{ category.blurb }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+
+    <div class="grid grid--tight">
+      @for (product of bestGrocery(); track product.id) {
+        <shop-product-card [product]="product" />
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Under 99 -->
+<section class="section">
+  <div class="shell">
+    <header class="spread head">
+      <h2>Everything under {{ 99 | rupees }}</h2>
+    </header>
+
+    <div class="grid grid--tight">
+      @for (product of underNinetyNine(); track product.id) {
+        <shop-product-card [product]="product" />
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Kitchens -->
+<section class="section section--tint">
+  <div class="shell">
+    <header class="spread head">
+      <h2>Kitchens and farms we work with</h2>
+    </header>
+
+    <ul class="kitchens">
+      @for (kitchen of catalog.kitchens(); track kitchen.id) {
+        <li class="kitchen">
+          <span class="kitchen__glyph" aria-hidden="true">{{ kitchen.glyph }}</span>
+          <div class="kitchen__body">
+            <p class="kitchen__name">
+              {{ kitchen.name }}
+              @if (kitchen.veg) {
+                <span class="diet diet--veg" title="Pure vegetarian"></span>
+              }
+            </p>
+            <p class="kitchen__meta">{{ kitchen.cuisine }} · {{ kitchen.area }}</p>
+            <p class="kitchen__stats">
+              <span class="kitchen__rating">★ {{ kitchen.rating }}</span>
+              <span>{{ kitchen.etaMinutes }} min</span>
+            </p>
+          </div>
+        </li>
+      }
+    </ul>
+  </div>
+</section>

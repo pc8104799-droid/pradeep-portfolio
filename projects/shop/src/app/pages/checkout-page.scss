@@ -1,0 +1,373 @@
+:host {
+  display: block;
+}
+
+/* ---------- Head ---------- */
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  counter-reset: step;
+}
+
+.steps li {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  color: var(--ink-3);
+  font-size: .82rem;
+  font-weight: 600;
+}
+
+.steps li::before {
+  counter-increment: step;
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--stroke-strong);
+  font-size: .7rem;
+}
+
+.steps li + li::after {
+  content: "";
+}
+
+.steps .is-done {
+  color: var(--leaf-700);
+}
+
+.steps .is-done::before {
+  content: "✓";
+  border-color: var(--leaf-700);
+  background: var(--leaf-700);
+  color: #fff;
+}
+
+.steps .is-current {
+  color: var(--ink);
+}
+
+.steps .is-current::before {
+  border-color: var(--leaf-700);
+  color: var(--leaf-700);
+}
+
+/* ---------- Layout ---------- */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  align-items: start;
+}
+
+.main {
+  display: grid;
+  gap: .9rem;
+}
+
+.block__head {
+  margin-bottom: .8rem;
+}
+
+.block h2 {
+  font-size: 1rem;
+  margin-bottom: .8rem;
+}
+
+.block__head h2 {
+  margin-bottom: 0;
+}
+
+/* ---------- Empty ---------- */
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: .6rem;
+  text-align: center;
+  padding-block: clamp(2.5rem, 8vw, 4.5rem);
+}
+
+.empty__glyph {
+  font-size: 2.6rem;
+}
+
+/* ---------- Addresses ---------- */
+.addresses {
+  display: grid;
+  gap: .55rem;
+}
+
+.address {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: .7rem;
+  padding: .8rem .9rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--stroke);
+  cursor: pointer;
+  transition: border-color var(--t) var(--ease-out), background var(--t) var(--ease-out);
+}
+
+.address:hover {
+  border-color: var(--stroke-strong);
+}
+
+.address.is-active {
+  border-color: var(--leaf-700);
+  background: var(--accent-soft);
+}
+
+.address input {
+  margin-top: .2rem;
+  accent-color: var(--leaf-700);
+  width: 17px;
+  height: 17px;
+}
+
+.address__body {
+  display: grid;
+  gap: .1rem;
+  font-size: .87rem;
+}
+
+.address__label {
+  display: inline-block;
+  width: fit-content;
+  padding: .1rem .45rem;
+  margin-bottom: .2rem;
+  border-radius: 5px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.address__tools {
+  display: grid;
+  gap: .2rem;
+  text-align: right;
+}
+
+.address__tools button {
+  color: var(--ink-3);
+  font-size: .76rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.address__tools button:hover {
+  color: var(--leaf-700);
+}
+
+.address__tools .is-danger:hover {
+  color: var(--berry);
+}
+
+/* ---------- Form ---------- */
+.form {
+  display: grid;
+  gap: .7rem;
+  margin-top: .9rem;
+  padding-top: .9rem;
+  border-top: 1px dashed var(--stroke-strong);
+  animation: riseIn 200ms var(--ease-out) both;
+}
+
+.form__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .7rem;
+}
+
+.form__actions {
+  display: flex;
+  gap: .5rem;
+  margin-top: .2rem;
+}
+
+/* ---------- Slots ---------- */
+.slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: .55rem;
+}
+
+.slot {
+  display: grid;
+  gap: .1rem;
+  padding: .7rem .8rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--stroke);
+  cursor: pointer;
+  font-size: .84rem;
+}
+
+.slot:hover {
+  border-color: var(--stroke-strong);
+}
+
+.slot.is-active {
+  border-color: var(--leaf-700);
+  background: var(--accent-soft);
+}
+
+.slot input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.slot__label {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.slot__fee {
+  color: var(--carrot-700);
+  font-size: .76rem;
+  font-weight: 600;
+}
+
+.eta {
+  margin-top: .7rem;
+  font-size: .82rem;
+}
+
+/* ---------- Payment methods ---------- */
+.methods {
+  display: grid;
+  gap: .55rem;
+}
+
+.method {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: .8rem;
+  padding: .85rem .9rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--stroke);
+  cursor: pointer;
+  transition: border-color var(--t) var(--ease-out), background var(--t) var(--ease-out);
+}
+
+.method:hover {
+  border-color: var(--stroke-strong);
+}
+
+.method.is-active {
+  border-color: var(--leaf-700);
+  background: var(--accent-soft);
+}
+
+.method input {
+  accent-color: var(--leaf-700);
+  width: 17px;
+  height: 17px;
+}
+
+.method__glyph {
+  font-size: 1.4rem;
+}
+
+.method__body {
+  display: grid;
+  gap: .1rem;
+  font-size: .88rem;
+}
+
+.method__body strong {
+  font-family: var(--font-display);
+}
+
+.method__warn {
+  color: var(--carrot-700);
+  font-size: .76rem;
+  font-weight: 600;
+}
+
+:root[data-theme="dark"] .method__warn {
+  color: var(--carrot-300);
+}
+
+/* ---------- Summary ---------- */
+.summary {
+  position: sticky;
+  top: calc(var(--header-h) + 3.5rem);
+}
+
+.summary__items {
+  display: grid;
+  gap: .3rem;
+  margin-top: .9rem;
+  padding-top: .8rem;
+  border-top: 1px solid var(--stroke);
+}
+
+.summary__items li {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .82rem;
+}
+
+.summary__name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.place {
+  margin-top: 1rem;
+}
+
+.place__hint {
+  margin-top: .5rem;
+  color: var(--carrot-700);
+  font-size: .8rem;
+  text-align: center;
+}
+
+/* ---------- Responsive ---------- */
+@container page (max-width: 980px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .summary {
+    position: static;
+  }
+}
+
+@container page (max-width: 560px) {
+  .form__row {
+    grid-template-columns: 1fr;
+  }
+
+  .address {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .address__tools {
+    grid-column: 2;
+    display: flex;
+    gap: .8rem;
+    text-align: left;
+  }
+}

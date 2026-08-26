@@ -1,0 +1,331 @@
+:host {
+  display: block;
+}
+
+/* ---------- Confirmation ---------- */
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  border-color: var(--leaf-700);
+  background: var(--accent-soft);
+}
+
+.hero__tick {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--leaf-700);
+  color: #fff;
+  font-size: 1.35rem;
+  animation: popIn 320ms var(--ease-spring) both;
+}
+
+.hero h1 {
+  font-size: clamp(1.3rem, 3vw, 1.75rem);
+}
+
+.hero .muted {
+  font-size: .85rem;
+  margin-top: .15rem;
+}
+
+.hero__eta {
+  display: grid;
+  justify-items: center;
+  margin-left: auto;
+  padding-left: 1rem;
+  border-left: 1px solid var(--stroke-strong);
+  text-align: center;
+}
+
+.hero__eta strong {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.hero__eta span {
+  color: var(--ink-3);
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* ---------- Layout ---------- */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  align-items: start;
+}
+
+.main,
+.side {
+  display: grid;
+  gap: .9rem;
+}
+
+h2 {
+  font-size: 1rem;
+  margin-bottom: .8rem;
+}
+
+/* ---------- Tracker ---------- */
+.rail {
+  position: relative;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.rail__fill {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--grad-brand);
+  transition: width 600ms var(--ease-out);
+}
+
+.stages {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: .3rem;
+  margin-top: .7rem;
+}
+
+.stage {
+  display: grid;
+  justify-items: center;
+  gap: .3rem;
+  text-align: center;
+}
+
+.stage__dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid var(--stroke-strong);
+  background: var(--bg-2);
+}
+
+.stage.is-done .stage__dot {
+  border-color: var(--leaf-700);
+  background: var(--leaf-700);
+}
+
+.stage.is-current .stage__dot {
+  box-shadow: 0 0 0 4px var(--accent-soft);
+  animation: pulseDot 1.6s ease-in-out infinite;
+}
+
+.stage__label {
+  color: var(--ink-3);
+  font-size: .7rem;
+  line-height: 1.3;
+}
+
+.stage.is-done .stage__label {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.timeline {
+  display: grid;
+  gap: .45rem;
+  margin-top: 1.1rem;
+  padding-top: .9rem;
+  border-top: 1px solid var(--stroke);
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: .6rem;
+  font-size: .84rem;
+}
+
+.timeline strong {
+  font-family: var(--font-display);
+}
+
+.track__note {
+  margin-top: .8rem;
+  font-size: .78rem;
+}
+
+/* ---------- Items ---------- */
+.items {
+  display: grid;
+  gap: .55rem;
+}
+
+.items li {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .7rem;
+}
+
+.items__glyph {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  font-size: 1.25rem;
+}
+
+.items__body {
+  display: grid;
+}
+
+.items__body a {
+  font-family: var(--font-display);
+  font-size: .92rem;
+  font-weight: 600;
+}
+
+.items__body a:hover {
+  color: var(--leaf-700);
+}
+
+.items__body .muted {
+  font-size: .78rem;
+}
+
+.items__total {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+/* ---------- Address, payment ---------- */
+.addr {
+  display: grid;
+  gap: .1rem;
+  font-size: .87rem;
+}
+
+.slot {
+  margin-top: .6rem;
+  padding-top: .6rem;
+  border-top: 1px dashed var(--stroke);
+  font-size: .82rem;
+}
+
+.payment {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .7rem;
+}
+
+.payment__method {
+  font-family: var(--font-display);
+  font-size: .95rem;
+  font-weight: 700;
+}
+
+.payment__status {
+  padding: .2rem .55rem;
+  border-radius: 99px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: .74rem;
+  font-weight: 700;
+}
+
+.payment__status.is-paid {
+  background: var(--accent-soft);
+  color: var(--leaf-700);
+}
+
+.payment__status.is-pending {
+  background: rgb(245 158 11 / 16%);
+  color: #b45309;
+}
+
+.payment__status.is-failed {
+  background: rgb(225 29 72 / 12%);
+  color: var(--berry);
+}
+
+.ref {
+  margin-top: .5rem;
+  font-size: .78rem;
+  line-height: 1.5;
+}
+
+.side .btn--block {
+  margin-top: .8rem;
+}
+
+.help a {
+  color: var(--leaf-700);
+  font-weight: 600;
+}
+
+/* ---------- Foot ---------- */
+.foot-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin-top: 1.25rem;
+}
+
+/* ---------- Missing ---------- */
+.missing {
+  display: grid;
+  justify-items: center;
+  gap: .5rem;
+  max-width: 520px;
+  margin-inline: auto;
+  text-align: center;
+  padding-block: clamp(2rem, 6vw, 3.5rem);
+}
+
+.missing__glyph {
+  font-size: 2.6rem;
+}
+
+/* ---------- Responsive ---------- */
+@container page (max-width: 980px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@container page (max-width: 560px) {
+  .hero {
+    flex-wrap: wrap;
+  }
+
+  .hero__eta {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: 0;
+    justify-items: start;
+  }
+
+  .stages {
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: .7rem;
+  }
+
+  .timeline li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .timeline .muted:first-of-type {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}

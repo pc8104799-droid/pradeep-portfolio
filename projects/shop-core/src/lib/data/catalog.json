@@ -1,0 +1,1566 @@
+{
+  "config": {
+    "name": "FreshKart",
+    "tagline": "Hot kitchens and fresh farms, delivered in minutes.",
+    "supportEmail": "devpradeep50@gmail.com",
+    "supportPhone": "+91 81047 99460",
+    "upiId": "",
+    "upiPayeeName": "FreshKart",
+    "currency": "INR",
+    "currencySymbol": "₹",
+    "freeDeliveryOver": 499,
+    "deliveryFee": 29,
+    "packagingFee": 12,
+    "taxPercent": 5,
+    "serviceAreas": [
+      "Thane West",
+      "Mulund",
+      "Ghatkopar",
+      "Powai",
+      "Navi Mumbai"
+    ],
+    "openFrom": "07:00",
+    "openTo": "23:30"
+  },
+  "categories": [
+    {
+      "id": "biryani",
+      "name": "Biryani & Rice",
+      "kind": "food",
+      "glyph": "🍛",
+      "accent": [
+        "#ff8a3d",
+        "#ff4d4d"
+      ],
+      "blurb": "Dum-cooked, long grain, always with raita."
+    },
+    {
+      "id": "curries",
+      "name": "Curries & Thali",
+      "kind": "food",
+      "glyph": "🍛",
+      "accent": [
+        "#ffb03a",
+        "#ff6b2c"
+      ],
+      "blurb": "Home-style gravies and full plates."
+    },
+    {
+      "id": "snacks",
+      "name": "Snacks & Chaat",
+      "kind": "food",
+      "glyph": "🧆",
+      "accent": [
+        "#ffd23f",
+        "#ff8a3d"
+      ],
+      "blurb": "Evening cravings, sorted."
+    },
+    {
+      "id": "pizza",
+      "name": "Pizza & Burgers",
+      "kind": "food",
+      "glyph": "🍕",
+      "accent": [
+        "#ff5c72",
+        "#ff9b3d"
+      ],
+      "blurb": "Wood-fired bases and smash patties."
+    },
+    {
+      "id": "south",
+      "name": "South Indian",
+      "kind": "food",
+      "glyph": "🥞",
+      "accent": [
+        "#ffc93c",
+        "#ffe08a"
+      ],
+      "blurb": "Crisp dosas, soft idlis, hot sambar."
+    },
+    {
+      "id": "desserts",
+      "name": "Desserts",
+      "kind": "food",
+      "glyph": "🍮",
+      "accent": [
+        "#f78fb3",
+        "#c86dd7"
+      ],
+      "blurb": "Mithai and cold ones."
+    },
+    {
+      "id": "vegetables",
+      "name": "Fresh Vegetables",
+      "kind": "grocery",
+      "glyph": "🥦",
+      "accent": [
+        "#4ade80",
+        "#16a34a"
+      ],
+      "blurb": "Picked this morning, graded by hand."
+    },
+    {
+      "id": "leafy",
+      "name": "Leafy & Herbs",
+      "kind": "grocery",
+      "glyph": "🌿",
+      "accent": [
+        "#86efac",
+        "#22c55e"
+      ],
+      "blurb": "Palak, methi, coriander, mint."
+    },
+    {
+      "id": "fruits",
+      "name": "Fresh Fruits",
+      "kind": "grocery",
+      "glyph": "🍎",
+      "accent": [
+        "#fca5a5",
+        "#f43f5e"
+      ],
+      "blurb": "Seasonal and ripened right."
+    },
+    {
+      "id": "dairy",
+      "name": "Dairy & Eggs",
+      "kind": "grocery",
+      "glyph": "🥛",
+      "accent": [
+        "#93c5fd",
+        "#3b82f6"
+      ],
+      "blurb": "Milk, curd, paneer, farm eggs."
+    },
+    {
+      "id": "staples",
+      "name": "Atta, Rice & Dal",
+      "kind": "grocery",
+      "glyph": "🍚",
+      "accent": [
+        "#fcd34d",
+        "#d97706"
+      ],
+      "blurb": "The monthly basics."
+    },
+    {
+      "id": "masala",
+      "name": "Masala & Oil",
+      "kind": "grocery",
+      "glyph": "🫙",
+      "accent": [
+        "#fdba74",
+        "#ea580c"
+      ],
+      "blurb": "Whole spices and cold-pressed oils."
+    }
+  ],
+  "kitchens": [
+    {
+      "id": "tandoori",
+      "name": "Tandoori Junction",
+      "kind": "food",
+      "glyph": "🔥",
+      "cuisine": "North Indian, Mughlai",
+      "rating": 4.5,
+      "etaMinutes": 32,
+      "area": "Thane West",
+      "veg": false
+    },
+    {
+      "id": "annas",
+      "name": "Anna's Idli House",
+      "kind": "food",
+      "glyph": "🥞",
+      "cuisine": "South Indian",
+      "rating": 4.6,
+      "etaMinutes": 24,
+      "area": "Mulund",
+      "veg": true
+    },
+    {
+      "id": "napoli",
+      "name": "Slice of Napoli",
+      "kind": "food",
+      "glyph": "🍕",
+      "cuisine": "Italian, Fast Food",
+      "rating": 4.3,
+      "etaMinutes": 29,
+      "area": "Powai",
+      "veg": false
+    },
+    {
+      "id": "mithai",
+      "name": "Mithai Ghar",
+      "kind": "food",
+      "glyph": "🍮",
+      "cuisine": "Sweets, Bakery",
+      "rating": 4.4,
+      "etaMinutes": 21,
+      "area": "Ghatkopar",
+      "veg": true
+    },
+    {
+      "id": "greenbasket",
+      "name": "Green Basket Farms",
+      "kind": "grocery",
+      "glyph": "🧺",
+      "cuisine": "Farm produce",
+      "rating": 4.7,
+      "etaMinutes": 45,
+      "area": "Vashi APMC",
+      "veg": true
+    },
+    {
+      "id": "konkan",
+      "name": "Konkan Fruit Co.",
+      "kind": "grocery",
+      "glyph": "🍋",
+      "cuisine": "Fruits",
+      "rating": 4.5,
+      "etaMinutes": 50,
+      "area": "Navi Mumbai",
+      "veg": true
+    }
+  ],
+  "products": [
+    {
+      "id": "hyderabadi-biryani",
+      "name": "Hyderabadi Chicken Biryani",
+      "categoryId": "biryani",
+      "kind": "food",
+      "kitchenId": "tandoori",
+      "glyph": "🍛",
+      "summary": "Sealed-pot biryani with saffron and fried onion.",
+      "description": "Long-grain basmati layered with marinated chicken, slow-cooked on dum with saffron milk, fried onions and mint. Served with mirchi ka salan and raita.",
+      "diet": "non-veg",
+      "rating": 4.6,
+      "ratingCount": 2140,
+      "prepMinutes": 35,
+      "tags": [
+        "spicy",
+        "dum"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "reg",
+          "label": "Serves 1",
+          "price": 289,
+          "mrp": 349,
+          "inStock": true
+        },
+        {
+          "id": "fam",
+          "label": "Family pack, serves 3",
+          "price": 749,
+          "mrp": 899,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "veg-dum-biryani",
+      "name": "Veg Dum Biryani",
+      "categoryId": "biryani",
+      "kind": "food",
+      "kitchenId": "tandoori",
+      "glyph": "🍛",
+      "summary": "Seasonal vegetables layered with aged basmati.",
+      "description": "Carrot, beans, cauliflower and paneer cubes layered with basmati, whole spices and birista, finished on slow dum.",
+      "diet": "veg",
+      "rating": 4.3,
+      "ratingCount": 980,
+      "prepMinutes": 30,
+      "tags": [
+        "dum"
+      ],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "reg",
+          "label": "Serves 1",
+          "price": 239,
+          "mrp": 279,
+          "inStock": true
+        },
+        {
+          "id": "fam",
+          "label": "Family pack, serves 3",
+          "price": 629,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "jeera-rice",
+      "name": "Jeera Rice",
+      "categoryId": "biryani",
+      "kind": "food",
+      "kitchenId": "tandoori",
+      "glyph": "🍚",
+      "summary": "Basmati tempered with cumin and ghee.",
+      "description": "Fluffy basmati tossed in ghee with roasted cumin. The right partner for any gravy on this menu.",
+      "diet": "veg",
+      "rating": 4.2,
+      "ratingCount": 410,
+      "prepMinutes": 15,
+      "tags": [],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "reg",
+          "label": "Regular",
+          "price": 129,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "butter-chicken",
+      "name": "Butter Chicken",
+      "categoryId": "curries",
+      "kind": "food",
+      "kitchenId": "tandoori",
+      "glyph": "🍲",
+      "summary": "Tandoor-charred chicken in tomato and cream.",
+      "description": "Overnight-marinated chicken finished in a tomato gravy with butter, cashew and a touch of honey. Mild enough for everyone at the table.",
+      "diet": "non-veg",
+      "rating": 4.7,
+      "ratingCount": 3210,
+      "prepMinutes": 28,
+      "tags": [
+        "creamy",
+        "mild"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "half",
+          "label": "Half",
+          "price": 319,
+          "mrp": 379,
+          "inStock": true
+        },
+        {
+          "id": "full",
+          "label": "Full",
+          "price": 549,
+          "mrp": 649,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "paneer-tikka-masala",
+      "name": "Paneer Tikka Masala",
+      "categoryId": "curries",
+      "kind": "food",
+      "kitchenId": "tandoori",
+      "glyph": "🧀",
+      "summary": "Charred paneer in a smoky onion-tomato masala.",
+      "description": "Hand-cut paneer marinated in yoghurt and spices, grilled, then simmered in a thick makhani-style gravy with capsicum and onion.",
+      "diet": "veg",
+      "rating": 4.5,
+      "ratingCount": 1870,
+      "prepMinutes": 26,
+      "tags": [
+        "creamy"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "half",
+          "label": "Half",
+          "price": 289,
+          "mrp": 339,
+          "inStock": true
+        },
+        {
+          "id": "full",
+          "label": "Full",
+          "price": 489,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "dal-makhani",
+      "name": "Dal Makhani",
+      "categoryId": "curries",
+      "kind": "food",
+      "kitchenId": "tandoori",
+      "glyph": "🫘",
+      "summary": "Black urad simmered overnight with butter.",
+      "description": "Whole black lentils and rajma cooked for eight hours, finished with white butter and a smoked-cream swirl.",
+      "diet": "veg",
+      "rating": 4.6,
+      "ratingCount": 2260,
+      "prepMinutes": 24,
+      "tags": [
+        "slow-cooked"
+      ],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "half",
+          "label": "Half",
+          "price": 219,
+          "inStock": true
+        },
+        {
+          "id": "full",
+          "label": "Full",
+          "price": 369,
+          "mrp": 419,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "veg-thali",
+      "name": "Deluxe Veg Thali",
+      "categoryId": "curries",
+      "kind": "food",
+      "kitchenId": "tandoori",
+      "glyph": "🥗",
+      "summary": "Two sabzis, dal, rice, four rotis, sweet.",
+      "description": "A full plate: paneer sabzi, seasonal sabzi, dal tadka, jeera rice, four phulkas, salad, papad, pickle and a gulab jamun.",
+      "diet": "veg",
+      "rating": 4.4,
+      "ratingCount": 1120,
+      "prepMinutes": 25,
+      "tags": [
+        "combo"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "std",
+          "label": "Single plate",
+          "price": 279,
+          "mrp": 329,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "samosa",
+      "name": "Punjabi Samosa",
+      "categoryId": "snacks",
+      "kind": "food",
+      "kitchenId": "mithai",
+      "glyph": "🥟",
+      "summary": "Flaky shell, spiced potato and pea filling.",
+      "description": "Hand-folded and fried to order, with tamarind and green chutney on the side.",
+      "diet": "veg",
+      "rating": 4.4,
+      "ratingCount": 1640,
+      "prepMinutes": 12,
+      "tags": [
+        "fried"
+      ],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "two",
+          "label": "Pack of 2",
+          "price": 60,
+          "mrp": 70,
+          "inStock": true
+        },
+        {
+          "id": "six",
+          "label": "Pack of 6",
+          "price": 165,
+          "mrp": 200,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "pav-bhaji",
+      "name": "Butter Pav Bhaji",
+      "categoryId": "snacks",
+      "kind": "food",
+      "kitchenId": "tandoori",
+      "glyph": "🍞",
+      "summary": "Mashed vegetable bhaji with butter-toast pav.",
+      "description": "Bhaji cooked on a flat tawa with tomato, capsicum and pav bhaji masala, plenty of butter, two toasted pav and raw onion with lime.",
+      "diet": "veg",
+      "rating": 4.5,
+      "ratingCount": 1980,
+      "prepMinutes": 18,
+      "tags": [
+        "street"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "std",
+          "label": "Plate of 2 pav",
+          "price": 179,
+          "mrp": 209,
+          "inStock": true
+        },
+        {
+          "id": "jumbo",
+          "label": "Jumbo, 4 pav",
+          "price": 269,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "dahi-puri",
+      "name": "Dahi Puri",
+      "categoryId": "snacks",
+      "kind": "food",
+      "kitchenId": "mithai",
+      "glyph": "🧆",
+      "summary": "Crisp puris, chilled curd, three chutneys.",
+      "description": "Six puris filled with potato and boondi, topped with whisked curd, tamarind, mint chutney and fine sev.",
+      "diet": "veg",
+      "rating": 4.3,
+      "ratingCount": 760,
+      "prepMinutes": 10,
+      "tags": [
+        "street",
+        "chaat"
+      ],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "std",
+          "label": "Plate of 6",
+          "price": 129,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "margherita",
+      "name": "Margherita Pizza",
+      "categoryId": "pizza",
+      "kind": "food",
+      "kitchenId": "napoli",
+      "glyph": "🍕",
+      "summary": "San Marzano sauce, fior di latte, basil.",
+      "description": "A 24-hour cold-fermented base, wood-fired for 90 seconds, with tomato sauce, mozzarella and fresh basil.",
+      "diet": "veg",
+      "rating": 4.4,
+      "ratingCount": 2410,
+      "prepMinutes": 22,
+      "tags": [
+        "cheesy"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "seven",
+          "label": "7 inch",
+          "price": 199,
+          "mrp": 249,
+          "inStock": true
+        },
+        {
+          "id": "ten",
+          "label": "10 inch",
+          "price": 349,
+          "mrp": 429,
+          "inStock": true
+        },
+        {
+          "id": "thirteen",
+          "label": "13 inch",
+          "price": 549,
+          "mrp": 649,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "tandoori-paneer-pizza",
+      "name": "Tandoori Paneer Pizza",
+      "categoryId": "pizza",
+      "kind": "food",
+      "kitchenId": "napoli",
+      "glyph": "🍕",
+      "summary": "Tikka paneer, onion, capsicum, mint drizzle.",
+      "description": "Marinated paneer with red onion, capsicum and a mint-yoghurt drizzle over a mozzarella base.",
+      "diet": "veg",
+      "rating": 4.5,
+      "ratingCount": 1330,
+      "prepMinutes": 24,
+      "tags": [
+        "spicy",
+        "cheesy"
+      ],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "ten",
+          "label": "10 inch",
+          "price": 399,
+          "mrp": 469,
+          "inStock": true
+        },
+        {
+          "id": "thirteen",
+          "label": "13 inch",
+          "price": 629,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "chicken-burger",
+      "name": "Crispy Chicken Burger",
+      "categoryId": "pizza",
+      "kind": "food",
+      "kitchenId": "napoli",
+      "glyph": "🍔",
+      "summary": "Buttermilk-fried thigh, slaw, brioche bun.",
+      "description": "Boneless thigh brined in buttermilk, fried crisp, with cabbage slaw, pickles and a smoky mayo in a toasted brioche bun.",
+      "diet": "non-veg",
+      "rating": 4.3,
+      "ratingCount": 1490,
+      "prepMinutes": 18,
+      "tags": [],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "single",
+          "label": "Single patty",
+          "price": 219,
+          "mrp": 259,
+          "inStock": true
+        },
+        {
+          "id": "double",
+          "label": "Double patty",
+          "price": 319,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "masala-dosa",
+      "name": "Masala Dosa",
+      "categoryId": "south",
+      "kind": "food",
+      "kitchenId": "annas",
+      "glyph": "🥞",
+      "summary": "Paper-thin dosa with potato masala.",
+      "description": "Fermented for 12 hours, spread thin on a seasoned tawa, filled with onion-potato masala. Comes with sambar and two chutneys.",
+      "diet": "veg",
+      "rating": 4.7,
+      "ratingCount": 3620,
+      "prepMinutes": 16,
+      "tags": [
+        "crisp"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "std",
+          "label": "Single",
+          "price": 149,
+          "mrp": 179,
+          "inStock": true
+        },
+        {
+          "id": "butter",
+          "label": "Butter roast",
+          "price": 189,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "idli-sambar",
+      "name": "Idli Sambar",
+      "categoryId": "south",
+      "kind": "food",
+      "kitchenId": "annas",
+      "glyph": "🍚",
+      "summary": "Steamed idlis with hot sambar.",
+      "description": "Four soft idlis with a bowl of lentil sambar, coconut chutney and molagapodi with sesame oil.",
+      "diet": "veg",
+      "rating": 4.6,
+      "ratingCount": 2110,
+      "prepMinutes": 12,
+      "tags": [
+        "steamed",
+        "light"
+      ],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "four",
+          "label": "Plate of 4",
+          "price": 119,
+          "mrp": 139,
+          "inStock": true
+        },
+        {
+          "id": "two",
+          "label": "Plate of 2",
+          "price": 79,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "filter-coffee",
+      "name": "Filter Coffee",
+      "categoryId": "south",
+      "kind": "food",
+      "kitchenId": "annas",
+      "glyph": "☕",
+      "summary": "Decoction and hot milk, frothed by hand.",
+      "description": "Brewed overnight in a traditional filter, mixed with boiled milk and pulled between tumbler and dabara.",
+      "diet": "veg",
+      "rating": 4.8,
+      "ratingCount": 1780,
+      "prepMinutes": 6,
+      "tags": [
+        "hot"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "std",
+          "label": "Tumbler",
+          "price": 59,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "gulab-jamun",
+      "name": "Gulab Jamun",
+      "categoryId": "desserts",
+      "kind": "food",
+      "kitchenId": "mithai",
+      "glyph": "🍮",
+      "summary": "Warm khoya dumplings in cardamom syrup.",
+      "description": "Fried khoya balls soaked in a light cardamom-rose syrup, served warm.",
+      "diet": "veg",
+      "rating": 4.5,
+      "ratingCount": 1290,
+      "prepMinutes": 8,
+      "tags": [
+        "sweet"
+      ],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "two",
+          "label": "Pack of 2",
+          "price": 79,
+          "inStock": true
+        },
+        {
+          "id": "six",
+          "label": "Pack of 6",
+          "price": 219,
+          "mrp": 259,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "gajar-halwa",
+      "name": "Gajar Ka Halwa",
+      "categoryId": "desserts",
+      "kind": "food",
+      "kitchenId": "mithai",
+      "glyph": "🍮",
+      "summary": "Slow-cooked red carrot with ghee and khoya.",
+      "description": "Delhi carrots grated and cooked down in full-fat milk with ghee, khoya and almond slivers.",
+      "diet": "veg",
+      "rating": 4.6,
+      "ratingCount": 870,
+      "prepMinutes": 10,
+      "tags": [
+        "sweet",
+        "seasonal"
+      ],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "half",
+          "label": "250 g",
+          "price": 189,
+          "mrp": 219,
+          "inStock": true
+        },
+        {
+          "id": "full",
+          "label": "500 g",
+          "price": 349,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "tomato",
+      "name": "Tomato, Hybrid",
+      "categoryId": "vegetables",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🍅",
+      "summary": "Firm and even-ripened, good for gravies.",
+      "description": "Graded hybrid tomatoes with thick flesh and few seeds, sorted for bruises before packing.",
+      "diet": "veg",
+      "rating": 4.2,
+      "ratingCount": 5410,
+      "tags": [
+        "daily"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "500",
+          "label": "500 g",
+          "price": 24,
+          "mrp": 32,
+          "inStock": true
+        },
+        {
+          "id": "1kg",
+          "label": "1 kg",
+          "price": 42,
+          "mrp": 58,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "onion",
+      "name": "Onion, Nashik Red",
+      "categoryId": "vegetables",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🧅",
+      "summary": "Sharp and firm, the everyday onion.",
+      "description": "Nashik red onions, cured and graded medium, with dry skin and no sprouting.",
+      "diet": "veg",
+      "rating": 4.3,
+      "ratingCount": 6120,
+      "tags": [
+        "daily"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "1kg",
+          "label": "1 kg",
+          "price": 34,
+          "mrp": 45,
+          "inStock": true
+        },
+        {
+          "id": "3kg",
+          "label": "3 kg bag",
+          "price": 95,
+          "mrp": 129,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "potato",
+      "name": "Potato, Jyoti",
+      "categoryId": "vegetables",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🥔",
+      "summary": "All-rounder for sabzi, fry and mash.",
+      "description": "Jyoti potatoes with thin skin and low sugar, sorted 60-90 g each.",
+      "diet": "veg",
+      "rating": 4.3,
+      "ratingCount": 4880,
+      "tags": [
+        "daily"
+      ],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "1kg",
+          "label": "1 kg",
+          "price": 32,
+          "mrp": 40,
+          "inStock": true
+        },
+        {
+          "id": "3kg",
+          "label": "3 kg bag",
+          "price": 89,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "lady-finger",
+      "name": "Lady Finger (Bhindi)",
+      "categoryId": "vegetables",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🥒",
+      "summary": "Snap-tender, picked young.",
+      "description": "Tender bhindi picked at 8-10 cm so it snaps cleanly instead of turning fibrous.",
+      "diet": "veg",
+      "rating": 4.1,
+      "ratingCount": 1930,
+      "tags": [],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "250",
+          "label": "250 g",
+          "price": 22,
+          "mrp": 28,
+          "inStock": true
+        },
+        {
+          "id": "500",
+          "label": "500 g",
+          "price": 39,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "cauliflower",
+      "name": "Cauliflower",
+      "categoryId": "vegetables",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🥦",
+      "summary": "Tight white curd, trimmed.",
+      "description": "Compact heads with the leaves trimmed back, checked for worm damage.",
+      "diet": "veg",
+      "rating": 4,
+      "ratingCount": 1420,
+      "tags": [],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "one",
+          "label": "1 piece, approx 600 g",
+          "price": 39,
+          "mrp": 49,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "green-peas",
+      "name": "Green Peas, Shelled",
+      "categoryId": "vegetables",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🫘",
+      "summary": "Sweet and freshly shelled.",
+      "description": "Hand-shelled the same morning. Sweeter and softer than frozen, so cook them briefly.",
+      "diet": "veg",
+      "rating": 4.4,
+      "ratingCount": 990,
+      "tags": [
+        "seasonal"
+      ],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "250",
+          "label": "250 g",
+          "price": 49,
+          "mrp": 65,
+          "inStock": true
+        },
+        {
+          "id": "500",
+          "label": "500 g",
+          "price": 89,
+          "inStock": false
+        }
+      ]
+    },
+    {
+      "id": "spinach",
+      "name": "Spinach (Palak)",
+      "categoryId": "leafy",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🥬",
+      "summary": "Broad soft leaves, roots trimmed.",
+      "description": "Tender palak with the stems intact and roots cut, washed once before packing.",
+      "diet": "veg",
+      "rating": 4.3,
+      "ratingCount": 2260,
+      "tags": [
+        "daily"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "bunch",
+          "label": "1 bunch, approx 250 g",
+          "price": 25,
+          "mrp": 32,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "methi",
+      "name": "Fenugreek Leaves (Methi)",
+      "categoryId": "leafy",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🌿",
+      "summary": "Small leaves, strong aroma.",
+      "description": "Young methi with fine leaves, the kind that wilts down for thepla and aloo methi.",
+      "diet": "veg",
+      "rating": 4.2,
+      "ratingCount": 1180,
+      "tags": [],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "bunch",
+          "label": "1 bunch, approx 200 g",
+          "price": 29,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "coriander-mint",
+      "name": "Coriander + Mint Combo",
+      "categoryId": "leafy",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🌿",
+      "summary": "One bunch each, for chutney.",
+      "description": "A bunch of coriander and a bunch of mint, enough for a jar of green chutney.",
+      "diet": "veg",
+      "rating": 4.5,
+      "ratingCount": 3040,
+      "tags": [
+        "combo"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "combo",
+          "label": "2 bunches",
+          "price": 35,
+          "mrp": 48,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "banana",
+      "name": "Banana, Robusta",
+      "categoryId": "fruits",
+      "kind": "grocery",
+      "kitchenId": "konkan",
+      "glyph": "🍌",
+      "summary": "Even ripeness, no black spots.",
+      "description": "Robusta bananas delivered at ripeness stage 4, so they keep two more days at home.",
+      "diet": "veg",
+      "rating": 4.4,
+      "ratingCount": 4110,
+      "tags": [
+        "daily"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "6",
+          "label": "6 pieces",
+          "price": 45,
+          "mrp": 58,
+          "inStock": true
+        },
+        {
+          "id": "dozen",
+          "label": "12 pieces",
+          "price": 85,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "alphonso",
+      "name": "Alphonso Mango",
+      "categoryId": "fruits",
+      "kind": "grocery",
+      "kitchenId": "konkan",
+      "glyph": "🥭",
+      "summary": "Devgad Alphonso, naturally ripened.",
+      "description": "Carbide-free Devgad Alphonso ripened in hay. Fibreless, with the pulp-to-seed ratio the variety is known for.",
+      "diet": "veg",
+      "rating": 4.8,
+      "ratingCount": 2670,
+      "tags": [
+        "seasonal",
+        "premium"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "box6",
+          "label": "Box of 6",
+          "price": 649,
+          "mrp": 799,
+          "inStock": true
+        },
+        {
+          "id": "dozen",
+          "label": "Box of 12",
+          "price": 1199,
+          "mrp": 1499,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "pomegranate",
+      "name": "Pomegranate, Bhagwa",
+      "categoryId": "fruits",
+      "kind": "grocery",
+      "kitchenId": "konkan",
+      "glyph": "🍎",
+      "summary": "Deep red arils, thin skin.",
+      "description": "Bhagwa variety with dark arils and soft seeds, graded above 250 g each.",
+      "diet": "veg",
+      "rating": 4.5,
+      "ratingCount": 1560,
+      "tags": [],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "2",
+          "label": "2 pieces",
+          "price": 129,
+          "mrp": 159,
+          "inStock": true
+        },
+        {
+          "id": "4",
+          "label": "4 pieces",
+          "price": 239,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "milk",
+      "name": "Cow Milk, Full Cream",
+      "categoryId": "dairy",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🥛",
+      "summary": "Pasteurised, 6% fat.",
+      "description": "Full-cream cow milk, pasteurised and chilled, delivered in a recyclable pouch.",
+      "diet": "veg",
+      "rating": 4.6,
+      "ratingCount": 7320,
+      "tags": [
+        "daily"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "500",
+          "label": "500 ml",
+          "price": 33,
+          "inStock": true
+        },
+        {
+          "id": "1l",
+          "label": "1 litre",
+          "price": 66,
+          "mrp": 72,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "curd",
+      "name": "Set Curd",
+      "categoryId": "dairy",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🥛",
+      "summary": "Thick set, mild sour.",
+      "description": "Set in the cup rather than stirred, so it holds shape and is not watery.",
+      "diet": "veg",
+      "rating": 4.5,
+      "ratingCount": 3210,
+      "tags": [
+        "daily"
+      ],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "400",
+          "label": "400 g cup",
+          "price": 49,
+          "mrp": 59,
+          "inStock": true
+        },
+        {
+          "id": "1kg",
+          "label": "1 kg tub",
+          "price": 109,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "paneer",
+      "name": "Fresh Paneer",
+      "categoryId": "dairy",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🧀",
+      "summary": "Soft block, made this morning.",
+      "description": "Made from full-cream milk with no starch filler, so it stays soft when cooked.",
+      "diet": "veg",
+      "rating": 4.6,
+      "ratingCount": 2890,
+      "tags": [],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "200",
+          "label": "200 g",
+          "price": 89,
+          "mrp": 105,
+          "inStock": true
+        },
+        {
+          "id": "500",
+          "label": "500 g",
+          "price": 205,
+          "mrp": 245,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "eggs",
+      "name": "Farm Eggs, Brown",
+      "categoryId": "dairy",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🥚",
+      "summary": "Free-range, thick shell.",
+      "description": "Brown-shell eggs from free-range hens, candled for cracks and hairline damage.",
+      "diet": "egg",
+      "rating": 4.4,
+      "ratingCount": 4520,
+      "tags": [],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "6",
+          "label": "Tray of 6",
+          "price": 72,
+          "mrp": 84,
+          "inStock": true
+        },
+        {
+          "id": "12",
+          "label": "Tray of 12",
+          "price": 138,
+          "mrp": 156,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "atta",
+      "name": "Whole Wheat Atta",
+      "categoryId": "staples",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🌾",
+      "summary": "Chakki-ground, high fibre.",
+      "description": "Sharbati wheat stone-ground in small batches so the bran stays in and the roti stays soft.",
+      "diet": "veg",
+      "rating": 4.5,
+      "ratingCount": 3980,
+      "tags": [
+        "monthly"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "5kg",
+          "label": "5 kg",
+          "price": 259,
+          "mrp": 299,
+          "inStock": true
+        },
+        {
+          "id": "10kg",
+          "label": "10 kg",
+          "price": 489,
+          "mrp": 579,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "basmati",
+      "name": "Basmati Rice, Aged",
+      "categoryId": "staples",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🍚",
+      "summary": "Two-year aged, long grain.",
+      "description": "Aged 24 months so the grain elongates on cooking and stays separate. Cook 1:1.5 with water.",
+      "diet": "veg",
+      "rating": 4.6,
+      "ratingCount": 2140,
+      "tags": [
+        "monthly",
+        "premium"
+      ],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "1kg",
+          "label": "1 kg",
+          "price": 149,
+          "mrp": 179,
+          "inStock": true
+        },
+        {
+          "id": "5kg",
+          "label": "5 kg",
+          "price": 699,
+          "mrp": 829,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "toor-dal",
+      "name": "Toor Dal",
+      "categoryId": "staples",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🫘",
+      "summary": "Unpolished, cooks soft.",
+      "description": "Unpolished toor dal with no oil coating, so it cooks down soft in four whistles.",
+      "diet": "veg",
+      "rating": 4.4,
+      "ratingCount": 2760,
+      "tags": [
+        "monthly"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "1kg",
+          "label": "1 kg",
+          "price": 165,
+          "mrp": 189,
+          "inStock": true
+        },
+        {
+          "id": "5kg",
+          "label": "5 kg",
+          "price": 789,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "sunflower-oil",
+      "name": "Sunflower Oil",
+      "categoryId": "masala",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🫙",
+      "summary": "Refined, light for everyday frying.",
+      "description": "Refined sunflower oil with a high smoke point, in a recyclable jar.",
+      "diet": "veg",
+      "rating": 4.3,
+      "ratingCount": 2410,
+      "tags": [
+        "monthly"
+      ],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "1l",
+          "label": "1 litre",
+          "price": 149,
+          "mrp": 175,
+          "inStock": true
+        },
+        {
+          "id": "5l",
+          "label": "5 litre can",
+          "price": 699,
+          "mrp": 799,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "ghee",
+      "name": "Cow Ghee, Bilona",
+      "categoryId": "masala",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🫙",
+      "summary": "Hand-churned from curd, not cream.",
+      "description": "Bilona method: curd is churned to butter, then simmered. Grainy texture and a strong nutty aroma.",
+      "diet": "veg",
+      "rating": 4.7,
+      "ratingCount": 1670,
+      "tags": [
+        "premium"
+      ],
+      "bestseller": true,
+      "variants": [
+        {
+          "id": "500",
+          "label": "500 ml jar",
+          "price": 649,
+          "mrp": 749,
+          "inStock": true
+        },
+        {
+          "id": "1l",
+          "label": "1 litre jar",
+          "price": 1249,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "garam-masala",
+      "name": "Garam Masala, Whole-ground",
+      "categoryId": "masala",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🫙",
+      "summary": "Roasted and ground in small lots.",
+      "description": "Whole spices dry-roasted and ground weekly rather than blended from powders, so the aroma is still there.",
+      "diet": "veg",
+      "rating": 4.5,
+      "ratingCount": 1290,
+      "tags": [],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "100",
+          "label": "100 g",
+          "price": 119,
+          "mrp": 139,
+          "inStock": true
+        }
+      ]
+    },
+    {
+      "id": "turmeric",
+      "name": "Turmeric Powder",
+      "categoryId": "masala",
+      "kind": "grocery",
+      "kitchenId": "greenbasket",
+      "glyph": "🫙",
+      "summary": "Salem haldi, high curcumin.",
+      "description": "Single-origin Salem turmeric, sun-dried and ground, with no colour added.",
+      "diet": "veg",
+      "rating": 4.4,
+      "ratingCount": 1840,
+      "tags": [
+        "daily"
+      ],
+      "bestseller": false,
+      "variants": [
+        {
+          "id": "200",
+          "label": "200 g",
+          "price": 89,
+          "mrp": 105,
+          "inStock": true
+        }
+      ]
+    }
+  ],
+  "coupons": [
+    {
+      "code": "FIRST50",
+      "kind": "percent",
+      "value": 50,
+      "minOrder": 199,
+      "maxDiscount": 100,
+      "label": "50% off up to ₹100",
+      "terms": "First order only, on carts above ₹199."
+    },
+    {
+      "code": "FRESH20",
+      "kind": "percent",
+      "value": 20,
+      "minOrder": 299,
+      "maxDiscount": 150,
+      "label": "20% off up to ₹150",
+      "terms": "On carts above ₹299."
+    },
+    {
+      "code": "SAVE75",
+      "kind": "flat",
+      "value": 75,
+      "minOrder": 499,
+      "label": "₹75 off",
+      "terms": "Flat ₹75 off on carts above ₹499."
+    },
+    {
+      "code": "FREESHIP",
+      "kind": "free-delivery",
+      "value": 0,
+      "minOrder": 149,
+      "label": "Free delivery",
+      "terms": "Delivery fee waived on carts above ₹149."
+    }
+  ],
+  "slots": [
+    {
+      "id": "express",
+      "label": "Express",
+      "window": "In 30-45 minutes",
+      "surcharge": 25
+    },
+    {
+      "id": "standard",
+      "label": "Standard",
+      "window": "In 60-90 minutes",
+      "surcharge": 0
+    },
+    {
+      "id": "evening",
+      "label": "Evening",
+      "window": "Today, 6-9 pm",
+      "surcharge": 0
+    },
+    {
+      "id": "tomorrow",
+      "label": "Tomorrow morning",
+      "window": "Tomorrow, 7-10 am",
+      "surcharge": 0
+    }
+  ]
+}

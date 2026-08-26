@@ -1,0 +1,175 @@
+<section class="section">
+  <div class="shell">
+    <!-- Heading -->
+    <header class="head">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a routerLink="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <a routerLink="/menu">Browse</a>
+        @if (category()) {
+          <span aria-hidden="true">/</span>
+          <span>{{ category()!.name }}</span>
+        }
+      </nav>
+
+      <div class="spread">
+        <div>
+          <h1>{{ heading() }}</h1>
+          <p class="head__count muted">
+            {{ results().length }} item{{ results().length === 1 ? '' : 's' }}
+            @if (category()) {
+              · {{ category()!.blurb }}
+            }
+          </p>
+        </div>
+
+        <label class="sort field">
+          <span class="sr-only">Sort by</span>
+          <select [value]="sort()" (change)="setSort($any($event.target).value)">
+            <option value="relevance">Sort: Relevance</option>
+            <option value="price-asc">Price: low to high</option>
+            <option value="price-desc">Price: high to low</option>
+            <option value="rating">Rating</option>
+            <option value="name">Name A–Z</option>
+          </select>
+        </label>
+      </div>
+
+      @if (term()) {
+        <p class="applied">
+          Searching for <strong>{{ term() }}</strong>
+          <button type="button" class="applied__clear" (click)="clearSearch()">clear</button>
+        </p>
+      }
+    </header>
+
+    <div class="layout">
+      <!-- Filters -->
+      <aside class="filters" [class.is-open]="filtersOpen()">
+        <button
+          type="button"
+          class="filters__toggle btn btn--outline btn--sm"
+          (click)="filtersOpen.set(!filtersOpen())"
+        >
+          Filters
+          @if (activeFilterCount() > 0) {
+            <span class="filters__count">{{ activeFilterCount() }}</span>
+          }
+        </button>
+
+        <div class="filters__body">
+          <section class="filters__group">
+            <h2>Categories</h2>
+            <ul class="filters__list">
+              <li>
+                <a routerLink="/menu" [class.is-active]="!categoryId()">All</a>
+              </li>
+              @for (item of siblingCategories(); track item.id) {
+                <li>
+                  <a
+                    [routerLink]="['/menu', item.id]"
+                    [class.is-active]="item.id === categoryId()"
+                  >
+                    <span aria-hidden="true">{{ item.glyph }}</span>
+                    {{ item.name }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </section>
+
+          <section class="filters__group">
+            <h2>Preference</h2>
+            <div class="filters__chips">
+              <button
+                type="button"
+                class="chip"
+                [class.is-active]="diet() === 'veg'"
+                (click)="toggleDiet('veg')"
+              >
+                <span class="diet diet--veg" aria-hidden="true"></span>
+                Pure veg
+              </button>
+              <button
+                type="button"
+                class="chip"
+                [class.is-active]="diet() === 'non-veg'"
+                (click)="toggleDiet('non-veg')"
+              >
+                <span class="diet diet--non-veg" aria-hidden="true"></span>
+                Non-veg
+              </button>
+              <button
+                type="button"
+                class="chip"
+                [class.is-active]="diet() === 'egg'"
+                (click)="toggleDiet('egg')"
+              >
+                <span class="diet diet--egg" aria-hidden="true"></span>
+                Egg
+              </button>
+            </div>
+          </section>
+
+          @if (priceSteps().length) {
+            <section class="filters__group">
+              <h2>Price up to</h2>
+              <div class="filters__chips">
+                @for (step of priceSteps(); track step) {
+                  <button
+                    type="button"
+                    class="chip"
+                    [class.is-active]="maxPrice() === step"
+                    (click)="setMaxPrice(step)"
+                  >
+                    {{ step | rupees }}
+                  </button>
+                }
+              </div>
+            </section>
+          }
+
+          @if (activeFilterCount() > 0) {
+            <button type="button" class="btn btn--ghost btn--sm" (click)="clearFilters()">
+              Clear filters
+            </button>
+          }
+        </div>
+      </aside>
+
+      <!-- Results -->
+      <div class="results">
+        @if (results().length) {
+          <div class="grid">
+            @for (product of results(); track product.id) {
+              <shop-product-card [product]="product" />
+            }
+          </div>
+        } @else {
+          <div class="empty card card--pad">
+            <p class="empty__glyph" aria-hidden="true">🔍</p>
+            <h2>Nothing matched</h2>
+            <p class="muted">
+              @if (term()) {
+                We could not find “{{ term() }}”
+                @if (activeFilterCount() > 0) {
+                  with those filters
+                }.
+              } @else {
+                Try widening the filters.
+              }
+            </p>
+            <div class="empty__actions">
+              @if (activeFilterCount() > 0) {
+                <button type="button" class="btn btn--outline btn--sm" (click)="clearFilters()">
+                  Clear filters
+                </button>
+              }
+              <a class="btn btn--primary btn--sm" routerLink="/menu">Browse everything</a>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>

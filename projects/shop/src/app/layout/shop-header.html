@@ -1,0 +1,123 @@
+<div class="bar shell">
+  <!-- Brand -->
+  <a class="brand" routerLink="/">
+    <span class="brand__mark" aria-hidden="true">🥕</span>
+    <span class="brand__text">
+      <strong>{{ config().name }}</strong>
+      <em>Food &amp; fresh produce</em>
+    </span>
+  </a>
+
+  <!-- Service area -->
+  <div class="area">
+    <button
+      type="button"
+      class="area__btn"
+      (click)="areaOpen.set(!areaOpen())"
+      [attr.aria-expanded]="areaOpen()"
+    >
+      <span aria-hidden="true">📍</span>
+      <span class="area__name">{{ area() }}</span>
+      <span class="area__caret" aria-hidden="true">▾</span>
+    </button>
+
+    @if (areaOpen()) {
+      <ul class="area__menu">
+        <li class="area__hint">Delivering to</li>
+        @for (name of config().serviceAreas; track name) {
+          <li>
+            <button type="button" [class.is-active]="name === area()" (click)="chooseArea(name)">
+              {{ name }}
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+  <!-- Search -->
+  <form class="search" (submit)="search($event)" role="search">
+    <span class="search__icon" aria-hidden="true">🔎</span>
+    <input
+      type="search"
+      name="q"
+      [value]="query()"
+      (input)="query.set($any($event.target).value)"
+      placeholder="Search biryani, paneer, tomato, atta…"
+      aria-label="Search the store"
+    />
+    <button type="submit" class="search__go">Search</button>
+  </form>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button
+      type="button"
+      class="icon-btn"
+      (click)="theme.toggle()"
+      [attr.aria-label]="theme.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+    >
+      {{ theme.theme() === 'dark' ? '🌙' : '☀️' }}
+    </button>
+
+    @if (auth.signedIn()) {
+      <div class="account">
+        <button
+          type="button"
+          class="account__btn"
+          (click)="menuOpen.set(!menuOpen())"
+          [attr.aria-expanded]="menuOpen()"
+        >
+          <span class="account__avatar">{{ auth.user()?.name?.charAt(0) }}</span>
+          <span class="account__name">{{ auth.user()?.name }}</span>
+        </button>
+
+        @if (menuOpen()) {
+          <ul class="account__menu">
+            <li><a routerLink="/orders" (click)="menuOpen.set(false)">Your orders</a></li>
+            <li><a routerLink="/account" (click)="menuOpen.set(false)">Addresses &amp; account</a></li>
+            <li><button type="button" class="is-danger" (click)="signOut()">Sign out</button></li>
+          </ul>
+        }
+      </div>
+    } @else {
+      <a class="btn btn--outline btn--sm" routerLink="/login">Sign in</a>
+    }
+
+    <a class="cart" routerLink="/cart" routerLinkActive="is-active">
+      <span aria-hidden="true">🛒</span>
+      <span class="cart__text">
+        @if (cart.isEmpty()) {
+          <span class="cart__empty">Cart</span>
+        } @else {
+          <strong class="mono-num">{{ cart.count() }} item{{ cart.count() === 1 ? '' : 's' }}</strong>
+          <small class="mono-num">{{ cart.bill().total | rupees }}</small>
+        }
+      </span>
+    </a>
+  </div>
+</div>
+
+<!-- Category rail -->
+<nav class="rail" aria-label="Categories">
+  <div class="rail__inner shell scroll-x">
+    <a class="rail__link" routerLink="/menu" routerLinkActive="is-active"
+       [routerLinkActiveOptions]="{ exact: true }">All</a>
+
+    @for (category of foodCategories(); track category.id) {
+      <a class="rail__link" [routerLink]="['/menu', category.id]" routerLinkActive="is-active">
+        <span aria-hidden="true">{{ category.glyph }}</span>
+        {{ category.name }}
+      </a>
+    }
+
+    <span class="rail__divider" aria-hidden="true"></span>
+
+    @for (category of groceryCategories(); track category.id) {
+      <a class="rail__link" [routerLink]="['/menu', category.id]" routerLinkActive="is-active">
+        <span aria-hidden="true">{{ category.glyph }}</span>
+        {{ category.name }}
+      </a>
+    }
+  </div>
+</nav>

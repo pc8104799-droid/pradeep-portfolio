@@ -1,0 +1,162 @@
+@if (product(); as item) {
+  <section class="section">
+    <div class="shell">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a routerLink="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <a routerLink="/menu">Browse</a>
+        @if (category(); as cat) {
+          <span aria-hidden="true">/</span>
+          <a [routerLink]="['/menu', cat.id]">{{ cat.name }}</a>
+        }
+      </nav>
+
+      <div class="detail">
+        <!-- Visual -->
+        <div
+          class="visual"
+          [style.--a1]="category()?.accent?.[0] ?? '#22a556'"
+          [style.--a2]="category()?.accent?.[1] ?? '#7fdca2'"
+        >
+          <span class="visual__glyph" aria-hidden="true">{{ item.glyph }}</span>
+
+          <ul class="visual__tags">
+            @if (item.bestseller) {
+              <li class="badge badge--best">Bestseller</li>
+            }
+            @for (tag of item.tags; track tag) {
+              <li class="badge badge--out">{{ tag }}</li>
+            }
+          </ul>
+        </div>
+
+        <!-- Buy box -->
+        <div class="buy">
+          <div class="buy__head">
+            <span class="diet" [class]="'diet diet--' + item.diet" [attr.title]="item.diet"></span>
+            <span class="buy__rating">★ {{ item.rating }}</span>
+            <span class="muted">({{ item.ratingCount }} ratings)</span>
+          </div>
+
+          <h1>{{ item.name }}</h1>
+          <p class="buy__summary">{{ item.summary }}</p>
+
+          @if (kitchen(); as k) {
+            <p class="buy__kitchen">
+              <span aria-hidden="true">{{ k.glyph }}</span>
+              From <strong>{{ k.name }}</strong> · {{ k.area }} · {{ k.etaMinutes }} min
+            </p>
+          }
+
+          <!-- Variants -->
+          <fieldset class="variants">
+            <legend>Choose a {{ item.kind === 'food' ? 'portion' : 'pack' }}</legend>
+
+            @for (option of item.variants; track option.id) {
+              <label class="variant" [class.is-active]="option.id === variant()?.id"
+                     [class.is-out]="!option.inStock">
+                <input
+                  type="radio"
+                  name="variant"
+                  [value]="option.id"
+                  [checked]="option.id === variant()?.id"
+                  [disabled]="!option.inStock"
+                  (change)="choose(option.id)"
+                />
+                <span class="variant__label">{{ option.label }}</span>
+                <span class="variant__price">
+                  <strong>{{ option.price | rupees }}</strong>
+                  @if (option.mrp) {
+                    <s>{{ option.mrp | rupees }}</s>
+                  }
+                </span>
+                @if (!option.inStock) {
+                  <span class="badge badge--out">Sold out</span>
+                }
+              </label>
+            }
+          </fieldset>
+
+          <!-- Price + add -->
+          @if (variant(); as chosen) {
+            <div class="buy__price">
+              <p class="buy__amount">
+                <strong>{{ chosen.price | rupees }}</strong>
+                @if (chosen.mrp) {
+                  <s>{{ chosen.mrp | rupees }}</s>
+                }
+                @if (savings(); as saved) {
+                  <span class="badge badge--save">Save {{ saved.percent }}%</span>
+                }
+              </p>
+              <p class="muted buy__tax">Inclusive of all taxes</p>
+            </div>
+
+            <div class="buy__actions">
+              <shop-qty-stepper
+                [qty]="qty()"
+                [disabled]="!chosen.inStock"
+                [label]="item.name"
+                (added)="add()"
+                (incremented)="add()"
+                (decremented)="cart.decrement(lineId())"
+              />
+
+              <a class="btn btn--primary" routerLink="/cart">
+                {{ cart.isEmpty() ? 'View cart' : 'Go to cart · ' + (cart.bill().total | rupees) }}
+              </a>
+            </div>
+          }
+
+          <!-- Detail -->
+          <div class="buy__about">
+            <h2>About this item</h2>
+            <p>{{ item.description }}</p>
+
+            <dl class="facts">
+              @if (item.prepMinutes) {
+                <div>
+                  <dt>Prepared in</dt>
+                  <dd>{{ item.prepMinutes }} minutes</dd>
+                </div>
+              }
+              <div>
+                <dt>Category</dt>
+                <dd>{{ category()?.name }}</dd>
+              </div>
+              <div>
+                <dt>Type</dt>
+                <dd>{{ item.diet === 'non-veg' ? 'Non-vegetarian' : item.diet === 'egg' ? 'Contains egg' : 'Vegetarian' }}</dd>
+              </div>
+              <div>
+                <dt>Packs available</dt>
+                <dd>{{ item.variants.length }}</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <!-- Related -->
+      @if (related().length) {
+        <section class="related">
+          <h2>Goes well with</h2>
+          <div class="grid">
+            @for (other of related(); track other.id) {
+              <shop-product-card [product]="other" />
+            }
+          </div>
+        </section>
+      }
+    </div>
+  </section>
+} @else {
+  <section class="section">
+    <div class="shell missing card card--pad">
+      <p class="missing__glyph" aria-hidden="true">🫙</p>
+      <h1>That item is no longer listed</h1>
+      <p class="muted">It may have sold out or been renamed.</p>
+      <a class="btn btn--primary" routerLink="/menu">Browse the store</a>
+    </div>
+  </section>
+}

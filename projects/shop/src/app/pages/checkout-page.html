@@ -1,0 +1,299 @@
+<section class="section">
+  <div class="shell">
+    <header class="head">
+      <h1>Checkout</h1>
+      <ol class="steps" aria-label="Progress">
+        <li class="is-done">Cart</li>
+        <li class="is-current">Address &amp; payment</li>
+        <li>Confirm</li>
+      </ol>
+    </header>
+
+    @if (cart.isEmpty()) {
+      <div class="empty card card--pad">
+        <p class="empty__glyph" aria-hidden="true">🧺</p>
+        <h2>There is nothing to check out</h2>
+        <a class="btn btn--primary" routerLink="/menu">Start shopping</a>
+      </div>
+    } @else {
+      <div class="layout">
+        <div class="main">
+          <!-- Addresses -->
+          <section class="block card card--pad">
+            <div class="spread block__head">
+              <h2>Delivery address</h2>
+              @if (addresses.addresses().length) {
+                <button type="button" class="btn btn--ghost btn--sm" (click)="openForm()">
+                  + Add new
+                </button>
+              }
+            </div>
+
+            @if (!addresses.addresses().length && !formOpen()) {
+              <p class="muted">No saved address yet.</p>
+              <button type="button" class="btn btn--primary btn--sm" (click)="openForm()">
+                Add a delivery address
+              </button>
+            }
+
+            @if (addresses.addresses().length) {
+              <ul class="addresses">
+                @for (address of addresses.addresses(); track address.id) {
+                  <li>
+                    <label class="address" [class.is-active]="address.id === addresses.selected()?.id">
+                      <input
+                        type="radio"
+                        name="address"
+                        [checked]="address.id === addresses.selected()?.id"
+                        (change)="addresses.select(address.id)"
+                      />
+                      <span class="address__body">
+                        <span class="address__label">{{ address.label }}</span>
+                        <strong>{{ address.name }}</strong>
+                        <span class="muted">
+                          {{ address.line1 }}@if (address.line2) {, {{ address.line2 }}}
+                          , {{ address.city }} {{ address.pincode }}
+                        </span>
+                        <span class="muted">{{ address.phone }}</span>
+                      </span>
+                      <span class="address__tools">
+                        <button type="button" (click)="openForm(address); $event.preventDefault()">
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          class="is-danger"
+                          (click)="addresses.remove(address.id); $event.preventDefault()"
+                        >
+                          Delete
+                        </button>
+                      </span>
+                    </label>
+                  </li>
+                }
+              </ul>
+            }
+
+            <!-- Address form -->
+            @if (formOpen()) {
+              <form class="form" (submit)="saveAddress(); $event.preventDefault()" novalidate>
+                <div class="form__row">
+                  <label class="field" [class.is-invalid]="errors()['name']">
+                    <span class="field__label">Full name</span>
+                    <input
+                      type="text"
+                      [value]="draft().name"
+                      (input)="patch('name', $any($event.target).value)"
+                      autocomplete="name"
+                    />
+                    @if (errors()['name']) {
+                      <span class="field__error">{{ errors()['name'] }}</span>
+                    }
+                  </label>
+
+                  <label class="field" [class.is-invalid]="errors()['phone']">
+                    <span class="field__label">Mobile number</span>
+                    <input
+                      type="tel"
+                      [value]="draft().phone"
+                      (input)="patch('phone', $any($event.target).value)"
+                      placeholder="98765 43210"
+                      autocomplete="tel"
+                    />
+                    @if (errors()['phone']) {
+                      <span class="field__error">{{ errors()['phone'] }}</span>
+                    }
+                  </label>
+                </div>
+
+                <label class="field" [class.is-invalid]="errors()['line1']">
+                  <span class="field__label">Flat, building, street</span>
+                  <input
+                    type="text"
+                    [value]="draft().line1"
+                    (input)="patch('line1', $any($event.target).value)"
+                    autocomplete="address-line1"
+                  />
+                  @if (errors()['line1']) {
+                    <span class="field__error">{{ errors()['line1'] }}</span>
+                  }
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Area, locality (optional)</span>
+                  <input
+                    type="text"
+                    [value]="draft().line2"
+                    (input)="patch('line2', $any($event.target).value)"
+                    autocomplete="address-line2"
+                  />
+                </label>
+
+                <div class="form__row">
+                  <label class="field" [class.is-invalid]="errors()['city']">
+                    <span class="field__label">City</span>
+                    <input
+                      type="text"
+                      [value]="draft().city"
+                      (input)="patch('city', $any($event.target).value)"
+                    />
+                    @if (errors()['city']) {
+                      <span class="field__error">{{ errors()['city'] }}</span>
+                    }
+                  </label>
+
+                  <label class="field" [class.is-invalid]="errors()['pincode']">
+                    <span class="field__label">PIN code</span>
+                    <input
+                      type="text"
+                      inputmode="numeric"
+                      maxlength="6"
+                      [value]="draft().pincode"
+                      (input)="patch('pincode', $any($event.target).value)"
+                    />
+                    @if (errors()['pincode']) {
+                      <span class="field__error">{{ errors()['pincode'] }}</span>
+                    }
+                  </label>
+                </div>
+
+                <div class="form__row">
+                  <label class="field">
+                    <span class="field__label">Landmark (optional)</span>
+                    <input
+                      type="text"
+                      [value]="draft().landmark"
+                      (input)="patch('landmark', $any($event.target).value)"
+                    />
+                  </label>
+
+                  <label class="field">
+                    <span class="field__label">Save as</span>
+                    <select [value]="draft().label" (change)="patch('label', $any($event.target).value)">
+                      <option value="Home">Home</option>
+                      <option value="Work">Work</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </label>
+                </div>
+
+                <div class="form__actions">
+                  <button type="submit" class="btn btn--primary btn--sm">Save address</button>
+                  <button
+                    type="button"
+                    class="btn btn--ghost btn--sm"
+                    (click)="formOpen.set(false)"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            }
+          </section>
+
+          <!-- Slot -->
+          <section class="block card card--pad">
+            <h2>Delivery time</h2>
+            <div class="slots">
+              @for (slot of catalog.slots(); track slot.id) {
+                <label class="slot" [class.is-active]="slot.id === cart.slot().id">
+                  <input
+                    type="radio"
+                    name="slot"
+                    [checked]="slot.id === cart.slot().id"
+                    (change)="cart.chooseSlot(slot.id)"
+                  />
+                  <span class="slot__label">{{ slot.label }}</span>
+                  <span class="muted">{{ slot.window }}</span>
+                  @if (slot.surcharge > 0) {
+                    <span class="slot__fee">+{{ slot.surcharge | rupees }}</span>
+                  }
+                </label>
+              }
+            </div>
+            <p class="muted eta">Estimated arrival: about {{ eta() }} minutes after confirmation.</p>
+          </section>
+
+          <!-- Payment method -->
+          <section class="block card card--pad">
+            <h2>How would you like to pay?</h2>
+
+            <div class="methods">
+              <label class="method" [class.is-active]="method() === 'upi'">
+                <input type="radio" name="method" [checked]="method() === 'upi'"
+                       (change)="method.set('upi')" />
+                <span class="method__glyph" aria-hidden="true">📱</span>
+                <span class="method__body">
+                  <strong>UPI</strong>
+                  <span class="muted">Scan a QR with GPay, PhonePe, Paytm or any UPI app.</span>
+                  @if (!payments.upiConfigured()) {
+                    <span class="method__warn">
+                      Needs a UPI ID in catalog.json before it can take money.
+                    </span>
+                  }
+                </span>
+              </label>
+
+              <label class="method" [class.is-active]="method() === 'card'">
+                <input type="radio" name="method" [checked]="method() === 'card'"
+                       (change)="method.set('card')" />
+                <span class="method__glyph" aria-hidden="true">💳</span>
+                <span class="method__body">
+                  <strong>Card</strong>
+                  <span class="muted">Visa, Mastercard, RuPay or Amex.</span>
+                  <span class="method__warn">Sandbox only — no real money moves.</span>
+                </span>
+              </label>
+
+              <label class="method" [class.is-active]="method() === 'cod'">
+                <input type="radio" name="method" [checked]="method() === 'cod'"
+                       (change)="method.set('cod')" />
+                <span class="method__glyph" aria-hidden="true">💵</span>
+                <span class="method__body">
+                  <strong>Cash on delivery</strong>
+                  <span class="muted">Pay the rider when your order arrives.</span>
+                </span>
+              </label>
+            </div>
+          </section>
+        </div>
+
+        <!-- Summary -->
+        <aside class="summary">
+          <section class="card card--pad">
+            <shop-bill-summary [bill]="cart.bill()" title="Order summary" />
+
+            <ul class="summary__items">
+              @for (line of cart.lines(); track line.id) {
+                <li>
+                  <span aria-hidden="true">{{ line.glyph }}</span>
+                  <span class="summary__name">{{ line.name }}</span>
+                  <span class="muted mono-num">× {{ line.qty }}</span>
+                </li>
+              }
+            </ul>
+
+            <button
+              type="button"
+              class="btn btn--primary btn--block btn--lg place"
+              [disabled]="!canPlace()"
+              (click)="place()"
+            >
+              @if (placing()) {
+                Placing…
+              } @else if (method() === 'cod') {
+                Place order · pay on delivery
+              } @else {
+                Place order · {{ cart.bill().total | rupees }}
+              }
+            </button>
+
+            @if (!addresses.selected()) {
+              <p class="place__hint">Add a delivery address to continue.</p>
+            }
+          </section>
+        </aside>
+      </div>
+    }
+  </div>
+</section>

@@ -141,6 +141,117 @@
           }
         }
       }
+    },
+    "shop-core": {
+      "projectType": "library",
+      "root": "projects/shop-core",
+      "sourceRoot": "projects/shop-core/src",
+      "prefix": "pc",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "options": {
+            "project": "projects/shop-core/ng-package.json",
+            "tsConfig": "projects/shop-core/tsconfig.lib.json"
+          },
+          "defaultConfiguration": "production",
+          "configurations": {
+            "production": {},
+            "development": {}
+          }
+        }
+      }
+    },
+    "shop": {
+      "projectType": "application",
+      "root": "projects/shop",
+      "sourceRoot": "projects/shop/src",
+      "prefix": "shop",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/shop/src/main.ts",
+            "tsConfig": "projects/shop/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "outputPath": "dist/shop",
+            "index": "projects/shop/src/index.html",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/shop/public"
+              },
+              {
+                "glob": "catalog.json",
+                "input": "projects/shop-core/src/lib/data",
+                "output": "."
+              }
+            ],
+            "styles": [
+              "projects/shop/src/styles.scss"
+            ],
+            "allowedCommonJsDependencies": [
+              "qrcode"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "900kB",
+                  "maximumError": "2MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "14kB",
+                  "maximumError": "30kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "shop:build:production"
+            },
+            "development": {
+              "buildTarget": "shop:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "tsConfig": "projects/shop/tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/shop/public"
+              },
+              {
+                "glob": "catalog.json",
+                "input": "projects/shop-core/src/lib/data",
+                "output": "."
+              }
+            ],
+            "styles": [
+              "projects/shop/src/styles.scss"
+            ]
+          }
+        }
+      }
     }
   }
 }

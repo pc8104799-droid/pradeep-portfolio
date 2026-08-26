@@ -1,8 +1,13 @@
-# Portfolio workspace
+# Angular 22 monorepo
 
-An Angular 22 monorepo: a public portfolio, and a signed-in workspace for managing every part
-of it. Zoneless, signal-based, no UI library, no icon font, no animation library — every
-component, icon and animation here is hand-written.
+Two applications and three libraries in one workspace:
+
+- **Portfolio** — a public portfolio plus a signed-in workspace for editing every part of it.
+- **FreshKart** — a food and grocery storefront: browse, cart, coupons, checkout, UPI / card /
+  cash payment, and order tracking.
+
+Zoneless, signal-based, no UI library, no icon font, no animation library — every component,
+icon and animation here is hand-written.
 
 ## Run it
 
@@ -10,12 +15,61 @@ component, icon and animation here is hand-written.
 git clone https://github.com/pc8104799-droid/pradeep-portfolio.git
 cd pradeep-portfolio
 npm install
-npm start              # http://localhost:4200
-npm run build          # the app     -> dist/portfolio
-npm run build:libs     # both libs   -> dist/core, dist/ui
-npm run build:all      # libs then app
-npm test               # 32 specs in headless Chrome
+
+npm start              # portfolio  -> http://localhost:4200
+npm run start:shop     # FreshKart  -> http://localhost:4200
+
+npm run build          # portfolio -> dist/portfolio
+npm run build:shop     # FreshKart -> dist/shop
+npm run build:libs     # libraries -> dist/core, dist/ui, dist/shop-core
+npm run build:all      # libraries then both apps
+
+npm test               # portfolio: 45 specs
+npm run test:shop      # FreshKart: 53 specs
 ```
+
+## FreshKart — the storefront
+
+`npm run start:shop`. A complete ordering flow, all of it driven by JSON through services.
+
+| Route | What it does |
+| --- | --- |
+| `/` | Offers, categories, bestsellers, kitchens, a live-order strip |
+| `/menu`, `/menu/:category` | Search, category, diet and price filters, five sort orders |
+| `/product/:id` | Variants, stock, related items |
+| `/cart` | Quantities, coupons, delivery slot, undo on remove |
+| `/checkout` | Saved addresses, slot, payment method (needs an account) |
+| `/pay/:orderId` | UPI QR, sandbox card, or switch to cash |
+| `/order/:orderId` | Stage tracker, timeline, bill, payment status |
+| `/orders`, `/account` | History, addresses, totals |
+
+### Payment — what is real and what is not
+
+**UPI is real.** The payment page builds a standards-compliant `upi://pay` intent and renders
+it as a QR, so GPay, PhonePe, Paytm or any bank app scans it with the payee and amount already
+filled in. Set `config.upiId` in
+[`catalog.json`](projects/shop-core/src/lib/data/catalog.json) to your own VPA — something
+like `yourname@okhdfcbank` — to switch it on. It ships blank on purpose: a QR pays whoever it
+names, so it must not go out with a guessed ID.
+
+**Card is a sandbox.** A real gateway needs a secret key to create the order and verify the
+signature, and that key cannot live in browser code. So the card form validates properly —
+Luhn, brand detection, expiry, CVV length by brand — and then settles locally. Any valid
+number works; one ending `0000` always declines, so the failure path is reachable.
+`PaymentService.settle()` is the single seam to replace once a backend exists.
+
+**Cash on delivery is real** — there is nothing to integrate.
+
+Neither UPI nor cards can *confirm* that money arrived without a server callback, so a UPI
+order is recorded as awaiting verification until it is checked.
+
+### Store content
+
+The whole store — config, 12 categories, 6 kitchens, 41 products with 73 variants, coupons and
+delivery slots — is one file:
+[`catalog.json`](projects/shop-core/src/lib/data/catalog.json). It is bundled as a fallback
+and also copied to the site root and fetched at startup, so the deployed catalog can be edited
+without a rebuild. The support email and phone come from `config` too.
 
 ## The three areas
 
@@ -82,6 +136,13 @@ CRUD list and a validated form. No new component.
 
 ```
 projects/
+  shop/                  FreshKart storefront
+    src/app/pages/       home, catalog, product, cart, checkout, payment,
+                         order, orders, account, auth, not-found
+    src/app/layout/      header, footer, phone tab bar
+    src/app/shared/      product card, qty stepper, bill, UPI QR, toasts
+  shop-core/             @pc/shop-core — catalog, cart and bill, addresses,
+                         payments, orders
   core/                  @pc/core — state, no UI
     src/lib/models/      typed content shapes
     src/lib/data/        content.json (single source of truth)
@@ -141,7 +202,22 @@ Viewport-relative type is tokenised as `--h1-size` / `--h2-size` so the layout t
 
 ## Tests
 
-`npm test` runs 32 specs in headless Chrome:
+`npm run test:shop` runs 53 specs over the storefront:
+
+- **bill maths** — item totals, MRP savings, percentage coupons capped at their ceiling, flat
+  and free-delivery coupons, the free-delivery threshold, GST on the discounted goods value
+  only, express surcharge, and that the total is the sum of its parts
+- **cart** — variants as separate lines, the 20-per-line cap, refusing out-of-stock stock,
+  coupons dropping when a cart falls below the minimum, persistence
+- **catalog** — search across name, tags, category and kitchen; veg excluding egg; price
+  ceilings; sorting; cheapest in-stock pricing
+- **payments** — UPI intent format, Luhn, brand detection, expiry and CVV rules, sandbox
+  capture, the `0000` decline, UPI staying pending until confirmed
+- **orders** — placing, newest-first, stage advance stopping at delivered, attaching a payment
+- **flow** — every route renders, guests redirected to sign in with the destination remembered,
+  adding to cart from the product page, a cash order placed end to end
+
+`npm test` runs 45 specs over the portfolio:
 
 - **auth** — registration, normalised emails, no password in storage, duplicate rejection,
   wrong-password rejection, identical error for unknown email, session restore

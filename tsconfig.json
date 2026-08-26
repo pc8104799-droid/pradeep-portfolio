@@ -23,6 +23,9 @@
       ],
       "@pc/ui": [
         "projects/ui/src/public-api.ts"
+      ],
+      "@pc/shop-core": [
+        "projects/shop-core/src/public-api.ts"
       ]
     }
   },

@@ -1,0 +1,164 @@
+@if (order(); as order) {
+  <section class="section">
+    <div class="shell">
+      <!-- Confirmation banner -->
+      <header class="hero card card--pad">
+        <span class="hero__tick" aria-hidden="true">✓</span>
+        <div>
+          <h1>
+            @if (order.stage === 'delivered') {
+              Delivered. Enjoy!
+            } @else {
+              Order confirmed
+            }
+          </h1>
+          <p class="muted">
+            {{ order.id }} · placed at {{ time(order.placedAt) }} ·
+            {{ order.lines.length }} item{{ order.lines.length === 1 ? '' : 's' }}
+          </p>
+        </div>
+
+        @if (order.stage !== 'delivered') {
+          <p class="hero__eta">
+            <strong class="mono-num">{{ orders.minutesRemaining(order) }}</strong>
+            <span>min away</span>
+          </p>
+        }
+      </header>
+
+      <div class="layout">
+        <div class="main">
+          <!-- Tracker -->
+          <section class="card card--pad track">
+            <h2>Where your order is</h2>
+
+            <div class="rail" aria-hidden="true">
+              <span class="rail__fill" [style.width.%]="progress() * 100"></span>
+            </div>
+
+            <ol class="stages">
+              @for (stage of stages; track stage; let i = $index) {
+                <li
+                  class="stage"
+                  [class.is-done]="i <= reachedIndex()"
+                  [class.is-current]="i === reachedIndex()"
+                >
+                  <span class="stage__dot" aria-hidden="true"></span>
+                  <span class="stage__label">{{ orders.label(stage) }}</span>
+                </li>
+              }
+            </ol>
+
+            <ul class="timeline">
+              @for (event of order.timeline.slice().reverse(); track event.at) {
+                <li>
+                  <strong>{{ orders.label(event.stage) }}</strong>
+                  <span class="muted">{{ event.note }}</span>
+                  <time class="muted">{{ time(event.at) }}</time>
+                </li>
+              }
+            </ul>
+
+            <p class="track__note muted">
+              Status advances on this device as time passes. A live deployment would receive it
+              from the kitchen instead.
+            </p>
+          </section>
+
+          <!-- Items -->
+          <section class="card card--pad">
+            <h2>Your items</h2>
+            <ul class="items">
+              @for (line of order.lines; track line.id) {
+                <li>
+                  <span class="items__glyph" aria-hidden="true">{{ line.glyph }}</span>
+                  <span class="items__body">
+                    <a [routerLink]="['/product', line.productId]">{{ line.name }}</a>
+                    <span class="muted">{{ line.variantLabel }} · × {{ line.qty }}</span>
+                  </span>
+                  <span class="items__total mono-num">
+                    {{ line.unitPrice * line.qty | rupees }}
+                  </span>
+                </li>
+              }
+            </ul>
+          </section>
+        </div>
+
+        <!-- Side -->
+        <aside class="side">
+          <section class="card card--pad">
+            <h2>Delivering to</h2>
+            <p class="addr">
+              <strong>{{ order.address.name }}</strong>
+              <span class="muted">
+                {{ order.address.line1 }}@if (order.address.line2) {, {{ order.address.line2 }}}
+              </span>
+              <span class="muted">{{ order.address.city }} {{ order.address.pincode }}</span>
+              @if (order.address.landmark) {
+                <span class="muted">Near {{ order.address.landmark }}</span>
+              }
+              <span class="muted">{{ order.address.phone }}</span>
+            </p>
+            <p class="slot muted">{{ order.slot.label }} · {{ order.slot.window }}</p>
+          </section>
+
+          <section class="card card--pad">
+            <h2>Payment</h2>
+            <p class="payment">
+              <span class="payment__method">{{ methodLabel(order.payment.method) }}</span>
+              <span
+                class="payment__status"
+                [class.is-paid]="order.payment.status === 'paid'"
+                [class.is-pending]="order.payment.status === 'pending'"
+                [class.is-failed]="order.payment.status === 'failed'"
+              >
+                {{ paymentLabel() }}
+              </span>
+            </p>
+
+            @if (order.payment.reference) {
+              <p class="muted ref">Reference {{ order.payment.reference }}</p>
+            }
+            @if (order.payment.note) {
+              <p class="muted ref">{{ order.payment.note }}</p>
+            }
+
+            @if (order.payment.status === 'failed' || order.payment.status === 'pending') {
+              <a class="btn btn--outline btn--sm btn--block" [routerLink]="['/pay', order.id]">
+                {{ order.payment.status === 'failed' ? 'Try paying again' : 'Complete payment' }}
+              </a>
+            }
+          </section>
+
+          <section class="card card--pad">
+            <shop-bill-summary [bill]="order.bill" title="Bill" />
+          </section>
+
+          <section class="card card--pad help">
+            <h2>Need help?</h2>
+            <p class="muted">
+              Email <a [href]="'mailto:' + catalog.config().supportEmail">
+                {{ catalog.config().supportEmail }}
+              </a> quoting {{ order.id }}.
+            </p>
+          </section>
+        </aside>
+      </div>
+
+      <p class="foot-actions">
+        <a class="btn btn--primary" routerLink="/menu">Order something else</a>
+        <a class="btn btn--ghost" routerLink="/orders">All orders</a>
+      </p>
+    </div>
+  </section>
+} @else {
+  <section class="section">
+    <div class="shell card card--pad missing">
+      <p class="missing__glyph" aria-hidden="true">🧾</p>
+      <h1>Order not found</h1>
+      <p class="muted">Orders live in the browser that placed them.</p>
+      <a class="btn btn--primary" routerLink="/orders">Your orders</a>
+    </div>
+  </section>
+}

@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { ContentService } from './services/content.service';
-import { getPath, setPath } from './schema/path.util';
-import { SECTIONS, SECTION_BY_ID } from './schema/content-schema';
-import { EditorDraft } from './schema/editor-draft';
+import { ContentService } from '@pc/core';
+import { getPath, setPath } from '@pc/core';
+import { SECTIONS, SECTION_BY_ID } from '@pc/core';
+import { EditorDraft } from '@pc/core';
 
 describe('ContentService', () => {
   let content: ContentService;

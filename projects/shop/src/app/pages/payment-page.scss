@@ -1,0 +1,177 @@
+:host {
+  display: block;
+}
+
+.pay {
+  max-width: 560px;
+}
+
+.head {
+  margin-bottom: 1rem;
+}
+
+.head h1 {
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+}
+
+.head .muted {
+  margin-top: .25rem;
+  font-size: .86rem;
+}
+
+/* ---------- Amount ---------- */
+.amount {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: .9rem;
+  background: var(--leaf-900);
+  border-color: transparent;
+  color: #eaf5ee;
+}
+
+.amount .muted {
+  color: rgb(234 245 238 / 70%);
+  font-size: .85rem;
+}
+
+.amount strong {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 800;
+}
+
+/* ---------- Blocks ---------- */
+.block {
+  display: grid;
+  gap: .9rem;
+  margin-bottom: .9rem;
+}
+
+.block h2 {
+  font-size: 1.02rem;
+}
+
+.block > .muted {
+  font-size: .88rem;
+  margin-top: -.4rem;
+}
+
+/* ---------- UPI ---------- */
+.upi__payee {
+  display: grid;
+  gap: .1rem;
+  text-align: center;
+  font-size: .9rem;
+}
+
+.upi__payee .muted {
+  font-family: ui-monospace, monospace;
+  font-size: .8rem;
+}
+
+.upi__confirm {
+  display: grid;
+  gap: .7rem;
+  padding-top: .9rem;
+  border-top: 1px dashed var(--stroke-strong);
+}
+
+.note {
+  padding: .7rem .85rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: .8rem;
+  line-height: 1.55;
+}
+
+/* ---------- Setup notice ---------- */
+.setup {
+  display: grid;
+  gap: .5rem;
+  padding: .95rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gold);
+  background: rgb(245 158 11 / 10%);
+  font-size: .86rem;
+  line-height: 1.6;
+}
+
+.setup__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.setup code,
+.sandbox code {
+  padding: .1rem .3rem;
+  border-radius: 4px;
+  background: var(--surface-2);
+  font-family: ui-monospace, monospace;
+  font-size: .82em;
+  word-break: break-all;
+}
+
+/* ---------- Card ---------- */
+.sandbox {
+  padding: .75rem .85rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--stroke-strong);
+  background: var(--surface-2);
+  font-size: .82rem;
+  line-height: 1.6;
+}
+
+.form {
+  display: grid;
+  gap: .7rem;
+}
+
+.form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .7rem;
+}
+
+.failure {
+  padding: .7rem .85rem;
+  border-radius: var(--radius-sm);
+  background: rgb(225 29 72 / 10%);
+  border: 1px solid rgb(225 29 72 / 35%);
+  color: var(--berry);
+  font-size: .85rem;
+}
+
+/* ---------- Foot ---------- */
+.back {
+  text-align: center;
+  color: var(--ink-3);
+  font-size: .84rem;
+}
+
+.back a {
+  color: var(--leaf-700);
+  font-weight: 600;
+}
+
+.back a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------- Missing ---------- */
+.missing {
+  display: grid;
+  justify-items: center;
+  gap: .5rem;
+  max-width: 520px;
+  margin-inline: auto;
+  text-align: center;
+  padding-block: clamp(2rem, 6vw, 3.5rem);
+}
+
+.missing__glyph {
+  font-size: 2.6rem;
+}

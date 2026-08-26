@@ -1,0 +1,107 @@
+<section class="section auth">
+  <div class="shell auth__grid">
+    <!-- Pitch -->
+    <aside class="pitch">
+      <p class="pitch__mark">
+        <span aria-hidden="true">🥕</span>
+        {{ catalog.config().name }}
+      </p>
+
+      <h1>
+        @if (mode === 'login') {
+          Welcome back
+        } @else {
+          Create your account
+        }
+      </h1>
+
+      <p class="pitch__lede">
+        @if (mode === 'login') {
+          Sign in to check out, track orders and keep your addresses handy.
+        } @else {
+          One account for ordering, tracking and saved addresses.
+        }
+      </p>
+
+      <ul class="pitch__points">
+        <li><span aria-hidden="true">⚡</span> Delivery in as little as 30 minutes</li>
+        <li><span aria-hidden="true">📱</span> Pay by UPI, card or cash</li>
+        <li><span aria-hidden="true">🧺</span> Food and fresh produce in one cart</li>
+      </ul>
+    </aside>
+
+    <!-- Form -->
+    <form class="card card--pad form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      @if (noAccounts) {
+        <p class="notice">
+          No account exists in this browser yet.
+          <a routerLink="/register">Create one first</a>.
+        </p>
+      }
+
+      @if (mode === 'register') {
+        <label class="field" [class.is-invalid]="invalid('name')">
+          <span class="field__label">Your name</span>
+          <input type="text" formControlName="name" autocomplete="name" placeholder="Pradeep" />
+          @if (invalid('name')) {
+            <span class="field__error">Enter at least two characters.</span>
+          }
+        </label>
+      }
+
+      <label class="field" [class.is-invalid]="invalid('email')">
+        <span class="field__label">Email</span>
+        <input type="email" formControlName="email" autocomplete="email" placeholder="you@example.com" />
+        @if (invalid('email')) {
+          <span class="field__error">Enter a valid email address.</span>
+        }
+      </label>
+
+      <label class="field" [class.is-invalid]="invalid('password')">
+        <span class="field__label">Password</span>
+        <input
+          type="password"
+          formControlName="password"
+          [attr.autocomplete]="mode === 'login' ? 'current-password' : 'new-password'"
+          placeholder="••••••••"
+        />
+        @if (invalid('password')) {
+          <span class="field__error">
+            @if (mode === 'login') {
+              Enter your password.
+            } @else {
+              Use at least 8 characters.
+            }
+          </span>
+        }
+      </label>
+
+      @if (error()) {
+        <p class="alert">{{ error() }}</p>
+      }
+
+      <button type="submit" class="btn btn--primary btn--block btn--lg" [disabled]="busy()">
+        @if (busy()) {
+          Please wait…
+        } @else if (mode === 'login') {
+          Sign in
+        } @else {
+          Create account
+        }
+      </button>
+
+      <p class="swap">
+        @if (mode === 'login') {
+          New here? <a routerLink="/register">Create an account</a>
+        } @else {
+          Already have an account? <a routerLink="/login">Sign in</a>
+        }
+      </p>
+
+      <p class="disclaimer">
+        Accounts live in this browser only — there is no server behind this store, so this is a
+        convenience, not real security. Do not reuse an important password.
+      </p>
+    </form>
+  </div>
+</section>
