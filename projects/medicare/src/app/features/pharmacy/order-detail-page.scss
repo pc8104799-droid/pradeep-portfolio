@@ -1,0 +1,123 @@
+h2 {
+  font-size: 0.95rem;
+}
+
+.right {
+  text-align: right;
+}
+
+.card--warning h2 {
+  font-size: 0.98rem;
+}
+
+/* ---------------------------------------------------------------- track */
+
+.track {
+  display: grid;
+  gap: 0.9rem;
+  position: relative;
+  padding-left: 1.5rem;
+  margin-top: 0.4rem;
+}
+
+.track::before {
+  content: "";
+  position: absolute;
+  left: 0.42rem;
+  top: 0.4rem;
+  bottom: 0.4rem;
+  width: 2px;
+  background: var(--stroke);
+}
+
+.track li {
+  position: relative;
+  color: var(--ink-3);
+}
+
+.track__dot {
+  position: absolute;
+  left: -1.35rem;
+  top: 0.25rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--stroke-strong);
+  transition: all var(--t) var(--ease);
+}
+
+.track li.is-done {
+  color: var(--ink);
+}
+
+.track li.is-done .track__dot {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+/* The current stage gets a halo so it reads as "where we are now". */
+.track li.is-current .track__dot {
+  box-shadow: 0 0 0 4px var(--primary-soft);
+}
+
+.track strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+}
+
+.track span {
+  display: block;
+}
+
+/* ----------------------------------------------------------------- bill */
+
+.bill {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.bill li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  font-size: 0.88rem;
+  color: var(--ink-2);
+}
+
+.bill li.is-credit {
+  color: var(--success);
+}
+
+.bill__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--stroke-strong);
+}
+
+.bill__total strong {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+}
+
+.qr-card {
+  display: grid;
+  gap: 0.4rem;
+  justify-items: center;
+  text-align: center;
+}
+
+td a:hover strong {
+  color: var(--primary);
+}
+
+@media (min-width: 1080px) {
+  aside {
+    position: sticky;
+    top: calc(var(--header-h) + 1rem);
+  }
+}

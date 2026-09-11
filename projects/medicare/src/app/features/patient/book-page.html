@@ -1,0 +1,328 @@
+<section class="page book">
+  <header class="page__head">
+    <div>
+      <h1>Book an appointment</h1>
+      <p>Pick a department, a doctor and a free slot. You pay at the end, and the slot is only
+        confirmed once payment succeeds.</p>
+    </div>
+  </header>
+
+  <mc-stepper [steps]="steps" [activeIndex]="stepIndex()" (jump)="jump($event)" />
+
+  @if (action.error(); as error) {
+    <p class="note note--danger" role="alert">{{ error.message }}</p>
+  }
+
+  <!-- 1 — department -->
+  @if (stepIndex() === 0) {
+    <div class="stack">
+      <h2 class="step-title">Which department?</h2>
+
+      <div class="grid">
+        @for (department of catalog.departments(); track department.id) {
+          <button
+            type="button"
+            class="dept card card--pad"
+            [class.is-active]="departmentId() === department.id"
+            (click)="chooseDepartment(department.id)"
+          >
+            <strong>{{ department.name }}</strong>
+            <span class="muted text-sm">{{ department.summary }}</span>
+            <span class="dept__meta">
+              <span class="badge">{{ department.doctorCount }} doctors</span>
+              @if (department.fromFee) {
+                <span class="badge badge--primary">from {{ department.fromFee | inr }}</span>
+              }
+            </span>
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- 2 — doctor -->
+  @if (stepIndex() === 1) {
+    <div class="stack">
+      <div class="spread">
+        <h2 class="step-title">Choose a doctor in {{ department()?.name }}</h2>
+        <button type="button" class="btn btn--ghost btn--sm" (click)="jump(0)">Change department</button>
+      </div>
+
+      <mc-data-state
+        [busy]="doctors.loading()"
+        [error]="doctors.error()"
+        [empty]="doctors.empty()"
+        [skeletonLines]="3"
+        [skeletonHeight]="5"
+        emptyTitle="No doctors in this department yet"
+        (retry)="doctors.load()"
+      >
+        <div class="stack--sm" [class.is-reloading]="doctors.reloading()">
+          @for (entry of doctors.data()?.items ?? []; track entry.id) {
+            <button type="button" class="pick card card--pad" (click)="chooseDoctor(entry)">
+              <mc-person [name]="entry.name" [meta]="entry.specialization + ' · ' + entry.experience + ' yrs'" />
+
+              <span class="pick__meta">
+                @if (entry.nextAvailable; as next) {
+                  <span class="badge badge--success">
+                    Next {{ next.date | day: 'short' }} · {{ next.time | clock }}
+                  </span>
+                } @else {
+                  <span class="badge badge--warning">Fully booked</span>
+                }
+                <strong class="num">{{ entry.consultationFee | inr }}</strong>
+              </span>
+            </button>
+          }
+        </div>
+      </mc-data-state>
+    </div>
+  }
+
+  <!-- 3 — date -->
+  @if (stepIndex() === 2) {
+    <div class="stack">
+      <div class="spread">
+        <h2 class="step-title">Pick a date with {{ doctor()?.name }}</h2>
+        <button type="button" class="btn btn--ghost btn--sm" (click)="jump(1)">Change doctor</button>
+      </div>
+
+      <mc-data-state
+        [busy]="days.loading()"
+        [error]="days.error()"
+        [skeletonLines]="2"
+        [skeletonHeight]="5"
+        errorTitle="Could not read the calendar"
+        (retry)="days.load()"
+      >
+        <div class="dates" [class.is-reloading]="days.reloading()">
+          @for (day of days.data()?.items ?? []; track day.date) {
+            <button
+              type="button"
+              class="date"
+              [class.is-active]="date() === day.date"
+              [disabled]="day.available === 0"
+              [title]="day.reason ?? (day.available + ' slots free')"
+              (click)="chooseDate(day.date)"
+            >
+              <span class="date__dow">{{ day.date | day: 'short' }}</span>
+              <span class="date__count num">
+                @if (day.available) {
+                  {{ day.available }} free
+                } @else {
+                  —
+                }
+              </span>
+            </button>
+          }
+        </div>
+      </mc-data-state>
+    </div>
+  }
+
+  <!-- 4 — time -->
+  @if (stepIndex() === 3) {
+    <div class="stack">
+      <div class="spread">
+        <h2 class="step-title">Choose a time on {{ date() | day }}</h2>
+        <button type="button" class="btn btn--ghost btn--sm" (click)="jump(2)">Change date</button>
+      </div>
+
+      <mc-data-state
+        [busy]="slots.loading()"
+        [error]="slots.error()"
+        [skeletonLines]="2"
+        [skeletonHeight]="4"
+        errorTitle="Could not read the slots"
+        (retry)="slots.load()"
+      >
+        @if (slots.data(); as day) {
+          @if (!day.working) {
+            <p class="note note--warning">{{ day.reason ?? 'Not consulting on this day.' }}</p>
+          } @else {
+            <div class="slots" [class.is-reloading]="slots.reloading()">
+              @for (slot of day.slots; track slot.time) {
+                <button
+                  type="button"
+                  class="slot"
+                  [class.is-active]="time() === slot.time"
+                  [disabled]="!slot.available"
+                  [title]="slot.reason === 'booked' ? 'Already booked' : slot.reason === 'past' ? 'Already passed' : 'Free'"
+                  (click)="chooseSlot(slot)"
+                >
+                  {{ slot.time | clock }}
+                </button>
+              }
+            </div>
+
+            <p class="text-sm muted">
+              Greyed-out times are already booked or have passed. Slots are
+              {{ day.slotMinutes }} minutes long.
+            </p>
+          }
+        }
+      </mc-data-state>
+    </div>
+  }
+
+  <!-- 5 — reason -->
+  @if (stepIndex() === 4) {
+    <div class="stack">
+      <h2 class="step-title">Why are you coming in?</h2>
+
+      <div class="card card--pad stack">
+        <label class="field">
+          <span class="field__label">Reason for the visit <span class="req">*</span></span>
+          <textarea
+            [ngModel]="reason()"
+            (ngModelChange)="reason.set($event)"
+            placeholder="Chest tightness when climbing stairs for the past two weeks"
+            rows="3"
+          ></textarea>
+          <span class="field__hint">
+            At least a few words. The doctor reads this before you walk in.
+          </span>
+        </label>
+
+        <div class="field">
+          <span class="field__label">Symptoms (optional)</span>
+          <div class="row row--wrap">
+            @for (symptom of symptomSuggestions(); track symptom) {
+              <button
+                type="button"
+                class="chip"
+                [class.is-active]="symptoms().includes(symptom)"
+                (click)="toggleSymptom(symptom)"
+              >
+                {{ symptom }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="field">
+            <span class="field__label">Consultation type</span>
+            <div class="row row--wrap">
+              <button
+                type="button"
+                class="chip"
+                [class.is-active]="consultationType() === 'in-person'"
+                (click)="consultationType.set('in-person')"
+              >
+                In person
+              </button>
+              <button
+                type="button"
+                class="chip"
+                [class.is-active]="consultationType() === 'online'"
+                [disabled]="!doctor()?.acceptsOnline"
+                [title]="doctor()?.acceptsOnline ? 'Video consultation' : 'This doctor does not take online consultations'"
+                (click)="consultationType.set('online')"
+              >
+                Online
+              </button>
+            </div>
+          </div>
+
+          @if ((family.data()?.items ?? []).length) {
+            <label class="field">
+              <span class="field__label">Who is this for?</span>
+              <select [ngModel]="familyMemberId()" (ngModelChange)="familyMemberId.set($event)">
+                <option value="">Myself</option>
+                @for (member of family.data()?.items ?? []; track member.id) {
+                  <option [value]="member.id">{{ member.name }} · {{ member.relationship }}</option>
+                }
+              </select>
+            </label>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- 6 — review -->
+  @if (stepIndex() === 5) {
+    <div class="stack">
+      <h2 class="step-title">Check the details</h2>
+
+      <div class="split split--even">
+        <article class="card card--pad stack--sm">
+          <div class="kv">
+            <div class="kv__row">
+              <span class="kv__key">Doctor</span>
+              <span class="kv__value">{{ doctor()?.name }}</span>
+            </div>
+            <div class="kv__row">
+              <span class="kv__key">Department</span>
+              <span class="kv__value">{{ department()?.name }}</span>
+            </div>
+            <div class="kv__row">
+              <span class="kv__key">When</span>
+              <span class="kv__value">{{ date() | day }} at {{ time() | clock }}</span>
+            </div>
+            <div class="kv__row">
+              <span class="kv__key">Type</span>
+              <span class="kv__value">{{ consultationType() | label }}</span>
+            </div>
+            <div class="kv__row">
+              <span class="kv__key">Reason</span>
+              <span class="kv__value">{{ reason() }}</span>
+            </div>
+            @if (symptoms().length) {
+              <div class="kv__row">
+                <span class="kv__key">Symptoms</span>
+                <span class="kv__value">{{ symptoms() | listOr }}</span>
+              </div>
+            }
+          </div>
+        </article>
+
+        <article class="card card--pad stack--sm">
+          <h3>What you will pay</h3>
+
+          <div class="kv">
+            <div class="kv__row">
+              <span class="kv__key">Consultation</span>
+              <span class="kv__value num">{{ fee() | inr }}</span>
+            </div>
+            <div class="kv__row">
+              <span class="kv__key">Service charge</span>
+              <span class="kv__value muted text-sm">5% added at payment</span>
+            </div>
+            <div class="kv__row">
+              <span class="kv__key">GST</span>
+              <span class="kv__value muted text-sm">18% added at payment</span>
+            </div>
+          </div>
+
+          <p class="text-sm muted">
+            The exact total — including any insurance co-pay — is calculated by the hospital on
+            the next screen. Nothing is charged until you choose a payment method.
+          </p>
+
+          <button type="button" class="btn btn--primary btn--lg btn--block" [disabled]="action.busy()" (click)="confirm()">
+            @if (action.busy()) {
+              <span class="btn__spinner" aria-hidden="true"></span>
+            }
+            Hold this slot & pay
+          </button>
+
+          <a class="btn btn--ghost btn--block" routerLink="/patient/appointments">Cancel</a>
+        </article>
+      </div>
+    </div>
+  }
+
+  <div class="wizard-actions">
+    @if (stepIndex() > 0) {
+      <button type="button" class="btn btn--ghost" (click)="back()">← Back</button>
+    }
+
+    @if (stepIndex() < steps.length - 1) {
+      <button type="button" class="btn btn--primary" [disabled]="!canAdvance()" (click)="next()">
+        Continue →
+      </button>
+    }
+  </div>
+</section>

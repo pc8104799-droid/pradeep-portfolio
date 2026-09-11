@@ -1,0 +1,152 @@
+<section class="page">
+  <mc-data-state
+    [busy]="payment.loading()"
+    [error]="payment.error()"
+    [skeletonLines]="2"
+    [skeletonHeight]="8"
+    errorTitle="That payment could not be loaded"
+    (retry)="payment.load()"
+  >
+    @if (payment.data(); as bill) {
+      <header class="page__head">
+        <div>
+          <h1>{{ settled() ? 'Payment complete' : 'Complete your payment' }}</h1>
+          <p>
+            {{ bill.kind === 'consultation' ? 'Consultation fee' : 'Medicine order' }} ·
+            <span class="mono">{{ bill.referenceId }}</span>
+          </p>
+        </div>
+
+        <a class="btn btn--outline" [routerLink]="backLink(bill)">← Back</a>
+      </header>
+
+      <mc-note tone="info">
+        This is a simulated payment gateway. No card is charged and no bank is contacted —
+        the amount, the outcome and every record it updates are handled by the MediCare360 API.
+      </mc-note>
+
+      <div class="split split--even">
+        <!-- Bill -->
+        <article class="card card--pad stack--sm">
+          <h2>What you are paying for</h2>
+
+          <ul class="bill">
+            @for (line of lines(); track line.label) {
+              <li [class.is-credit]="line.tone === 'credit'">
+                <span>{{ line.label }}</span>
+                <span class="num">{{ line.value | inr }}</span>
+              </li>
+            }
+          </ul>
+
+          <div class="bill__total">
+            <span>Amount payable</span>
+            <strong class="num">{{ bill.amount | inr }}</strong>
+          </div>
+
+          @if (bill.couponCode) {
+            <p class="text-sm">
+              Coupon <span class="mono">{{ bill.couponCode }}</span> applied.
+            </p>
+          }
+
+          @if (bill.appointment; as appointment) {
+            <div class="context">
+              <span class="text-xs muted">Appointment</span>
+              <strong>{{ appointment.doctorName }}</strong>
+              <span class="text-sm">
+                {{ appointment.departmentName }} · {{ appointment.date | day }} at
+                {{ appointment.time | clock }}
+              </span>
+            </div>
+          }
+
+          @if (bill.order; as order) {
+            <div class="context">
+              <span class="text-xs muted">Order</span>
+              <strong>{{ order.lines.length }} item{{ order.lines.length > 1 ? 's' : '' }}</strong>
+              <span class="text-sm">Delivering to {{ order.address.city }} · {{ order.deliverySlot }}</span>
+            </div>
+          }
+        </article>
+
+        <!-- Method -->
+        <article class="card card--pad stack--sm">
+          @if (settled()) {
+            <div class="done">
+              <span class="done__mark" aria-hidden="true">✓</span>
+              <h2>Paid {{ bill.amount | inr }}</h2>
+              <p class="text-sm muted">
+                {{ bill.method | label }} · {{ bill.paidAt | day }}
+              </p>
+              <p class="mono text-xs">{{ bill.transactionId }}</p>
+
+              <div class="row row--wrap">
+                <a class="btn btn--primary" [routerLink]="backLink(bill)">Continue</a>
+                <a class="btn btn--outline" [routerLink]="['/patient/payments', bill.id]">View receipt</a>
+              </div>
+            </div>
+          } @else {
+            <h2>Choose how to pay</h2>
+
+            @if (declined(); as message) {
+              <p class="note note--danger" role="alert">
+                {{ message }} Nothing was charged — pick another method and try again.
+              </p>
+            }
+
+            @if (action.error(); as error) {
+              <p class="note note--danger" role="alert">{{ error.message }}</p>
+            }
+
+            <div class="methods" role="radiogroup" aria-label="Payment method">
+              @for (option of methods; track option.id) {
+                <button
+                  type="button"
+                  role="radio"
+                  class="method"
+                  [class.is-active]="method() === option.id"
+                  [attr.aria-checked]="method() === option.id"
+                  (click)="method.set(option.id)"
+                >
+                  <strong>{{ option.label }}</strong>
+                  <span class="muted text-xs">{{ option.hint }}</span>
+                </button>
+              }
+            </div>
+
+            <!-- The failure path is a first-class thing to demonstrate, not an
+                 edge case hidden behind a mock API. -->
+            <label class="check" [class.is-selected]="simulateFailure()">
+              <input
+                type="checkbox"
+                [checked]="simulateFailure()"
+                (change)="simulateFailure.set(!simulateFailure())"
+              />
+              <span class="text-sm">
+                Simulate a declined payment
+                <span class="muted">— to see how the app handles a failure</span>
+              </span>
+            </label>
+
+            <button
+              type="button"
+              class="btn btn--primary btn--lg btn--block"
+              [disabled]="action.busy()"
+              (click)="pay()"
+            >
+              @if (action.busy()) {
+                <span class="btn__spinner" aria-hidden="true"></span>
+              }
+              Pay {{ bill.amount | inr }}
+            </button>
+
+            <p class="text-xs muted">
+              Your booking is held while you pay. Cancelling later raises an automatic refund.
+            </p>
+          }
+        </article>
+      </div>
+    }
+  </mc-data-state>
+</section>

@@ -1,0 +1,157 @@
+h2 {
+  font-size: 0.95rem;
+}
+
+.note {
+  display: block;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.note--danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* ----------------------------------------------------------------- week */
+
+.week {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.day {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.day.is-off {
+  opacity: 0.7;
+  background: transparent;
+}
+
+.day__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+}
+
+/* The day toggle is a checkbox styled as a heading, so the whole label is a
+   hit target rather than just the box. */
+.day__toggle {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.day__toggle:hover {
+  border: 0;
+}
+
+.day__toggle.is-selected {
+  background: transparent;
+  color: var(--primary);
+}
+
+.day__windows {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.window {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.window .field {
+  max-width: 8rem;
+}
+
+.window__dash {
+  color: var(--ink-3);
+}
+
+.window__remove {
+  color: var(--ink-3);
+  font-size: 0.78rem;
+  padding: 0.3rem;
+  border-radius: var(--radius-xs);
+}
+
+.window__remove:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.max-per {
+  max-width: 12rem;
+}
+
+/* --------------------------------------------------------------- actions */
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+  position: sticky;
+  bottom: 0;
+  padding: 0.75rem 0;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+}
+
+.form-actions .btn--ghost {
+  margin-right: auto;
+}
+
+/* ---------------------------------------------------------------- leave */
+
+.clashes,
+.leaves {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.clashes li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+  margin-block: 0.5rem;
+}
+
+.leaves li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  padding: 0.6rem var(--pad-card);
+  border-bottom: 1px solid var(--stroke);
+  flex-wrap: wrap;
+}
+
+.leaves li:last-child {
+  border-bottom: 0;
+}
+
+.leaves li.is-past {
+  opacity: 0.6;
+}
+
+.clashes strong,
+.leaves strong {
+  display: block;
+  font-size: 0.88rem;
+}

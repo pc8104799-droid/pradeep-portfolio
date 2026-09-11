@@ -1,0 +1,121 @@
+h2 {
+  font-size: 0.95rem;
+}
+
+.date-field {
+  max-width: 11rem;
+}
+
+/* ---------------------------------------------------------- in the room */
+
+.active {
+  display: grid;
+  gap: var(--gap);
+  border-left: 3px solid var(--primary);
+  background: var(--primary-soft);
+}
+
+.active__label {
+  display: block;
+  color: var(--primary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+}
+
+.active__main {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+@media (min-width: 860px) {
+  .active {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+}
+
+/* --------------------------------------------------------------- tokens */
+
+.token {
+  display: grid;
+  place-items: center;
+  min-width: 2.4rem;
+  height: 2.4rem;
+  padding-inline: 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+  color: var(--primary-ink);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  flex: none;
+}
+
+.token--lg {
+  min-width: 3.2rem;
+  height: 3.2rem;
+  font-size: 1.6rem;
+}
+
+/* Ghost tokens are times or finished numbers — present but not to be called. */
+.token--ghost {
+  background: var(--surface-3);
+  color: var(--ink-3);
+  font-size: 0.8rem;
+}
+
+/* ---------------------------------------------------------------- queue */
+
+.queue li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.6rem var(--gap-sm);
+  align-items: center;
+  padding: 0.7rem var(--pad-card);
+  border-bottom: 1px solid var(--stroke);
+}
+
+.queue li:last-child {
+  border-bottom: 0;
+}
+
+/* The next patient to be called is highlighted, so the eye lands on it. */
+.queue li.is-next {
+  background: var(--surface-2);
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.queue--quiet li {
+  opacity: 0.85;
+}
+
+.queue__who {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.queue__actions {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+}
+
+/* Four columns once there is room: token, who, status, actions. */
+@media (min-width: 800px) {
+  .queue li {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+  }
+
+  .queue__actions {
+    grid-column: auto;
+    justify-content: flex-end;
+  }
+}

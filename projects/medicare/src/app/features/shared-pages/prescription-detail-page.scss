@@ -1,0 +1,160 @@
+.slip {
+  overflow: hidden;
+  border-top: 3px solid var(--primary);
+}
+
+.slip__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gap);
+  padding: var(--pad-card);
+  border-bottom: 1px solid var(--stroke);
+  flex-wrap: wrap;
+}
+
+.slip__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.slip__brand strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.slip__mark {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+  color: var(--primary-ink);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.slip__meta {
+  display: grid;
+  justify-items: end;
+  gap: 0.15rem;
+  text-align: right;
+}
+
+.slip__label {
+  display: block;
+  color: var(--ink-3);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.15rem;
+}
+
+.slip__parties {
+  display: grid;
+  gap: var(--gap);
+  padding: var(--pad-card);
+  border-bottom: 1px solid var(--stroke);
+}
+
+@media (min-width: 640px) {
+  .slip__parties {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.slip__parties strong {
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+
+.slip__parties p {
+  color: var(--ink-2);
+}
+
+.slip__allergy {
+  display: inline-block;
+  margin-top: 0.3rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-xs);
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.slip__diagnosis {
+  padding: var(--pad-card);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--stroke);
+}
+
+.slip__diagnosis strong {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+/* The ℞ column is the one people scan for, so it carries the visual weight. */
+.slip__table strong {
+  font-size: 0.92rem;
+}
+
+.slip__instruction {
+  margin-top: 0.25rem;
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.slip__advice {
+  padding: var(--pad-card);
+  border-top: 1px solid var(--stroke);
+}
+
+.slip__advice p {
+  font-size: 0.9rem;
+}
+
+.slip__foot {
+  display: grid;
+  gap: var(--gap);
+  align-items: end;
+  padding: var(--pad-card);
+  border-top: 1px solid var(--stroke);
+  background: var(--surface-2);
+}
+
+@media (min-width: 640px) {
+  .slip__foot {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+.slip__notes p + p {
+  margin-top: 0.4rem;
+}
+
+.stock {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.stock li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  padding: 0.5rem 0.65rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  flex-wrap: wrap;
+}
+
+.stock strong {
+  display: block;
+  font-size: 0.88rem;
+}

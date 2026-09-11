@@ -1,0 +1,187 @@
+<section class="page">
+  <mc-data-state
+    [busy]="prescription.loading()"
+    [error]="prescription.error()"
+    [skeletonLines]="3"
+    [skeletonHeight]="7"
+    errorTitle="That prescription could not be loaded"
+    (retry)="prescription.load()"
+  >
+    @if (prescription.data(); as rx) {
+      <header class="page__head no-print">
+        <div>
+          <h1>Prescription</h1>
+          <p>
+            {{ rx.diagnosis }} · issued {{ rx.issuedAt | day }}
+            <span class="mono text-xs"> · {{ rx.id }}</span>
+          </p>
+        </div>
+
+        <div class="row row--wrap">
+          <a class="btn btn--outline" [routerLink]="'/' + panel() + '/prescriptions'">← All prescriptions</a>
+          <button type="button" class="btn btn--outline" (click)="print()">Print</button>
+
+          @if (panel() === 'patient' && stocked() > 0) {
+            <a class="btn btn--primary" routerLink="/patient/pharmacy" [queryParams]="{ prescriptionId: rx.id }">
+              Order these medicines
+            </a>
+          }
+        </div>
+      </header>
+
+      <article class="slip card">
+        <!-- Printed letterhead. Hidden on screen, where the app chrome already
+             says which hospital this is. -->
+        <header class="slip__head">
+          <div class="slip__brand">
+            <span class="slip__mark" aria-hidden="true">✚</span>
+            <div>
+              <strong>MediCare360</strong>
+              <span class="text-xs muted">Hospital & Healthcare Platform</span>
+            </div>
+          </div>
+
+          <div class="slip__meta">
+            <span class="mono">{{ rx.id }}</span>
+            <span class="text-xs muted">Issued {{ rx.issuedAt | day }}</span>
+            <mc-status [status]="rx.status" />
+          </div>
+        </header>
+
+        <div class="slip__parties">
+          <div>
+            <span class="slip__label">Patient</span>
+            <strong>{{ rx.patient?.name ?? rx.patientName }}</strong>
+            @if (rx.patient; as patient) {
+              <p class="text-sm">
+                {{ patient.age }} years · {{ patient.gender | label }} · {{ patient.bloodGroup }}
+              </p>
+              <p class="mono text-xs">{{ patient.id }}</p>
+              @if (patient.allergies.length) {
+                <p class="slip__allergy">Allergic to {{ patient.allergies | listOr }}</p>
+              }
+            }
+          </div>
+
+          <div>
+            <span class="slip__label">Prescribed by</span>
+            <strong>{{ rx.doctorName }}</strong>
+            @if (rx.doctor; as doctor) {
+              <p class="text-sm">{{ doctor.qualification }}</p>
+              <p class="text-sm">{{ doctor.specialization }} · {{ rx.departmentName }}</p>
+              <p class="mono text-xs">Reg. {{ doctor.registrationNumber }}</p>
+            }
+          </div>
+        </div>
+
+        <div class="slip__diagnosis">
+          <span class="slip__label">Diagnosis</span>
+          <strong>{{ rx.diagnosis }}</strong>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data slip__table">
+            <thead>
+              <tr>
+                <th>℞ Medicine</th>
+                <th>Dose</th>
+                <th>Frequency</th>
+                <th>Duration</th>
+                <th>When</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (medicine of rx.medicines; track $index) {
+                <tr>
+                  <td>
+                    <strong>{{ medicine.name }}</strong>
+                    <div class="muted text-xs">
+                      {{ medicine.genericName || '—' }}
+                      @if (medicine.strength) {
+                        · {{ medicine.strength }}
+                      }
+                      @if (medicine.form) {
+                        · {{ medicine.form }}
+                      }
+                    </div>
+                    @if (medicine.instructions) {
+                      <div class="slip__instruction">{{ medicine.instructions }}</div>
+                    }
+                  </td>
+                  <td>{{ medicine.dosage }}</td>
+                  <td>{{ medicine.frequency }}</td>
+                  <td>{{ medicine.duration }}</td>
+                  <td>
+                    {{ medicine.timing }}
+                    <div class="muted text-xs">{{ medicine.route }}</div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (rx.advice) {
+          <div class="slip__advice">
+            <span class="slip__label">Advice</span>
+            <p>{{ rx.advice }}</p>
+          </div>
+        }
+
+        <footer class="slip__foot">
+          <div class="slip__notes">
+            @if (rx.followUpDate) {
+              <p>
+                <strong>Follow-up:</strong> {{ rx.followUpDate | day }}
+              </p>
+            }
+            <p class="text-xs muted">
+              This prescription is valid for 90 days from the date of issue. Medicines marked
+              prescription-only cannot be dispensed without it.
+            </p>
+          </div>
+
+          <mc-qr-code [value]="rx.id" caption="Scan at the pharmacy" [size]="320" />
+        </footer>
+      </article>
+
+      @if (panel() === 'patient') {
+        <article class="card card--pad no-print stack--sm">
+          <h2>Available at the MediCare360 pharmacy</h2>
+
+          @if (stocked() === 0) {
+            <p class="muted text-sm">
+              None of these are stocked here. Any licensed pharmacy can dispense this prescription.
+            </p>
+          } @else {
+            <ul class="stock">
+              @for (medicine of rx.medicines; track $index) {
+                @if (medicine.catalogue; as item) {
+                  <li>
+                    <div>
+                      <strong>{{ item.name }}</strong>
+                      <span class="muted text-xs">{{ item.strength }} · {{ item.packSize }}</span>
+                    </div>
+
+                    <div class="row">
+                      <strong class="num">{{ item.price | inr }}</strong>
+                      @if (item.stock > 0) {
+                        <mc-status status="in-stock" [text]="item.stock + ' in stock'" />
+                      } @else {
+                        <mc-status status="out-of-stock" text="Out of stock" />
+                      }
+                    </div>
+                  </li>
+                }
+              }
+            </ul>
+
+            <a class="btn btn--primary" routerLink="/patient/pharmacy" [queryParams]="{ prescriptionId: rx.id }">
+              Add all to basket
+            </a>
+          }
+        </article>
+      }
+    }
+  </mc-data-state>
+</section>

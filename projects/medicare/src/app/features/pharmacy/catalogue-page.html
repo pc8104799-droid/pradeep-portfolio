@@ -1,0 +1,171 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Medical store</h1>
+      <p>
+        {{ results.data()?.total ?? 0 }} medicines and devices, dispensed from the hospital pharmacy.
+      </p>
+    </div>
+
+    <div class="row row--wrap">
+      <a class="btn btn--outline" routerLink="/patient/pharmacy/orders">Your orders</a>
+      <a class="btn btn--primary" routerLink="/patient/pharmacy/cart">
+        Basket
+        @if (cart.count() > 0) {
+          <span class="badge badge--primary">{{ cart.count() }}</span>
+        }
+      </a>
+    </div>
+  </header>
+
+  @if (prescriptionId(); as attached) {
+    <div class="card card--pad card--rail rx-banner">
+      <div>
+        <h2>Prescription attached</h2>
+        <p class="text-sm">
+          <span class="mono">{{ attached }}</span> is verified for this basket, so prescription-only
+          medicines can be ordered.
+        </p>
+      </div>
+
+      <div class="row row--wrap">
+        <a class="btn btn--outline btn--sm" [routerLink]="['/patient/prescriptions', attached]">
+          View prescription
+        </a>
+        <button type="button" class="btn btn--ghost btn--sm" (click)="cart.attachPrescription(null)">
+          Detach
+        </button>
+      </div>
+    </div>
+  } @else {
+    <mc-note tone="info">
+      Prescription-only medicines need a valid prescription. Open one from
+      <a routerLink="/patient/prescriptions">your prescriptions</a> and choose “Order these
+      medicines” to unlock them here.
+    </mc-note>
+  }
+
+  <div class="scroll-x cats">
+    <button type="button" class="chip" [class.is-active]="!filters().category" (click)="patch({ category: '' })">
+      All categories
+    </button>
+
+    @for (category of catalog.medicineCategories(); track category.id) {
+      <button
+        type="button"
+        class="chip"
+        [class.is-active]="filters().category === category.id"
+        (click)="patch({ category: category.id })"
+      >
+        {{ category.name }}
+        @if (category.count) {
+          <span class="muted num">{{ category.count }}</span>
+        }
+      </button>
+    }
+  </div>
+
+  <div class="spread toolbar">
+    <mc-search
+      [value]="filters().q ?? ''"
+      placeholder="Medicine, generic name or brand"
+      (valueChange)="patch({ q: $event })"
+    />
+
+    <div class="row row--wrap">
+      <button
+        type="button"
+        class="chip"
+        [class.is-active]="filters().inStock"
+        (click)="patch({ inStock: filters().inStock ? undefined : true })"
+      >
+        In stock only
+      </button>
+
+      <label class="field sort">
+        <span class="sr-only">Sort</span>
+        <select [ngModel]="filters().sort" (ngModelChange)="patch({ sort: $event })">
+          @for (sort of sorts; track sort.id) {
+            <option [value]="sort.id">{{ sort.label }}</option>
+          }
+        </select>
+      </label>
+
+      <button type="button" class="btn btn--ghost btn--sm" (click)="clearFilters()">Reset</button>
+    </div>
+  </div>
+
+  <mc-data-state
+    [busy]="results.loading()"
+    [error]="results.error()"
+    [empty]="results.empty()"
+    [skeletonLines]="6"
+    [skeletonHeight]="5"
+    emptyTitle="Nothing matches that search"
+    emptyBody="Try a generic name — paracetamol rather than a brand — or clear the filters."
+    (retry)="results.load()"
+  >
+    <div class="grid" [class.is-reloading]="results.reloading()">
+      @for (medicine of results.data()?.items ?? []; track medicine.id) {
+        <article class="med card card--pad" [class.is-out]="medicine.stock === 0">
+          <header class="med__head">
+            <div class="med__title">
+              <a [routerLink]="['/patient/pharmacy', medicine.id]">
+                <strong>{{ medicine.name }}</strong>
+              </a>
+              <span class="muted text-xs">{{ medicine.genericName }}</span>
+            </div>
+
+            @if (medicine.discount > 0) {
+              <span class="badge badge--success">{{ medicine.discount }}% off</span>
+            }
+          </header>
+
+          <div class="med__tags">
+            <span class="badge">{{ medicine.strength }}</span>
+            <span class="badge">{{ medicine.form }}</span>
+            @if (medicine.prescriptionRequired) {
+              <span class="badge badge--warning">℞ only</span>
+            }
+          </div>
+
+          <p class="med__desc">{{ medicine.description }}</p>
+
+          <div class="med__price">
+            <strong class="num">{{ medicine.price | inr }}</strong>
+            @if (medicine.mrp > medicine.price) {
+              <s class="muted num text-xs">{{ medicine.mrp | inr }}</s>
+            }
+            <span class="muted text-xs">{{ medicine.packSize }}</span>
+          </div>
+
+          <footer class="med__foot">
+            @if (blockedReason(medicine); as blocked) {
+              <span class="badge badge--danger">{{ blocked }}</span>
+              @if (blocked === 'Prescription required') {
+                <a class="btn btn--outline btn--sm" routerLink="/patient/prescriptions">Attach one</a>
+              }
+            } @else if (cart.quantityOf(medicine.id); as quantity) {
+              <mc-qty
+                [value]="quantity"
+                [max]="10"
+                [label]="medicine.name"
+                (valueChange)="cart.setQuantity(medicine.id, $event)"
+              />
+              <a class="btn btn--ghost btn--sm" routerLink="/patient/pharmacy/cart">In basket →</a>
+            } @else {
+              <button type="button" class="btn btn--primary btn--sm" (click)="add(medicine)">
+                Add to basket
+              </button>
+              <span class="muted text-xs">{{ medicine.stock }} in stock</span>
+            }
+          </footer>
+        </article>
+      }
+    </div>
+
+    @if (results.data(); as page) {
+      <mc-paginator [page]="page.page" [pages]="page.pages" [total]="page.total" (pageChange)="patch({ page: $event })" />
+    }
+  </mc-data-state>
+</section>

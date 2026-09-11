@@ -26,6 +26,9 @@
       ],
       "@pc/shop-core": [
         "projects/shop-core/src/public-api.ts"
+      ],
+      "@pc/medicare-core": [
+        "projects/medicare-core/src/public-api.ts"
       ]
     }
   },

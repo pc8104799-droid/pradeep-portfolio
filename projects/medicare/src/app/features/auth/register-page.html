@@ -1,0 +1,343 @@
+<mc-auth-layout
+  heading="Register as a patient"
+  blurb="One record for every visit, prescription, report and medicine order — across all three MediCare360 branches."
+>
+  <form class="stack" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <mc-stepper [steps]="steps" [activeIndex]="stepIndex()" (jump)="jump($event)" />
+
+    @if (action.error(); as error) {
+      <p class="note note--danger" role="alert">
+        {{ error.message }}
+        @if (error.hasFieldErrors) {
+          <span class="text-xs"> Check the highlighted fields.</span>
+        }
+      </p>
+    }
+
+    <!-- Step 1 — identity -->
+    @if (stepIndex() === 0) {
+      <fieldset class="fieldset">
+        <legend>About you</legend>
+
+        <div class="field-grid">
+          <label class="field" [class.is-invalid]="invalid('firstName') || serverError('firstName')">
+            <span class="field__label">First name <span class="req">*</span></span>
+            <input formControlName="firstName" autocomplete="given-name" />
+            <mc-field-error [control]="control('firstName')" label="First name" [serverError]="serverError('firstName')" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Middle name</span>
+            <input formControlName="middleName" autocomplete="additional-name" />
+          </label>
+
+          <label class="field" [class.is-invalid]="invalid('lastName')">
+            <span class="field__label">Last name <span class="req">*</span></span>
+            <input formControlName="lastName" autocomplete="family-name" />
+            <mc-field-error [control]="control('lastName')" label="Last name" [serverError]="serverError('lastName')" />
+          </label>
+        </div>
+
+        <div class="field-grid">
+          <label class="field" [class.is-invalid]="invalid('dateOfBirth')">
+            <span class="field__label">Date of birth <span class="req">*</span></span>
+            <input type="date" formControlName="dateOfBirth" autocomplete="bday" />
+            <mc-field-error [control]="control('dateOfBirth')" label="Date of birth" [serverError]="serverError('dateOfBirth')" />
+          </label>
+
+          <div class="field">
+            <span class="field__label">Age</span>
+            <!-- Derived from the date of birth rather than asked for, so the two
+                 can never disagree on the record. -->
+            <output class="field__derived num">
+              {{ age() === null ? '—' : age() + ' years' }}
+              @if (isMinor()) {
+                <span class="badge badge--warning">Minor</span>
+              }
+            </output>
+          </div>
+
+          <label class="field" [class.is-invalid]="invalid('gender')">
+            <span class="field__label">Gender <span class="req">*</span></span>
+            <select formControlName="gender">
+              <option value="">Select…</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other">Other</option>
+            </select>
+            <mc-field-error [control]="control('gender')" label="Gender" [serverError]="serverError('gender')" />
+          </label>
+
+          <label class="field" [class.is-invalid]="invalid('bloodGroup')">
+            <span class="field__label">Blood group <span class="req">*</span></span>
+            <select formControlName="bloodGroup">
+              @for (group of bloodGroups; track group) {
+                <option [value]="group">{{ group === 'unknown' ? 'Not known' : group }}</option>
+              }
+            </select>
+            <span class="field__hint">Shown on your emergency card.</span>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Marital status</span>
+            <select formControlName="maritalStatus">
+              <option value="single">Single</option>
+              <option value="married">Married</option>
+              <option value="widowed">Widowed</option>
+              <option value="divorced">Divorced</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Occupation</span>
+            <input formControlName="occupation" placeholder="Software engineer" />
+          </label>
+        </div>
+      </fieldset>
+    }
+
+    <!-- Step 2 — contact and address -->
+    @if (stepIndex() === 1) {
+      <fieldset class="fieldset">
+        <legend>Contact</legend>
+
+        <div class="field-grid">
+          <label class="field" [class.is-invalid]="invalid('mobile') || serverError('mobile')">
+            <span class="field__label">Mobile number <span class="req">*</span></span>
+            <input formControlName="mobile" inputmode="tel" autocomplete="tel" placeholder="+91 98200 41185" />
+            <mc-field-error [control]="control('mobile')" label="Mobile number" [serverError]="serverError('mobile')" />
+          </label>
+
+          <label class="field" [class.is-invalid]="invalid('email') || serverError('email')">
+            <span class="field__label">Email <span class="req">*</span></span>
+            <input type="email" formControlName="email" autocomplete="email" placeholder="you@example.com" />
+            <mc-field-error [control]="control('email')" label="Email" [serverError]="serverError('email')" />
+            <span class="field__hint">This is also how you sign in.</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Address</legend>
+
+        <label class="field" [class.is-invalid]="invalid('address')">
+          <span class="field__label">Street address <span class="req">*</span></span>
+          <input formControlName="address" autocomplete="street-address" placeholder="Flat 402, Sunrise Residency, Link Road" />
+          <mc-field-error [control]="control('address')" label="Address" [serverError]="serverError('address')" />
+        </label>
+
+        <div class="field-grid">
+          <label class="field" [class.is-invalid]="invalid('city')">
+            <span class="field__label">City <span class="req">*</span></span>
+            <input formControlName="city" autocomplete="address-level2" />
+            <mc-field-error [control]="control('city')" label="City" />
+          </label>
+
+          <label class="field" [class.is-invalid]="invalid('state')">
+            <span class="field__label">State <span class="req">*</span></span>
+            <input formControlName="state" autocomplete="address-level1" />
+            <mc-field-error [control]="control('state')" label="State" />
+          </label>
+
+          <label class="field" [class.is-invalid]="invalid('country')">
+            <span class="field__label">Country <span class="req">*</span></span>
+            <input formControlName="country" autocomplete="country-name" />
+            <mc-field-error [control]="control('country')" label="Country" />
+          </label>
+
+          <label class="field" [class.is-invalid]="invalid('pincode')">
+            <span class="field__label">PIN code <span class="req">*</span></span>
+            <input formControlName="pincode" inputmode="numeric" maxlength="6" autocomplete="postal-code" />
+            <mc-field-error [control]="control('pincode')" label="PIN code" [serverError]="serverError('pincode')" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Preferred branch</span>
+            <select formControlName="preferredBranchId">
+              @for (branch of catalog.branches(); track branch.id) {
+                <option [value]="branch.id">{{ branch.name }} · {{ branch.city }}</option>
+              }
+            </select>
+            <span class="field__hint">You can still book at any branch.</span>
+          </label>
+        </div>
+      </fieldset>
+    }
+
+    <!-- Step 3 — emergency and guardian -->
+    @if (stepIndex() === 2) {
+      <fieldset class="fieldset">
+        <legend>Emergency contact</legend>
+        <p class="field__hint">
+          Who the hospital calls if you cannot speak for yourself. This appears on your emergency card.
+        </p>
+
+        <div class="field-grid">
+          <label class="field" [class.is-invalid]="invalid('emergencyContactName')">
+            <span class="field__label">Contact name <span class="req">*</span></span>
+            <input formControlName="emergencyContactName" />
+            <mc-field-error [control]="control('emergencyContactName')" label="Contact name" />
+          </label>
+
+          <label class="field" [class.is-invalid]="invalid('emergencyContact')">
+            <span class="field__label">Contact number <span class="req">*</span></span>
+            <input formControlName="emergencyContact" inputmode="tel" />
+            <mc-field-error [control]="control('emergencyContact')" label="Emergency contact" />
+          </label>
+
+          <label class="field" [class.is-invalid]="invalid('emergencyContactRelationship')">
+            <span class="field__label">Relationship <span class="req">*</span></span>
+            <input formControlName="emergencyContactRelationship" placeholder="Spouse, Father, Sister…" />
+            <mc-field-error [control]="control('emergencyContactRelationship')" label="Relationship" />
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset" [class.is-required]="isMinor()">
+        <legend>Parent or guardian {{ isMinor() ? '(required)' : '(optional)' }}</legend>
+
+        @if (isMinor()) {
+          <p class="note note--warning">
+            This patient is {{ age() }} — a guardian must be recorded before the account can be created.
+          </p>
+        } @else {
+          <p class="field__hint">Optional for an adult. Useful if someone else manages your care.</p>
+        }
+
+        <div class="field-grid">
+          <label class="field" [class.is-invalid]="isMinor() && !control('guardianName').value && control('guardianName').touched">
+            <span class="field__label">Guardian name @if (isMinor()) { <span class="req">*</span> }</span>
+            <input formControlName="guardianName" />
+            <mc-field-error [control]="control('guardianName')" label="Guardian name" [serverError]="serverError('guardianName')" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Guardian mobile @if (isMinor()) { <span class="req">*</span> }</span>
+            <input formControlName="guardianMobile" inputmode="tel" />
+            <mc-field-error [control]="control('guardianMobile')" label="Guardian mobile" [serverError]="serverError('guardianMobile')" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Relationship @if (isMinor()) { <span class="req">*</span> }</span>
+            <select formControlName="guardianRelationship">
+              <option value="">Select…</option>
+              <option value="Father">Father</option>
+              <option value="Mother">Mother</option>
+              <option value="Guardian">Guardian</option>
+              <option value="Brother">Brother</option>
+              <option value="Sister">Sister</option>
+            </select>
+          </label>
+        </div>
+
+        @if (form.errors?.['guardian'] && control('guardianName').touched) {
+          <p class="field__error" role="alert">A patient under 18 needs a guardian name, mobile and relationship.</p>
+        }
+      </fieldset>
+    }
+
+    <!-- Step 4 — medical history, insurance, account -->
+    @if (stepIndex() === 3) {
+      <fieldset class="fieldset">
+        <legend>Medical background</legend>
+        <p class="field__hint">Separate several entries with commas. You can change all of this later.</p>
+
+        <label class="field">
+          <span class="field__label">Existing conditions</span>
+          <input formControlName="conditions" placeholder="Type 2 Diabetes, Hypertension" />
+        </label>
+
+        <label class="field">
+          <span class="field__label">Allergies</span>
+          <input formControlName="allergies" placeholder="Penicillin, Dust mites" />
+          <span class="field__hint">
+            Doctors are warned before prescribing anything you react to, so this one matters.
+          </span>
+        </label>
+
+        <div class="field-grid">
+          <label class="field">
+            <span class="field__label">Medicines you take now</span>
+            <input formControlName="currentMedicines" placeholder="Telma 40, Shelcal 500" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Previous hospital</span>
+            <input formControlName="previousHospital" />
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Insurance</legend>
+
+        <div class="field-grid">
+          <label class="field">
+            <span class="field__label">Provider</span>
+            <input formControlName="insuranceProvider" placeholder="Star Health" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Policy number</span>
+            <input formControlName="insuranceNumber" placeholder="STAR-123456" />
+            <span class="field__hint">A covered patient pays a 40% co-pay at checkout.</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Sign-in details</legend>
+
+        <div class="field-grid">
+          <label class="field" [class.is-invalid]="invalid('password')">
+            <span class="field__label">Password <span class="req">*</span></span>
+            <input type="password" formControlName="password" autocomplete="new-password" />
+            <mc-field-error [control]="control('password')" label="Password" [serverError]="serverError('password')" />
+            <span class="field__hint">At least 8 characters.</span>
+          </label>
+
+          <label class="field" [class.is-invalid]="form.errors?.['mismatch'] && control('confirmPassword').touched">
+            <span class="field__label">Confirm password <span class="req">*</span></span>
+            <input type="password" formControlName="confirmPassword" autocomplete="new-password" />
+            @if (form.errors?.['mismatch'] && control('confirmPassword').touched) {
+              <p class="field__error" role="alert">Those two passwords do not match.</p>
+            }
+          </label>
+        </div>
+
+        <label class="check" [class.is-selected]="form.controls.consent.value">
+          <input type="checkbox" formControlName="consent" />
+          <span class="text-sm">
+            I confirm these details are correct and agree that MediCare360 may store them as part of my
+            medical record.
+          </span>
+        </label>
+
+        @if (control('consent').invalid && control('consent').touched) {
+          <p class="field__error" role="alert">Please confirm before creating the account.</p>
+        }
+      </fieldset>
+    }
+
+    <div class="wizard-actions">
+      @if (stepIndex() > 0) {
+        <button type="button" class="btn btn--ghost" (click)="back()">← Back</button>
+      }
+
+      @if (stepIndex() < steps.length - 1) {
+        <button type="button" class="btn btn--primary" (click)="next()">Continue →</button>
+      } @else {
+        <button type="submit" class="btn btn--primary btn--lg" [disabled]="action.busy()">
+          @if (action.busy()) {
+            <span class="btn__spinner" aria-hidden="true"></span>
+          }
+          Create my record
+        </button>
+      }
+    </div>
+
+    <p class="text-sm muted">
+      Already registered? <a class="link" routerLink="/login">Sign in</a>
+    </p>
+  </form>
+</mc-auth-layout>

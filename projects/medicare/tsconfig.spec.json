@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../out-tsc/medicare-spec",
+    "types": ["jasmine"]
+  },
+  "include": ["src/**/*.ts", "../medicare-core/src/**/*.ts"]
+}

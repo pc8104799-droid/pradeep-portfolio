@@ -1,0 +1,123 @@
+h2 {
+  font-size: 0.95rem;
+}
+
+/* ------------------------------------------------------------ "right now" */
+
+.now {
+  display: grid;
+  gap: var(--gap);
+  border-left: 3px solid var(--primary);
+}
+
+.now.is-idle {
+  border-left-color: var(--stroke-strong);
+}
+
+.now__label {
+  display: block;
+  color: var(--primary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+}
+
+.now.is-idle .now__label {
+  color: var(--ink-3);
+}
+
+.now__main {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+/* The token is the number the doctor calls out, so it is the biggest thing. */
+.now__token {
+  display: grid;
+  place-items: center;
+  min-width: 3rem;
+  height: 3rem;
+  padding-inline: 0.6rem;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: var(--primary-ink);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  flex: none;
+}
+
+.now__counts {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.now__counts div {
+  display: grid;
+}
+
+.now__counts strong {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  line-height: 1.1;
+}
+
+.now__counts span {
+  color: var(--ink-3);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.now__actions {
+  display: flex;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+}
+
+@media (min-width: 900px) {
+  .now {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+  }
+
+  .now__counts {
+    padding-inline: var(--gap);
+    border-inline: 1px solid var(--stroke);
+  }
+
+  .now__actions {
+    flex-direction: column;
+  }
+}
+
+/* --------------------------------------------------------------- lists */
+
+.attention {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.attention li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--stroke);
+  flex-wrap: wrap;
+}
+
+.attention li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.attention strong {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  margin-right: 0.4rem;
+}

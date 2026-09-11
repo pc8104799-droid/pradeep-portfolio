@@ -37,6 +37,11 @@ yarn-error.log
 testem.log
 /typings
 
+# MediCare360 API — db.json is generated on first boot, and its seed dates are
+# relative to that day, so a committed copy would look abandoned within a week.
+/server/data/db.json
+/server/data/db.json.tmp
+
 # System files
 .DS_Store
 Thumbs.db

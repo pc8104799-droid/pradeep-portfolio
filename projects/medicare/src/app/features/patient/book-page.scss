@@ -1,0 +1,186 @@
+.step-title {
+  font-size: 1.05rem;
+}
+
+.note {
+  display: block;
+  padding: 0.65rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.86rem;
+}
+
+.note--danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.note--warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+/* ------------------------------------------------------------ department */
+
+.dept {
+  display: grid;
+  gap: 0.3rem;
+  text-align: left;
+  align-content: start;
+  transition:
+    border-color var(--t) var(--ease),
+    transform var(--t) var(--ease),
+    box-shadow var(--t) var(--ease);
+}
+
+.dept:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.dept.is-active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.dept strong {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+}
+
+.dept__meta {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  margin-top: 0.3rem;
+}
+
+/* ---------------------------------------------------------- doctor pick */
+
+.pick {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  width: 100%;
+  text-align: left;
+  flex-wrap: wrap;
+  transition:
+    border-color var(--t) var(--ease),
+    background var(--t) var(--ease);
+}
+
+.pick:hover {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.pick__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+}
+
+.pick__meta strong {
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+
+/* ----------------------------------------------------------------- dates */
+
+.dates {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(6.2rem, 1fr));
+  gap: 0.45rem;
+}
+
+.date {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.6rem 0.4rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+  text-align: center;
+  transition: all var(--t-fast) var(--ease);
+}
+
+.date:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.date:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.date.is-active {
+  border-color: transparent;
+  background: var(--primary);
+  color: var(--primary-ink);
+}
+
+.date__dow {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.date__count {
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+
+/* ----------------------------------------------------------------- slots */
+
+.slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.2rem, 1fr));
+  gap: 0.4rem;
+}
+
+.slot {
+  padding: 0.55rem 0.3rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+  font-size: 0.84rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  transition: all var(--t-fast) var(--ease);
+}
+
+.slot:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.slot:disabled {
+  /* Taken slots stay visible rather than vanishing, so the day still reads as
+     a real clinic rather than a short list of leftovers. */
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.slot.is-active {
+  border-color: transparent;
+  background: var(--primary);
+  color: var(--primary-ink);
+}
+
+/* --------------------------------------------------------------- actions */
+
+.wizard-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+}
+
+.wizard-actions .btn--ghost {
+  margin-right: auto;
+}

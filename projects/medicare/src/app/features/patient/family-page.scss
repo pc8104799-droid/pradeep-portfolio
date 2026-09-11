@@ -1,0 +1,42 @@
+.member {
+  display: grid;
+  gap: 0.7rem;
+  align-content: start;
+  transition: border-color var(--t) var(--ease);
+}
+
+.member:hover {
+  border-color: var(--stroke-strong);
+}
+
+.member__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+}
+
+.member__foot {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--stroke);
+}
+
+.kv__value.warn {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.note {
+  display: block;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.note--danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}

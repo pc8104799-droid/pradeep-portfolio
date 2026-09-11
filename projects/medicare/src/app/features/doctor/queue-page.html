@@ -1,0 +1,199 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>{{ isToday() ? "Today's queue" : 'Clinic on ' + (date() | day) }}</h1>
+      <p>
+        @if (board.data(); as data) {
+          {{ data.counts.expected }} expected · {{ data.counts.waiting }} waiting ·
+          {{ data.counts.completed }} seen
+        } @else {
+          Call, consult and close each visit from here.
+        }
+      </p>
+    </div>
+
+    <div class="row row--wrap">
+      <label class="field date-field">
+        <span class="sr-only">Clinic date</span>
+        <input type="date" [ngModel]="date()" (ngModelChange)="setDate($event)" />
+      </label>
+      <button type="button" class="btn btn--outline" (click)="board.load()">Refresh</button>
+    </div>
+  </header>
+
+  <mc-data-state
+    [busy]="board.loading()"
+    [error]="board.error()"
+    [empty]="board.empty()"
+    [skeletonLines]="4"
+    [skeletonHeight]="4"
+    emptyTitle="No clinic on this day"
+    emptyBody="Nothing is booked. Check your published hours if that looks wrong."
+    (retry)="board.load()"
+  >
+    <div slot="empty-action">
+      <a class="btn btn--outline" routerLink="/doctor/availability">Review availability</a>
+    </div>
+
+    <div class="stack" [class.is-reloading]="board.reloading() || action.busy()">
+      <!-- In the room -->
+      @if (active(); as patient) {
+        <article class="active card card--pad">
+          <div class="active__main">
+            <span class="active__label">In consultation</span>
+
+            <div class="row">
+              @if (patient.token) {
+                <span class="token token--lg num">{{ patient.token }}</span>
+              }
+              <mc-person [name]="patient.patientName" [meta]="patient.reason" size="lg" />
+            </div>
+
+            <div class="row row--wrap">
+              <span class="badge">{{ patient.time | clock }}</span>
+              <span class="badge">{{ patient.visitType | label }}</span>
+              @if (patient.patient?.allergies?.length) {
+                <span class="badge badge--danger">
+                  Allergic to {{ patient.patient!.allergies | listOr }}
+                </span>
+              }
+            </div>
+          </div>
+
+          <div class="row row--wrap">
+            <a class="btn btn--primary" [routerLink]="['/doctor/consultation', patient.id]">
+              Open consultation
+            </a>
+            <button type="button" class="btn btn--outline" (click)="complete(patient)">
+              Mark complete
+            </button>
+          </div>
+        </article>
+      }
+
+      <!-- Waiting -->
+      <article class="card card--flush">
+        <header class="card__head">
+          <h2>Waiting ({{ waiting().length }})</h2>
+          @if (waiting().length) {
+            <span class="muted text-sm">Called in token order</span>
+          }
+        </header>
+
+        @if (waiting().length) {
+          <ul class="queue">
+            @for (patient of waiting(); track patient.id; let first = $first) {
+              <li [class.is-next]="first">
+                <span class="token num">{{ patient.token ?? '—' }}</span>
+
+                <div class="queue__who">
+                  <mc-person
+                    [name]="patient.patientName"
+                    [meta]="patient.time + ' · ' + patient.reason"
+                  />
+                  @if (patient.patient?.allergies?.length) {
+                    <span class="badge badge--danger">
+                      ⚠ {{ patient.patient!.allergies | listOr }}
+                    </span>
+                  }
+                </div>
+
+                <mc-status [status]="patient.queueStatus ?? 'waiting'" />
+
+                <div class="queue__actions">
+                  @if (patient.queueStatus === 'waiting') {
+                    <button type="button" class="btn btn--outline btn--sm" (click)="call(patient)">
+                      Call
+                    </button>
+                  }
+                  <button type="button" class="btn btn--primary btn--sm" (click)="start(patient)">
+                    Start
+                  </button>
+                  <button type="button" class="btn btn--ghost btn--sm" (click)="noShow(patient)">
+                    No-show
+                  </button>
+                </div>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="card__body">
+            <p class="muted">Nobody is waiting.</p>
+          </div>
+        }
+      </article>
+
+      <!-- Booked but not checked in -->
+      @if (notArrived().length) {
+        <article class="card card--flush">
+          <header class="card__head">
+            <h2>Booked, not yet arrived ({{ notArrived().length }})</h2>
+          </header>
+
+          <ul class="queue queue--quiet">
+            @for (patient of notArrived(); track patient.id) {
+              <li>
+                <span class="token token--ghost num">{{ patient.time | clock }}</span>
+
+                <div class="queue__who">
+                  <mc-person [name]="patient.patientName" [meta]="patient.reason" />
+                </div>
+
+                <mc-status [status]="patient.status" />
+
+                <div class="queue__actions">
+                  <button
+                    type="button"
+                    class="btn btn--outline btn--sm"
+                    [disabled]="!isToday()"
+                    [title]="isToday() ? 'Check this patient in' : 'Only possible on the day'"
+                    (click)="checkIn(patient)"
+                  >
+                    Check in
+                  </button>
+                  <a class="btn btn--ghost btn--sm" [routerLink]="['/doctor/appointments', patient.id]">
+                    Details
+                  </a>
+                </div>
+              </li>
+            }
+          </ul>
+        </article>
+      }
+
+      <!-- Finished -->
+      @if (done().length) {
+        <article class="card card--flush">
+          <header class="card__head">
+            <h2>Finished ({{ done().length }})</h2>
+          </header>
+
+          <ul class="queue queue--quiet">
+            @for (patient of done(); track patient.id) {
+              <li>
+                <span class="token token--ghost num">{{ patient.token ?? '—' }}</span>
+
+                <div class="queue__who">
+                  <mc-person [name]="patient.patientName" [meta]="patient.reason" />
+                </div>
+
+                <mc-status [status]="patient.queueStatus ?? patient.status" />
+
+                <div class="queue__actions">
+                  @if (patient.queueStatus === 'no-show') {
+                    <button type="button" class="btn btn--ghost btn--sm" (click)="reset(patient)">
+                      Undo
+                    </button>
+                  }
+                  <a class="btn btn--ghost btn--sm" [routerLink]="['/doctor/appointments', patient.id]">
+                    Record
+                  </a>
+                </div>
+              </li>
+            }
+          </ul>
+        </article>
+      }
+    </div>
+  </mc-data-state>
+</section>

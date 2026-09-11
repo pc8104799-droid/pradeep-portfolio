@@ -1,0 +1,200 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>{{ greeting() }}, Dr {{ firstName() }}</h1>
+      <p>{{ auth.doctor()?.departmentName }} · {{ auth.doctor()?.specialization }}</p>
+    </div>
+
+    <div class="row row--wrap">
+      <button type="button" class="btn btn--outline" (click)="reload()">Refresh</button>
+      <a class="btn btn--primary" routerLink="/doctor/queue">Open today's queue</a>
+    </div>
+  </header>
+
+  <!-- Who is waiting -->
+  <mc-data-state
+    [busy]="queue.loading()"
+    [error]="queue.error()"
+    [skeletonLines]="1"
+    [skeletonHeight]="5"
+    errorTitle="The queue did not load"
+    (retry)="queue.load()"
+  >
+    @if (queue.data(); as board) {
+      <article class="now card card--pad" [class.is-idle]="!nextPatient()">
+        <div class="now__main">
+          @if (nextPatient(); as patient) {
+            <span class="now__label">
+              {{ patient.queueStatus === 'in-consultation' ? 'In consultation' : 'Next to be seen' }}
+            </span>
+
+            <div class="row">
+              @if (patient.token) {
+                <span class="now__token num">{{ patient.token }}</span>
+              }
+              <mc-person
+                [name]="patient.patientName"
+                [meta]="patient.reason"
+                size="lg"
+              />
+            </div>
+
+            <div class="row row--wrap">
+              <mc-status [status]="patient.queueStatus ?? patient.status" />
+              <span class="badge">{{ patient.time | clock }}</span>
+              <span class="badge">{{ patient.visitType | label }}</span>
+            </div>
+          } @else {
+            <span class="now__label">Queue</span>
+            <h2>Nobody is waiting</h2>
+            <p class="muted text-sm">
+              {{ board.counts.expected }} appointments today,
+              {{ board.counts.completed }} already seen.
+            </p>
+          }
+        </div>
+
+        <div class="now__counts">
+          <div>
+            <strong class="num">{{ board.counts.waiting }}</strong>
+            <span>waiting</span>
+          </div>
+          <div>
+            <strong class="num">{{ board.counts.completed }}</strong>
+            <span>seen</span>
+          </div>
+          <div>
+            <strong class="num">{{ board.counts.expected }}</strong>
+            <span>expected</span>
+          </div>
+        </div>
+
+        <div class="now__actions">
+          @if (nextPatient(); as patient) {
+            <a class="btn btn--primary" [routerLink]="['/doctor/consultation', patient.id]">
+              {{ patient.queueStatus === 'in-consultation' ? 'Resume consultation' : 'Start consultation' }}
+            </a>
+          }
+          <a class="btn btn--outline" routerLink="/doctor/queue">Manage queue</a>
+        </div>
+      </article>
+    }
+  </mc-data-state>
+
+  <mc-data-state
+    [busy]="dashboard.loading()"
+    [error]="dashboard.error()"
+    [skeletonLines]="4"
+    [skeletonHeight]="5"
+    errorTitle="Your dashboard did not load"
+    (retry)="dashboard.load()"
+  >
+    @if (dashboard.data(); as data) {
+      <div class="stack" [class.is-reloading]="dashboard.reloading()">
+        <div class="grid grid--metrics">
+          <mc-stat
+            label="Today"
+            [value]="data.today.total"
+            [hint]="data.today.completed + ' completed · ' + data.today.waiting + ' waiting'"
+            link="/doctor/queue"
+          />
+          <mc-stat
+            label="Patients"
+            [value]="data.totals.patients"
+            [hint]="data.totals.newThisMonth + ' new this month'"
+            link="/doctor/patients"
+          />
+          <mc-stat
+            label="Consultations"
+            [value]="data.totals.consultations"
+            [hint]="data.totals.prescriptions + ' prescriptions issued'"
+            link="/doctor/prescriptions"
+          />
+          <mc-stat
+            label="Today's earnings"
+            [value]="data.earnings.today"
+            [currency]="true"
+            [hint]="(data.earnings.month | inr) + ' this month'"
+            link="/doctor/earnings"
+          />
+        </div>
+
+        <div class="split">
+          <div class="stack">
+            <article class="card card--pad">
+              <div class="spread">
+                <h2>Appointments, last 14 days</h2>
+                <span class="badge">{{ data.totals.consultations }} completed all time</span>
+              </div>
+              <mc-bar-chart [points]="data.charts.daily" caption="Bookings per day" />
+            </article>
+
+            <div class="split split--even">
+              <article class="card card--pad">
+                <h2>Monthly patient volume</h2>
+                <mc-line-chart [points]="data.charts.monthly" caption="Six months" />
+              </article>
+
+              <article class="card card--pad">
+                <h2>Revenue</h2>
+                <mc-bar-chart [points]="data.charts.revenue" [currency]="true" caption="Six months" />
+              </article>
+            </div>
+          </div>
+
+          <aside class="stack">
+            <article class="card card--pad">
+              <h2>Appointment outcomes</h2>
+              <mc-donut-chart [points]="data.charts.status" unit="visits" />
+            </article>
+
+            <article class="card card--pad stack--sm">
+              <h2>Needs your attention</h2>
+
+              <ul class="attention">
+                <li>
+                  <div>
+                    <strong class="num">{{ data.totals.pendingReports }}</strong>
+                    <span class="muted text-sm">lab tests without a report</span>
+                  </div>
+                  <a class="btn btn--ghost btn--sm" routerLink="/doctor/reports">Review →</a>
+                </li>
+                <li>
+                  <div>
+                    <strong class="num">{{ data.totals.followUps }}</strong>
+                    <span class="muted text-sm">follow-ups scheduled ahead</span>
+                  </div>
+                  <a class="btn btn--ghost btn--sm" routerLink="/doctor/appointments">Open →</a>
+                </li>
+                <li>
+                  <div>
+                    <strong class="num">{{ data.earnings.pendingCount }}</strong>
+                    <span class="muted text-sm">
+                      unpaid consultations · {{ data.earnings.pending | inr }}
+                    </span>
+                  </div>
+                  <a class="btn btn--ghost btn--sm" routerLink="/doctor/earnings">Earnings →</a>
+                </li>
+                <li>
+                  <div>
+                    <strong class="num">{{ data.today.noShow }}</strong>
+                    <span class="muted text-sm">no-shows today</span>
+                  </div>
+                </li>
+              </ul>
+            </article>
+
+            <article class="card card--pad stack--sm">
+              <h2>Shortcuts</h2>
+              <a class="btn btn--outline btn--block" routerLink="/doctor/availability">
+                Hours & leave
+              </a>
+              <a class="btn btn--outline btn--block" routerLink="/doctor/patients">Patient records</a>
+              <a class="btn btn--outline btn--block" routerLink="/doctor/qr">Scan a code</a>
+            </article>
+          </aside>
+        </div>
+      </div>
+    }
+  </mc-data-state>
+</section>

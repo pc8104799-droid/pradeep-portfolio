@@ -1,0 +1,193 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Family members</h1>
+      <p>Book and keep records for the people you look after. Each one has their own medical details.</p>
+    </div>
+
+    <button type="button" class="btn btn--primary" (click)="openNew()">Add a member</button>
+  </header>
+
+  <mc-data-state
+    [busy]="members.loading()"
+    [error]="members.error()"
+    [empty]="members.empty()"
+    [skeletonLines]="3"
+    [skeletonHeight]="6"
+    emptyTitle="No family members added"
+    emptyBody="Add a child, a parent or a partner to book appointments on their behalf."
+    (retry)="members.load()"
+  >
+    <div slot="empty-action">
+      <button type="button" class="btn btn--primary" (click)="openNew()">Add the first member</button>
+    </div>
+
+    <div class="grid" [class.is-reloading]="members.reloading() || action.busy()">
+      @for (member of members.data()?.items ?? []; track member.id) {
+        <article class="member card card--pad">
+          <header class="member__head">
+            <mc-person [name]="member.name" [meta]="member.relationship + ' · ' + member.age + ' years'" size="lg" />
+            <span class="badge badge--danger">{{ member.bloodGroup }}</span>
+          </header>
+
+          <div class="kv">
+            <div class="kv__row">
+              <span class="kv__key">Date of birth</span>
+              <span class="kv__value">{{ member.dateOfBirth | day }}</span>
+            </div>
+            <div class="kv__row">
+              <span class="kv__key">Gender</span>
+              <span class="kv__value">{{ member.gender | label }}</span>
+            </div>
+            @if (member.mobile) {
+              <div class="kv__row">
+                <span class="kv__key">Mobile</span>
+                <span class="kv__value">{{ member.mobile }}</span>
+              </div>
+            }
+            <div class="kv__row">
+              <span class="kv__key">Conditions</span>
+              <span class="kv__value">{{ member.conditions | listOr: 'None recorded' }}</span>
+            </div>
+            <div class="kv__row">
+              <span class="kv__key">Allergies</span>
+              <span class="kv__value" [class.warn]="member.allergies.length">
+                {{ member.allergies | listOr: 'None recorded' }}
+              </span>
+            </div>
+            @if (member.guardianName) {
+              <div class="kv__row">
+                <span class="kv__key">Guardian</span>
+                <span class="kv__value">
+                  {{ member.guardianName }}
+                  <span class="muted text-xs">{{ member.guardianRelationship }} · {{ member.guardianMobile }}</span>
+                </span>
+              </div>
+            }
+          </div>
+
+          <footer class="member__foot">
+            <a class="btn btn--primary btn--sm" routerLink="/patient/book">Book for them</a>
+            <button type="button" class="btn btn--outline btn--sm" (click)="openEdit(member)">Edit</button>
+            <button type="button" class="btn btn--ghost btn--sm" (click)="remove(member)">Remove</button>
+          </footer>
+        </article>
+      }
+    </div>
+  </mc-data-state>
+</section>
+
+<mc-modal
+  [open]="formOpen()"
+  [heading]="editing() ? 'Edit ' + editing()!.name : 'Add a family member'"
+  width="38rem"
+  [dismissable]="false"
+  (closed)="formOpen.set(false)"
+>
+  <form class="stack" [formGroup]="form" (ngSubmit)="save()" novalidate id="family-form">
+    @if (action.error(); as error) {
+      <p class="note note--danger" role="alert">{{ error.message }}</p>
+    }
+
+    <div class="field-grid">
+      <label class="field">
+        <span class="field__label">First name <span class="req">*</span></span>
+        <input formControlName="firstName" />
+        <mc-field-error [control]="control('firstName')" label="First name" />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Last name <span class="req">*</span></span>
+        <input formControlName="lastName" />
+        <mc-field-error [control]="control('lastName')" label="Last name" />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Relationship <span class="req">*</span></span>
+        <select formControlName="relationship">
+          <option value="">Select…</option>
+          @for (relationship of relationships; track relationship) {
+            <option [value]="relationship">{{ relationship }}</option>
+          }
+        </select>
+        <mc-field-error [control]="control('relationship')" label="Relationship" />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Date of birth <span class="req">*</span></span>
+        <input type="date" formControlName="dateOfBirth" />
+        <mc-field-error [control]="control('dateOfBirth')" label="Date of birth" />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Gender <span class="req">*</span></span>
+        <select formControlName="gender">
+          <option value="">Select…</option>
+          <option value="female">Female</option>
+          <option value="male">Male</option>
+          <option value="other">Other</option>
+        </select>
+        <mc-field-error [control]="control('gender')" label="Gender" />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Blood group</span>
+        <select formControlName="bloodGroup">
+          @for (group of bloodGroups; track group) {
+            <option [value]="group">{{ group === 'unknown' ? 'Not known' : group }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="field__label">Mobile</span>
+        <input formControlName="mobile" inputmode="tel" />
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="field__label">Existing conditions</span>
+      <input formControlName="conditions" placeholder="Asthma, Anaemia" />
+      <span class="field__hint">Separate several with commas.</span>
+    </label>
+
+    <label class="field">
+      <span class="field__label">Allergies</span>
+      <input formControlName="allergies" placeholder="Penicillin, Peanuts" />
+    </label>
+
+    @if (isMinor()) {
+      <fieldset class="fieldset">
+        <legend>Guardian (required — this member is under 18)</legend>
+
+        <div class="field-grid">
+          <label class="field">
+            <span class="field__label">Guardian name <span class="req">*</span></span>
+            <input formControlName="guardianName" />
+            <mc-field-error [control]="control('guardianName')" label="Guardian name" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Guardian mobile</span>
+            <input formControlName="guardianMobile" inputmode="tel" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Relationship</span>
+            <input formControlName="guardianRelationship" placeholder="Father" />
+          </label>
+        </div>
+      </fieldset>
+    }
+  </form>
+
+  <div slot="actions">
+    <button type="button" class="btn btn--ghost" (click)="formOpen.set(false)">Cancel</button>
+    <button type="submit" form="family-form" class="btn btn--primary" [disabled]="action.busy()">
+      @if (action.busy()) {
+        <span class="btn__spinner" aria-hidden="true"></span>
+      }
+      {{ editing() ? 'Save changes' : 'Add member' }}
+    </button>
+  </div>
+</mc-modal>

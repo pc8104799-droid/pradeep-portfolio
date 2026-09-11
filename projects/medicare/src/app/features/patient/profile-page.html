@@ -1,0 +1,306 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Your profile</h1>
+      <p>Everything the hospital holds about you. Changes apply to every future visit.</p>
+    </div>
+
+    <a class="btn btn--outline" routerLink="/patient/settings">Appearance & security →</a>
+  </header>
+
+  <mc-data-state
+    [busy]="profile.loading()"
+    [error]="profile.error()"
+    [skeletonLines]="3"
+    [skeletonHeight]="8"
+    errorTitle="Your profile did not load"
+    (retry)="profile.load()"
+  >
+    @if (profile.data(); as patient) {
+      <div class="split">
+        <form class="stack" [formGroup]="form" (ngSubmit)="save()" novalidate>
+          <nav class="row row--wrap" aria-label="Profile sections">
+            @for (item of sections; track item.id) {
+              <button
+                type="button"
+                class="chip"
+                [class.is-active]="section() === item.id"
+                (click)="section.set(item.id)"
+              >
+                {{ item.label }}
+              </button>
+            }
+          </nav>
+
+          @if (action.error(); as error) {
+            <p class="note note--danger" role="alert">{{ error.message }}</p>
+          }
+
+          @if (section() === 'personal') {
+            <fieldset class="fieldset">
+              <legend>Personal information</legend>
+
+              <div class="field-grid">
+                <label class="field" [class.is-invalid]="control('firstName').invalid && control('firstName').touched">
+                  <span class="field__label">First name <span class="req">*</span></span>
+                  <input formControlName="firstName" />
+                  <mc-field-error [control]="control('firstName')" label="First name" [serverError]="serverError('firstName')" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Middle name</span>
+                  <input formControlName="middleName" />
+                </label>
+
+                <label class="field" [class.is-invalid]="control('lastName').invalid && control('lastName').touched">
+                  <span class="field__label">Last name <span class="req">*</span></span>
+                  <input formControlName="lastName" />
+                  <mc-field-error [control]="control('lastName')" label="Last name" />
+                </label>
+
+                <div class="field">
+                  <span class="field__label">Date of birth</span>
+                  <!-- Locked: the whole clinical record and the minor rule
+                       depend on it, so it changes at reception, not here. -->
+                  <output class="field__locked">
+                    {{ patient.dateOfBirth | day }}
+                    <span class="badge">{{ patient.age }} yrs</span>
+                  </output>
+                  <span class="field__hint">Ask reception to correct a date of birth.</span>
+                </div>
+
+                <label class="field">
+                  <span class="field__label">Gender</span>
+                  <select formControlName="gender">
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Blood group</span>
+                  <select formControlName="bloodGroup">
+                    @for (group of bloodGroups; track group) {
+                      <option [value]="group">{{ group === 'unknown' ? 'Not known' : group }}</option>
+                    }
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Marital status</span>
+                  <select formControlName="maritalStatus">
+                    <option value="single">Single</option>
+                    <option value="married">Married</option>
+                    <option value="widowed">Widowed</option>
+                    <option value="divorced">Divorced</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Occupation</span>
+                  <input formControlName="occupation" />
+                </label>
+              </div>
+            </fieldset>
+          }
+
+          @if (section() === 'contact') {
+            <fieldset class="fieldset">
+              <legend>Contact</legend>
+
+              <div class="field-grid">
+                <label class="field" [class.is-invalid]="control('mobile').invalid && control('mobile').touched">
+                  <span class="field__label">Mobile <span class="req">*</span></span>
+                  <input formControlName="mobile" inputmode="tel" />
+                  <mc-field-error [control]="control('mobile')" label="Mobile number" [serverError]="serverError('mobile')" />
+                </label>
+
+                <label class="field" [class.is-invalid]="(control('email').invalid && control('email').touched) || serverError('email')">
+                  <span class="field__label">Email <span class="req">*</span></span>
+                  <input type="email" formControlName="email" />
+                  <mc-field-error [control]="control('email')" label="Email" [serverError]="serverError('email')" />
+                  <span class="field__hint">Changing this changes how you sign in.</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="fieldset">
+              <legend>Address</legend>
+
+              <label class="field" [class.is-invalid]="control('address').invalid && control('address').touched">
+                <span class="field__label">Street address <span class="req">*</span></span>
+                <input formControlName="address" />
+                <mc-field-error [control]="control('address')" label="Address" />
+              </label>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span class="field__label">City <span class="req">*</span></span>
+                  <input formControlName="city" />
+                  <mc-field-error [control]="control('city')" label="City" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">State <span class="req">*</span></span>
+                  <input formControlName="state" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Country</span>
+                  <input formControlName="country" />
+                </label>
+
+                <label class="field" [class.is-invalid]="control('pincode').invalid && control('pincode').touched">
+                  <span class="field__label">PIN code <span class="req">*</span></span>
+                  <input formControlName="pincode" inputmode="numeric" maxlength="6" />
+                  <mc-field-error [control]="control('pincode')" label="PIN code" [serverError]="serverError('pincode')" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Preferred branch</span>
+                  <select formControlName="preferredBranchId">
+                    @for (branch of catalog.branches(); track branch.id) {
+                      <option [value]="branch.id">{{ branch.name }} · {{ branch.city }}</option>
+                    }
+                  </select>
+                </label>
+              </div>
+            </fieldset>
+          }
+
+          @if (section() === 'emergency') {
+            <fieldset class="fieldset">
+              <legend>Emergency contact</legend>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span class="field__label">Name <span class="req">*</span></span>
+                  <input formControlName="emergencyContactName" />
+                  <mc-field-error [control]="control('emergencyContactName')" label="Contact name" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Number <span class="req">*</span></span>
+                  <input formControlName="emergencyContact" inputmode="tel" />
+                  <mc-field-error [control]="control('emergencyContact')" label="Emergency contact" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Relationship <span class="req">*</span></span>
+                  <input formControlName="emergencyContactRelationship" />
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="fieldset">
+              <legend>Parent or guardian</legend>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span class="field__label">Name</span>
+                  <input formControlName="guardianName" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Mobile</span>
+                  <input formControlName="guardianMobile" inputmode="tel" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Relationship</span>
+                  <input formControlName="guardianRelationship" />
+                </label>
+              </div>
+            </fieldset>
+          }
+
+          @if (section() === 'medical') {
+            <fieldset class="fieldset">
+              <legend>Medical information</legend>
+
+              <label class="field">
+                <span class="field__label">Existing conditions</span>
+                <input formControlName="conditions" placeholder="Type 2 Diabetes, Hypertension" />
+                <span class="field__hint">Separate several with commas.</span>
+              </label>
+
+              <label class="field">
+                <span class="field__label">Allergies</span>
+                <input formControlName="allergies" placeholder="Penicillin, Dust mites" />
+                <span class="field__hint">
+                  Doctors are warned before prescribing anything on this list.
+                </span>
+              </label>
+
+              <label class="field">
+                <span class="field__label">Previous hospital</span>
+                <input formControlName="previousHospital" />
+              </label>
+            </fieldset>
+
+            <fieldset class="fieldset">
+              <legend>Insurance</legend>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span class="field__label">Provider</span>
+                  <input formControlName="insuranceProvider" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Policy number</span>
+                  <input formControlName="insuranceNumber" />
+                </label>
+              </div>
+            </fieldset>
+          }
+
+          <div class="form-actions">
+            <button type="button" class="btn btn--ghost" [disabled]="form.pristine" (click)="reset()">
+              Discard changes
+            </button>
+
+            <button type="submit" class="btn btn--primary" [disabled]="action.busy() || form.pristine">
+              @if (action.busy()) {
+                <span class="btn__spinner" aria-hidden="true"></span>
+              }
+              Save profile
+            </button>
+          </div>
+        </form>
+
+        <aside class="stack">
+          <article class="card card--pad id-card">
+            <span class="text-xs muted">Patient ID</span>
+            <strong class="mono id-card__id">{{ patient.id }}</strong>
+
+            <mc-qr-code [value]="patient.id" caption="Show this at reception" [size]="360" />
+
+            <div class="kv">
+              <div class="kv__row">
+                <span class="kv__key">Registered</span>
+                <span class="kv__value">{{ patient.registeredAt | day }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Branch</span>
+                <span class="kv__value">{{ patient.branch?.name ?? '—' }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Blood group</span>
+                <span class="kv__value">{{ patient.bloodGroup }}</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card card--pad stack--sm">
+            <h2>Shortcuts</h2>
+            <a class="btn btn--outline btn--block" routerLink="/patient/family">Family members</a>
+            <a class="btn btn--outline btn--block" routerLink="/patient/emergency">Emergency card</a>
+            <a class="btn btn--outline btn--block" routerLink="/patient/settings">Change password</a>
+          </article>
+        </aside>
+      </div>
+    }
+  </mc-data-state>
+</section>

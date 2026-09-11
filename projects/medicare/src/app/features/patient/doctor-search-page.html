@@ -1,0 +1,235 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Find a doctor</h1>
+      <p>
+        {{ results.data()?.total ?? 0 }} consultants across
+        {{ catalog.departments().length }} departments and {{ catalog.branches().length }} branches.
+      </p>
+    </div>
+
+    <mc-search
+      [value]="filters().q ?? ''"
+      placeholder="Name, specialisation or symptom"
+      (valueChange)="patch({ q: $event })"
+    />
+  </header>
+
+  <!-- Department shortcuts. Faster than the dropdown for the common case. -->
+  <div class="scroll-x depts">
+    <button type="button" class="chip" [class.is-active]="!filters().departmentId" (click)="patch({ departmentId: '' })">
+      All departments
+    </button>
+
+    @for (department of catalog.departments(); track department.id) {
+      <button
+        type="button"
+        class="chip"
+        [class.is-active]="filters().departmentId === department.id"
+        (click)="patch({ departmentId: department.id })"
+      >
+        {{ department.name }}
+        @if (department.doctorCount) {
+          <span class="muted num">{{ department.doctorCount }}</span>
+        }
+      </button>
+    }
+  </div>
+
+  <div class="split">
+    <!-- Results -->
+    <div class="stack">
+      <div class="spread toolbar">
+        <span class="text-sm muted">
+          @if (activeCount()) {
+            {{ activeCount() }} filter{{ activeCount() > 1 ? 's' : '' }} applied
+            <button type="button" class="linkish" (click)="clearAll()">Clear all</button>
+          } @else {
+            Showing all doctors
+          }
+        </span>
+
+        <label class="field sort">
+          <span class="sr-only">Sort results</span>
+          <select [ngModel]="filters().sort" (ngModelChange)="patch({ sort: $event })">
+            @for (sort of sorts; track sort.id) {
+              <option [value]="sort.id">{{ sort.label }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      <mc-data-state
+        [busy]="results.loading()"
+        [error]="results.error()"
+        [empty]="results.empty()"
+        [skeletonLines]="4"
+        [skeletonHeight]="7"
+        emptyTitle="No doctors match those filters"
+        emptyBody="Try widening the fee range, clearing the availability date, or choosing a different department."
+        (retry)="results.load()"
+      >
+        <div class="stack" [class.is-reloading]="results.reloading()">
+          @for (doctor of results.data()?.items ?? []; track doctor.id) {
+            <article class="doc card card--pad">
+              <div class="doc__head">
+                <mc-person
+                  [name]="doctor.name"
+                  [meta]="doctor.qualification"
+                  size="lg"
+                />
+
+                <div class="doc__rating">
+                  <strong class="num">★ {{ doctor.rating }}</strong>
+                  <span class="muted text-xs">{{ doctor.ratingCount }} ratings</span>
+                </div>
+              </div>
+
+              <div class="doc__tags">
+                <span class="badge badge--primary">{{ doctor.departmentName }}</span>
+                <span class="badge">{{ doctor.experience }} yrs experience</span>
+                <span class="badge">{{ doctor.gender | label }}</span>
+                @if (doctor.acceptsOnline) {
+                  <span class="badge badge--info">Online consults</span>
+                }
+              </div>
+
+              <p class="doc__about">{{ doctor.specialization }} · speaks {{ doctor.languages | listOr }}</p>
+
+              <div class="doc__foot">
+                <div class="doc__fee">
+                  <strong class="num">{{ doctor.consultationFee | inr }}</strong>
+                  <span class="muted text-xs">consultation · {{ doctor.followUpFee | inr }} follow-up</span>
+                </div>
+
+                <div class="doc__next">
+                  @if (doctor.nextAvailable; as next) {
+                    <span class="badge badge--success">
+                      Next {{ next.date | day: 'short' }} at {{ next.time | clock }}
+                    </span>
+                  } @else {
+                    <span class="badge badge--warning">No slots in the next 3 weeks</span>
+                  }
+                </div>
+
+                <div class="doc__actions">
+                  <a class="btn btn--outline btn--sm" [routerLink]="['/patient/doctors', doctor.id]">Profile</a>
+                  <a
+                    class="btn btn--primary btn--sm"
+                    routerLink="/patient/book"
+                    [queryParams]="{ doctorId: doctor.id }"
+                  >
+                    Book
+                  </a>
+                </div>
+              </div>
+            </article>
+          }
+
+          @if (results.data(); as page) {
+            <mc-paginator
+              [page]="page.page"
+              [pages]="page.pages"
+              [total]="page.total"
+              (pageChange)="patch({ page: $event })"
+            />
+          }
+        </div>
+      </mc-data-state>
+    </div>
+
+    <!-- Filters -->
+    <aside class="card card--pad filters">
+      <h2>Narrow it down</h2>
+
+      <label class="field">
+        <span class="field__label">Department</span>
+        <select [ngModel]="filters().departmentId" (ngModelChange)="patch({ departmentId: $event })">
+          <option value="">All departments</option>
+          @for (department of catalog.departments(); track department.id) {
+            <option [value]="department.id">{{ department.name }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="field__label">Branch</span>
+        <select [ngModel]="filters().branchId" (ngModelChange)="patch({ branchId: $event })">
+          <option value="">Any branch</option>
+          @for (branch of catalog.branches(); track branch.id) {
+            <option [value]="branch.id">{{ branch.name }} · {{ branch.city }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="field__label">Available on</span>
+        <input
+          type="date"
+          [min]="today"
+          [ngModel]="filters().availableOn"
+          (ngModelChange)="patch({ availableOn: $event })"
+        />
+        <span class="field__hint">Only shows doctors with a free slot that day.</span>
+      </label>
+
+      <div class="field">
+        <span class="field__label">Gender</span>
+        <div class="row row--wrap">
+          @for (option of ['', 'female', 'male']; track option) {
+            <button
+              type="button"
+              class="chip"
+              [class.is-active]="(filters().gender ?? '') === option"
+              (click)="patch({ gender: option })"
+            >
+              {{ option === '' ? 'Any' : (option | label) }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <label class="field">
+        <span class="field__label">
+          Maximum fee
+          <span class="num">{{ filters().maxFee ? (filters().maxFee! | inr) : 'any' }}</span>
+        </span>
+        <input
+          type="range"
+          min="300"
+          max="1600"
+          step="100"
+          [ngModel]="filters().maxFee ?? 1600"
+          (ngModelChange)="patch({ maxFee: $event >= 1600 ? undefined : +$event })"
+        />
+      </label>
+
+      <label class="field">
+        <span class="field__label">
+          Minimum experience
+          <span class="num">{{ filters().minExperience ? filters().minExperience + '+ yrs' : 'any' }}</span>
+        </span>
+        <input
+          type="range"
+          min="0"
+          max="20"
+          step="2"
+          [ngModel]="filters().minExperience ?? 0"
+          (ngModelChange)="patch({ minExperience: +$event === 0 ? undefined : +$event })"
+        />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Language</span>
+        <select [ngModel]="filters().languages" (ngModelChange)="patch({ languages: $event })">
+          <option value="">Any language</option>
+          @for (language of languages; track language) {
+            <option [value]="language">{{ language }}</option>
+          }
+        </select>
+      </label>
+
+      <button type="button" class="btn btn--ghost btn--block" (click)="clearAll()">Reset filters</button>
+    </aside>
+  </div>
+</section>

@@ -1,0 +1,606 @@
+<section class="page consult">
+  <mc-data-state
+    [busy]="appointment.loading() || consultation.loading()"
+    [error]="appointment.error() ?? consultation.error()"
+    [skeletonLines]="3"
+    [skeletonHeight]="7"
+    errorTitle="This consultation could not be opened"
+    (retry)="appointment.load(); consultation.load()"
+  >
+    @if (appointment.data(); as visit) {
+      <header class="page__head">
+        <div>
+          <h1>{{ visit.patientName }}</h1>
+          <p>
+            {{ visit.date | day }} at {{ visit.time | clock }} ·
+            {{ visit.visitType | label }} · {{ visit.consultationType | label }}
+            <span class="mono text-xs"> · {{ visit.id }}</span>
+          </p>
+        </div>
+
+        <div class="row row--wrap">
+          @if (saving.busy()) {
+            <span class="badge">Saving…</span>
+          }
+          <a class="btn btn--outline" routerLink="/doctor/queue">← Queue</a>
+          <button
+            type="button"
+            class="btn btn--primary"
+            [disabled]="!canClose() || closing.busy()"
+            [title]="canClose() ? 'Complete the visit' : 'Record a diagnosis first'"
+            (click)="complete()"
+          >
+            @if (closing.busy()) {
+              <span class="btn__spinner" aria-hidden="true"></span>
+            }
+            Complete visit
+          </button>
+        </div>
+      </header>
+
+      <!-- Allergy banner: the one clinical mistake this app can catch. -->
+      @if (patient()?.allergies?.length) {
+        <mc-note tone="danger">
+          <strong>{{ visit.patientName }} is allergic to {{ patient()!.allergies | listOr }}.</strong>
+          Prescribing anything matching those is blocked until you confirm it deliberately.
+        </mc-note>
+      }
+
+      <mc-stepper [steps]="steps" [activeIndex]="stepIndex()" (jump)="goTo($event)" />
+
+      <div class="split">
+        <div class="stack">
+          <!-- 1 — history -->
+          @if (stepIndex() === 0) {
+            <article class="card card--pad stack" [formGroup]="form">
+              <h2>History</h2>
+
+              <label class="field">
+                <span class="field__label">Chief complaint <span class="req">*</span></span>
+                <textarea formControlName="chiefComplaint" rows="2"></textarea>
+                <span class="field__hint">Pre-filled from what the patient wrote when booking.</span>
+              </label>
+
+              <label class="field">
+                <span class="field__label">Symptoms</span>
+                <input formControlName="symptoms" placeholder="Chest tightness, breathlessness" />
+                <span class="field__hint">Separate several with commas.</span>
+              </label>
+            </article>
+
+            <article class="card card--flush">
+              <header class="card__head">
+                <h2>Previous visits</h2>
+                <a class="btn btn--ghost btn--sm" [routerLink]="['/doctor/patients', visit.patientId]">
+                  Full record →
+                </a>
+              </header>
+
+              <mc-data-state
+                [busy]="history.loading()"
+                [error]="history.error()"
+                [empty]="history.empty()"
+                [skeletonLines]="3"
+                [skeletonHeight]="2.5"
+                emptyTitle="No history"
+                emptyBody="This is their first recorded visit."
+                (retry)="history.load()"
+              >
+                <ul class="history">
+                  @for (year of history.data()?.years ?? []; track year.year) {
+                    @for (entry of year.entries.slice(0, 6); track entry.id) {
+                      <li>
+                        <span class="history__date num">{{ entry.date | day: 'short' }}</span>
+                        <div>
+                          <strong>{{ entry.title }}</strong>
+                          <span class="muted text-xs">{{ entry.subtitle }}</span>
+                        </div>
+                        <span class="badge">{{ entry.kind }}</span>
+                      </li>
+                    }
+                  }
+                </ul>
+              </mc-data-state>
+            </article>
+          }
+
+          <!-- 2 — examination -->
+          @if (stepIndex() === 1) {
+            <article class="card card--pad stack" [formGroup]="form">
+              <h2>Examination</h2>
+
+              <label class="field">
+                <span class="field__label">Clinical findings</span>
+                <textarea
+                  formControlName="examination"
+                  rows="3"
+                  placeholder="Chest clear, S1 S2 heard, no murmur. Abdomen soft, non-tender."
+                ></textarea>
+              </label>
+
+              <h3>Vitals</h3>
+
+              <div class="vitals-grid">
+                <label class="field">
+                  <span class="field__label">Height (cm)</span>
+                  <input type="number" formControlName="heightCm" inputmode="numeric" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Weight (kg)</span>
+                  <input type="number" formControlName="weightKg" inputmode="numeric" />
+                </label>
+
+                <div class="field">
+                  <span class="field__label">BMI</span>
+                  <output class="field__derived num">{{ bmi() ?? '—' }}</output>
+                </div>
+
+                <label class="field">
+                  <span class="field__label">Temperature (°F)</span>
+                  <input type="number" step="0.1" formControlName="temperatureF" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Pulse (/min)</span>
+                  <input type="number" formControlName="pulse" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">SpO₂ (%)</span>
+                  <input type="number" formControlName="spo2" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">BP systolic</span>
+                  <input type="number" formControlName="systolic" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">BP diastolic</span>
+                  <input type="number" formControlName="diastolic" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Blood sugar (mg/dL)</span>
+                  <input type="number" formControlName="sugarMgDl" />
+                </label>
+              </div>
+            </article>
+          }
+
+          <!-- 3 — diagnosis -->
+          @if (stepIndex() === 2) {
+            <article class="card card--pad stack" [formGroup]="form">
+              <h2>Diagnosis & plan</h2>
+
+              <label class="field">
+                <span class="field__label">Diagnosis <span class="req">*</span></span>
+                <input
+                  formControlName="diagnosis"
+                  placeholder="Stable angina — medical management"
+                />
+                <span class="field__hint">
+                  Required to close the visit. This is what goes on the permanent record.
+                </span>
+              </label>
+
+              <label class="field">
+                <span class="field__label">Treatment plan</span>
+                <textarea formControlName="treatmentPlan" rows="3"></textarea>
+              </label>
+
+              <label class="field">
+                <span class="field__label">Clinical notes</span>
+                <textarea formControlName="notes" rows="3"></textarea>
+                <span class="field__hint">Visible to the patient on their visit record.</span>
+              </label>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span class="field__label">Follow-up date</span>
+                  <input type="date" formControlName="followUpDate" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Follow-up reason</span>
+                  <input formControlName="followUpReason" placeholder="Review after lipid profile" />
+                </label>
+              </div>
+            </article>
+          }
+
+          <!-- 4 — prescription -->
+          @if (stepIndex() === 3) {
+            <article class="card card--pad stack" [formGroup]="prescriptionForm">
+              <div class="spread">
+                <h2>Prescription</h2>
+                <button type="button" class="btn btn--outline btn--sm" (click)="addMedicineRow()">
+                  + Add medicine
+                </button>
+              </div>
+
+              @if (allergyWarning(); as warning) {
+                <div class="note note--danger" role="alert">
+                  <strong>{{ warning }}</strong>
+                  <p class="text-sm">
+                    Only override this if it is clinically justified — the override is recorded.
+                  </p>
+                  <button type="button" class="btn btn--danger btn--sm" (click)="savePrescription(true)">
+                    Prescribe anyway
+                  </button>
+                </div>
+              }
+
+              @if (rxAction.error(); as error) {
+                @if (!allergyWarning()) {
+                  <p class="note note--danger" role="alert">{{ error.message }}</p>
+                }
+              }
+
+              <div class="meds">
+                @for (group of medicines.controls; track $index; let index = $index) {
+                  <fieldset class="med-row" [formGroup]="$any(group)">
+                    <legend class="sr-only">Medicine {{ index + 1 }}</legend>
+
+                    <div class="med-row__name">
+                      <label class="field">
+                        <span class="field__label">Medicine <span class="req">*</span></span>
+                        <div class="row">
+                          <input formControlName="name" placeholder="Type or pick from the catalogue" />
+                          <button type="button" class="btn btn--outline btn--sm" (click)="openPicker(index)">
+                            Search
+                          </button>
+                        </div>
+                        @if (group.get('strength')?.value) {
+                          <span class="field__hint">
+                            {{ group.get('genericName')?.value }} · {{ group.get('strength')?.value }} ·
+                            {{ group.get('form')?.value }}
+                          </span>
+                        }
+                      </label>
+                    </div>
+
+                    <label class="field">
+                      <span class="field__label">Dose</span>
+                      <input formControlName="dosage" />
+                    </label>
+
+                    <label class="field">
+                      <span class="field__label">Frequency</span>
+                      <select formControlName="frequency">
+                        @for (frequency of frequencies; track frequency) {
+                          <option [value]="frequency">{{ frequency }}</option>
+                        }
+                      </select>
+                    </label>
+
+                    <label class="field">
+                      <span class="field__label">Duration</span>
+                      <input formControlName="duration" placeholder="5 days" />
+                    </label>
+
+                    <label class="field">
+                      <span class="field__label">When</span>
+                      <select formControlName="timing">
+                        @for (timing of timings; track timing) {
+                          <option [value]="timing">{{ timing }}</option>
+                        }
+                      </select>
+                    </label>
+
+                    <label class="field">
+                      <span class="field__label">Route</span>
+                      <select formControlName="route">
+                        @for (route of routes; track route) {
+                          <option [value]="route">{{ route }}</option>
+                        }
+                      </select>
+                    </label>
+
+                    <div class="med-row__note">
+                      <label class="field">
+                        <span class="field__label">Instructions</span>
+                        <input formControlName="instructions" placeholder="Complete the full course." />
+                      </label>
+                    </div>
+
+                    <button
+                      type="button"
+                      class="med-row__remove"
+                      (click)="removeMedicine(index)"
+                      [attr.aria-label]="'Remove medicine ' + (index + 1)"
+                    >
+                      ✕
+                    </button>
+                  </fieldset>
+                }
+              </div>
+
+              <label class="field">
+                <span class="field__label">General advice</span>
+                <textarea
+                  formControlName="advice"
+                  rows="2"
+                  placeholder="Thirty minutes of walking daily. Avoid added salt."
+                ></textarea>
+              </label>
+
+              <button
+                type="button"
+                class="btn btn--primary"
+                [disabled]="rxAction.busy()"
+                (click)="savePrescription()"
+              >
+                @if (rxAction.busy()) {
+                  <span class="btn__spinner" aria-hidden="true"></span>
+                }
+                Save prescription
+              </button>
+            </article>
+          }
+
+          <!-- 5 — tests -->
+          @if (stepIndex() === 4) {
+            <article class="card card--pad stack" [formGroup]="testForm">
+              <h2>Request a lab test</h2>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span class="field__label">Test name <span class="req">*</span></span>
+                  <input formControlName="testName" placeholder="Lipid Profile" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Type</span>
+                  <select formControlName="category">
+                    @for (category of testCategories; track category.id) {
+                      <option [value]="category.id">{{ category.label }}</option>
+                    }
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Priority</span>
+                  <select formControlName="priority">
+                    <option value="routine">Routine</option>
+                    <option value="urgent">Urgent</option>
+                  </select>
+                </label>
+              </div>
+
+              <label class="field">
+                <span class="field__label">Clinical reason <span class="req">*</span></span>
+                <input formControlName="clinicalReason" placeholder="Statin monitoring" />
+              </label>
+
+              <label class="field">
+                <span class="field__label">Notes for the lab</span>
+                <input formControlName="notes" />
+              </label>
+
+              @if (testAction.error(); as error) {
+                <p class="note note--danger" role="alert">{{ error.message }}</p>
+              }
+
+              <button type="button" class="btn btn--primary" [disabled]="testAction.busy()" (click)="requestTest()">
+                @if (testAction.busy()) {
+                  <span class="btn__spinner" aria-hidden="true"></span>
+                }
+                Request test
+              </button>
+            </article>
+
+            <article class="card card--flush">
+              <header class="card__head"><h2>Requested in this visit</h2></header>
+
+              <mc-data-state
+                [busy]="tests.loading()"
+                [error]="tests.error()"
+                [empty]="tests.empty()"
+                [skeletonLines]="2"
+                [skeletonHeight]="2.5"
+                emptyTitle="No tests requested"
+                emptyBody="Anything you order shows up here and on the patient's reports page."
+                (retry)="tests.load()"
+              >
+                <ul class="tests">
+                  @for (test of tests.data()?.items ?? []; track test.id) {
+                    <li>
+                      <div>
+                        <strong>{{ test.testName }}</strong>
+                        <span class="muted text-xs">{{ test.clinicalReason }}</span>
+                      </div>
+                      <div class="row">
+                        @if (test.priority === 'urgent') {
+                          <mc-status status="urgent" />
+                        }
+                        <mc-status [status]="test.status" />
+                      </div>
+                    </li>
+                  }
+                </ul>
+              </mc-data-state>
+            </article>
+          }
+
+          <!-- 6 — close -->
+          @if (stepIndex() === 5) {
+            <article class="card card--pad stack">
+              <h2>Close the visit</h2>
+
+              <div class="kv">
+                <div class="kv__row">
+                  <span class="kv__key">Diagnosis</span>
+                  <span class="kv__value" [class.warn]="!canClose()">
+                    {{ form.controls.diagnosis.value || 'Not recorded — required' }}
+                  </span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Treatment</span>
+                  <span class="kv__value">{{ form.controls.treatmentPlan.value || '—' }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Medicines</span>
+                  <span class="kv__value">{{ medicines.length }} prescribed</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Tests</span>
+                  <span class="kv__value">{{ (tests.data()?.items ?? []).length }} requested</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Follow-up</span>
+                  <span class="kv__value">
+                    {{ form.controls.followUpDate.value ? (form.controls.followUpDate.value | day) : 'None' }}
+                  </span>
+                </div>
+              </div>
+
+              @if (!canClose()) {
+                <mc-note tone="warning">
+                  A diagnosis is required before the visit can be closed. Go back to the diagnosis
+                  step and record one.
+                </mc-note>
+              }
+
+              @if (closing.error(); as error) {
+                <p class="note note--danger" role="alert">{{ error.message }}</p>
+              }
+
+              <p class="text-sm muted">
+                Completing writes the medical record, marks the appointment complete and notifies
+                {{ visit.patientName }}.
+              </p>
+
+              <button
+                type="button"
+                class="btn btn--primary btn--lg"
+                [disabled]="!canClose() || closing.busy()"
+                (click)="complete()"
+              >
+                @if (closing.busy()) {
+                  <span class="btn__spinner" aria-hidden="true"></span>
+                }
+                Complete consultation
+              </button>
+            </article>
+          }
+
+          <div class="wizard-actions">
+            @if (stepIndex() > 0) {
+              <button type="button" class="btn btn--ghost" (click)="back()">← Back</button>
+            }
+            @if (stepIndex() < steps.length - 1) {
+              <button type="button" class="btn btn--primary" (click)="next()">
+                Save & continue →
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Patient rail -->
+        <aside class="stack">
+          @if (patient(); as person) {
+            <article class="card card--pad stack--sm">
+              <mc-person [name]="person.name" [meta]="person.id" size="lg" />
+
+              <div class="kv">
+                <div class="kv__row">
+                  <span class="kv__key">Age / gender</span>
+                  <span class="kv__value">{{ person.age }} · {{ person.gender | label }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Blood group</span>
+                  <span class="kv__value">{{ person.bloodGroup }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Allergies</span>
+                  <span class="kv__value" [class.warn]="person.allergies.length">
+                    {{ person.allergies | listOr: 'None recorded' }}
+                  </span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Conditions</span>
+                  <span class="kv__value">{{ person.conditions | listOr: 'None recorded' }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Mobile</span>
+                  <span class="kv__value">{{ person.mobile }}</span>
+                </div>
+              </div>
+
+              <a class="btn btn--outline btn--sm btn--block" [routerLink]="['/doctor/patients', person.id]">
+                Full record
+              </a>
+            </article>
+          }
+
+          <article class="card card--pad stack--sm">
+            <h2>Reason for the visit</h2>
+            <p class="text-sm">{{ visit.reason }}</p>
+            @if (visit.symptoms?.length) {
+              <div class="row row--wrap">
+                @for (symptom of visit.symptoms!; track symptom) {
+                  <span class="badge">{{ symptom }}</span>
+                }
+              </div>
+            }
+          </article>
+        </aside>
+      </div>
+    }
+  </mc-data-state>
+</section>
+
+<!-- Medicine picker -->
+<mc-modal
+  [open]="pickerOpen()"
+  heading="Find a medicine"
+  width="38rem"
+  (closed)="pickerOpen.set(false)"
+>
+  <div class="stack">
+    <mc-search
+      [value]="medicineSearch()"
+      placeholder="Name, generic name or brand"
+      (valueChange)="searchMedicines($event)"
+    />
+
+    <mc-data-state
+      [busy]="medicineResults.loading()"
+      [error]="medicineResults.error()"
+      [empty]="medicineResults.empty()"
+      [skeletonLines]="4"
+      [skeletonHeight]="3"
+      emptyTitle="Nothing matches"
+      emptyBody="Try the generic name, or type the medicine in by hand."
+      (retry)="medicineResults.load()"
+    >
+      <ul class="picker">
+        @for (medicine of medicineResults.data()?.items ?? []; track medicine.id) {
+          <li>
+            <button type="button" (click)="chooseMedicine(medicine)">
+              <div>
+                <strong>{{ medicine.name }}</strong>
+                <span class="muted text-xs">
+                  {{ medicine.genericName }} · {{ medicine.strength }} · {{ medicine.form }}
+                </span>
+              </div>
+
+              <div class="row">
+                @if (medicine.prescriptionRequired) {
+                  <span class="badge badge--warning">℞</span>
+                }
+                <span class="badge">{{ medicine.stock }} in stock</span>
+              </div>
+            </button>
+          </li>
+        }
+      </ul>
+    </mc-data-state>
+  </div>
+
+  <div slot="actions">
+    <button type="button" class="btn btn--ghost" (click)="pickerOpen.set(false)">Close</button>
+  </div>
+</mc-modal>

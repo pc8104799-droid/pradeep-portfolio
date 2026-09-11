@@ -1,0 +1,108 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Appointments</h1>
+      <p>Everything booked, everything attended, and what each one produced.</p>
+    </div>
+
+    <a class="btn btn--primary" routerLink="/patient/book">Book an appointment</a>
+  </header>
+
+  <div class="spread">
+    <div class="row row--wrap" role="tablist" aria-label="Appointment filter">
+      @for (option of tabs; track option.id) {
+        <button
+          type="button"
+          role="tab"
+          class="chip"
+          [class.is-active]="tab() === option.id"
+          [attr.aria-selected]="tab() === option.id"
+          (click)="setTab(option.id)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+
+    <mc-search
+      [value]="search()"
+      placeholder="Doctor, department or appointment ID"
+      (valueChange)="setSearch($event)"
+    />
+  </div>
+
+  <mc-data-state
+    [busy]="list.loading()"
+    [error]="list.error()"
+    [empty]="list.empty()"
+    [skeletonLines]="4"
+    [skeletonHeight]="5"
+    [emptyTitle]="emptyCopy().title"
+    [emptyBody]="emptyCopy().body"
+    (retry)="list.load()"
+  >
+    <div slot="empty-action">
+      <a class="btn btn--primary" routerLink="/patient/doctors">Find a doctor</a>
+    </div>
+
+    <div class="stack--sm" [class.is-reloading]="list.reloading() || action.busy()">
+      @for (appointment of list.data()?.items ?? []; track appointment.id) {
+        <article class="appt card card--pad">
+          <div class="appt__when">
+            <strong class="appt__date">{{ appointment.date | day: 'short' }}</strong>
+            <span class="appt__time num">{{ appointment.time | clock }}</span>
+            @if (appointment.date === today) {
+              <span class="badge badge--primary">Today</span>
+            }
+          </div>
+
+          <div class="appt__body">
+            <mc-person [name]="appointment.doctorName" [meta]="appointment.departmentName" />
+
+            <p class="appt__reason truncate" [title]="appointment.reason">{{ appointment.reason }}</p>
+
+            <div class="row row--wrap">
+              <mc-status [status]="appointment.status" />
+              <span class="badge">{{ appointment.consultationType | label }}</span>
+              <span class="badge">{{ appointment.visitType | label }}</span>
+              @if (appointment.token) {
+                <span class="badge badge--primary">Token {{ appointment.token }}</span>
+              }
+              <span class="mono text-xs muted">{{ appointment.id }}</span>
+            </div>
+          </div>
+
+          <div class="appt__actions">
+            <strong class="num">{{ appointment.fee | inr }}</strong>
+
+            <div class="row row--wrap">
+              @if (needsPayment(appointment)) {
+                <a class="btn btn--primary btn--sm" [routerLink]="['/patient/pay', appointment.paymentId]">
+                  Pay to confirm
+                </a>
+              } @else if (canCheckIn(appointment)) {
+                <button type="button" class="btn btn--primary btn--sm" (click)="checkIn(appointment)">
+                  Check in
+                </button>
+              }
+
+              <a class="btn btn--outline btn--sm" [routerLink]="['/patient/appointments', appointment.id]">
+                Details
+              </a>
+
+              @if (canCancel(appointment)) {
+                <button type="button" class="btn btn--ghost btn--sm" (click)="cancel(appointment)">
+                  Cancel
+                </button>
+              }
+            </div>
+          </div>
+        </article>
+      }
+
+      @if (list.data(); as page) {
+        <mc-paginator [page]="page.page" [pages]="page.pages" [total]="page.total" (pageChange)="setPage($event)" />
+      }
+    </div>
+  </mc-data-state>
+</section>

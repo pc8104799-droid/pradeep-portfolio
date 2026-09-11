@@ -1,0 +1,140 @@
+h2 {
+  font-size: 0.95rem;
+}
+
+h3 {
+  font-size: 0.85rem;
+}
+
+.alerts {
+  display: grid;
+  gap: 0.4rem;
+}
+
+/* The patient's name is the page heading, with the avatar beside it. */
+.patient-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.patient-head h1 {
+  font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+}
+
+.patient-head p {
+  color: var(--ink-2);
+  font-size: 0.86rem;
+  margin-top: 0.1rem;
+}
+
+/* ---------------------------------------------------------------- rows */
+
+.rows li a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  padding: 0.6rem var(--pad-card);
+  border-bottom: 1px solid var(--stroke);
+  transition: background var(--t-fast) var(--ease);
+}
+
+.rows li:last-child a {
+  border-bottom: 0;
+}
+
+.rows li a:hover {
+  background: var(--surface-2);
+}
+
+.rows strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.rows span {
+  display: block;
+  max-width: 28ch;
+}
+
+/* ------------------------------------------------------------- timeline */
+
+.years {
+  display: grid;
+  gap: 0.5rem;
+  padding: var(--pad-card);
+}
+
+.years__label {
+  color: var(--ink-3);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.3rem;
+}
+
+.thread {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.thread li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.45rem 0.55rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  /* A 3px rail keyed to the entry type, so visits, prescriptions and reports
+     are distinguishable without reading the badge. */
+  box-shadow: inset 3px 0 0 var(--stroke-strong);
+}
+
+.thread li.is-visit {
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.thread li.is-prescription {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.thread li.is-report {
+  box-shadow: inset 3px 0 0 var(--success);
+}
+
+.thread li.is-upcoming {
+  box-shadow: inset 3px 0 0 var(--warning);
+}
+
+.thread__date {
+  color: var(--ink-3);
+  font-size: 0.74rem;
+  min-width: 4.2rem;
+}
+
+.thread strong {
+  display: block;
+  font-size: 0.87rem;
+}
+
+.thread span {
+  display: block;
+}
+
+.qr-card {
+  display: grid;
+  gap: 0.4rem;
+  justify-items: center;
+  text-align: center;
+}
+
+@media (min-width: 1080px) {
+  aside {
+    position: sticky;
+    top: calc(var(--header-h) + 1rem);
+  }
+}

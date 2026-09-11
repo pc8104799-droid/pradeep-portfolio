@@ -1,0 +1,68 @@
+h2 {
+  font-size: 0.95rem;
+}
+
+.note {
+  display: block;
+  padding: 0.65rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.note--danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* Locked fields are shown, not hidden, so it is clear who owns each one. */
+.fieldset--locked {
+  background: var(--surface-2);
+}
+
+.fieldset--locked > legend {
+  color: var(--ink-3);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+  position: sticky;
+  bottom: 0;
+  padding: 0.75rem 0;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+}
+
+.form-actions .btn--ghost {
+  margin-right: auto;
+}
+
+/* A live preview, so an edit to "about" is visibly an edit to the listing. */
+.preview {
+  display: grid;
+  gap: 0.6rem;
+  border-left: 3px solid var(--primary);
+}
+
+.preview__label {
+  color: var(--primary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.qr-card {
+  display: grid;
+  gap: 0.4rem;
+  justify-items: center;
+  text-align: center;
+}
+
+@media (min-width: 1080px) {
+  aside {
+    position: sticky;
+    top: calc(var(--header-h) + 1rem);
+  }
+}

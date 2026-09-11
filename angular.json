@@ -252,6 +252,107 @@
           }
         }
       }
+    },
+    "medicare-core": {
+      "projectType": "library",
+      "root": "projects/medicare-core",
+      "sourceRoot": "projects/medicare-core/src",
+      "prefix": "pc",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "options": {
+            "project": "projects/medicare-core/ng-package.json",
+            "tsConfig": "projects/medicare-core/tsconfig.lib.json"
+          },
+          "defaultConfiguration": "production",
+          "configurations": {
+            "production": {},
+            "development": {}
+          }
+        }
+      }
+    },
+    "medicare": {
+      "projectType": "application",
+      "root": "projects/medicare",
+      "sourceRoot": "projects/medicare/src",
+      "prefix": "mc",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/medicare/src/main.ts",
+            "tsConfig": "projects/medicare/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "outputPath": "dist/medicare",
+            "index": "projects/medicare/src/index.html",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/medicare/public"
+              }
+            ],
+            "styles": [
+              "projects/medicare/src/styles.scss"
+            ],
+            "allowedCommonJsDependencies": [
+              "qrcode"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "900kB",
+                  "maximumError": "2MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "16kB",
+                  "maximumError": "40kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "medicare:build:production"
+            },
+            "development": {
+              "buildTarget": "medicare:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "tsConfig": "projects/medicare/tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/medicare/public"
+              }
+            ],
+            "styles": [
+              "projects/medicare/src/styles.scss"
+            ]
+          }
+        }
+      }
     }
   }
 }

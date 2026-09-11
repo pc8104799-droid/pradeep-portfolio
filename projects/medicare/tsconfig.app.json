@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../out-tsc/medicare",
+    "types": []
+  },
+  "include": ["src/**/*.ts", "../medicare-core/src/**/*.ts"],
+  "exclude": ["**/*.spec.ts", "../medicare-core/**/*.spec.ts"]
+}

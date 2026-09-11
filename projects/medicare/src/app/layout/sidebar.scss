@@ -1,0 +1,152 @@
+:host {
+  display: block;
+  height: 100%;
+  background: var(--surface);
+  border-right: 1px solid var(--stroke);
+}
+
+.side {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: 0.9rem;
+  height: 100%;
+  padding: 0.9rem;
+}
+
+/* ----------------------------------------------------------------- brand */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.2rem 0.3rem;
+}
+
+.brand__mark {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+  color: var(--primary-ink);
+  font-size: 1.15rem;
+  font-weight: 700;
+  flex: none;
+}
+
+.brand__text {
+  display: grid;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.brand__text strong {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  letter-spacing: -0.01em;
+}
+
+.brand__panel {
+  color: var(--ink-3);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.side__cta {
+  width: 100%;
+}
+
+/* ------------------------------------------------------------------- nav */
+
+.side__nav {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+  overflow-y: auto;
+  /* Scrollbar gutter is reserved so the links do not shift when it appears. */
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  margin-inline: -0.2rem;
+  padding-inline: 0.2rem;
+}
+
+.side__section {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.side__title {
+  padding-inline: 0.55rem;
+  color: var(--ink-3);
+  font-size: 0.68rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.side__nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.55rem;
+  border-radius: var(--radius-sm);
+  color: var(--ink-2);
+  font-size: 0.87rem;
+  font-weight: 500;
+  transition:
+    background var(--t-fast) var(--ease),
+    color var(--t-fast) var(--ease);
+}
+
+.side__nav a:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.side__nav a.is-active {
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.side__icon {
+  display: grid;
+  place-items: center;
+  width: 1.4rem;
+  font-size: 0.95rem;
+  flex: none;
+}
+
+.side__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.side__badge {
+  margin-left: auto;
+  min-width: 1.3rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: var(--radius-pill);
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------------ foot */
+
+.side__foot {
+  padding: 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--stroke);
+}
+
+.side__foot p {
+  line-height: 1.45;
+}

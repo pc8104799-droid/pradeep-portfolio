@@ -1,0 +1,20 @@
+{
+  "name": "medicare360-api",
+  "version": "1.0.0",
+  "description": "MediCare360 REST API — Express backend over a JSON document store.",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "seed": "node src/db/seed.js --force"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}

@@ -1,0 +1,230 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Your basket</h1>
+      <p>{{ cart.count() }} item{{ cart.count() === 1 ? '' : 's' }} from the hospital pharmacy.</p>
+    </div>
+
+    <div class="row row--wrap">
+      <a class="btn btn--outline" routerLink="/patient/pharmacy">← Keep shopping</a>
+      @if (!cart.isEmpty()) {
+        <button type="button" class="btn btn--ghost" (click)="clear()">Empty basket</button>
+      }
+    </div>
+  </header>
+
+  @if (cart.isEmpty()) {
+    <article class="card card--pad empty">
+      <span class="empty__mark" aria-hidden="true">⊞</span>
+      <h2>Your basket is empty</h2>
+      <p class="muted">
+        Browse the store, or open a prescription and add everything on it in one click.
+      </p>
+      <div class="row row--wrap">
+        <a class="btn btn--primary" routerLink="/patient/pharmacy">Browse medicines</a>
+        <a class="btn btn--outline" routerLink="/patient/prescriptions">Order a prescription</a>
+      </div>
+    </article>
+  } @else {
+    <mc-data-state
+      [busy]="quote.loading()"
+      [error]="quote.error()"
+      [skeletonLines]="3"
+      [skeletonHeight]="4"
+      errorTitle="Could not price your basket"
+      (retry)="quote.load()"
+    >
+      @if (quote.data(); as priced) {
+        <div class="split" [class.is-reloading]="quote.reloading()">
+          <div class="stack">
+            <!-- Lines the pharmacy can dispense -->
+            @if (priced.lines.length) {
+              <article class="card card--flush">
+                <header class="card__head">
+                  <h2>In your basket</h2>
+                  @if (priced.prescriptionStatus === 'verified') {
+                    <mc-status status="verified" text="Prescription verified" />
+                  }
+                </header>
+
+                <ul class="lines">
+                  @for (line of priced.lines; track line.medicineId) {
+                    <li>
+                      <div class="line__info">
+                        <a [routerLink]="['/patient/pharmacy', line.medicineId]">
+                          <strong>{{ line.name }}</strong>
+                        </a>
+                        <span class="muted text-xs">{{ line.strength }} · {{ line.form }}</span>
+                        @if (line.prescriptionRequired) {
+                          <span class="badge badge--warning">℞ only</span>
+                        }
+                      </div>
+
+                      <mc-qty
+                        [value]="line.quantity"
+                        [label]="line.name"
+                        (valueChange)="setQuantity(line.medicineId, $event)"
+                      />
+
+                      <div class="line__price">
+                        <strong class="num">{{ line.lineTotal | inr }}</strong>
+                        <span class="muted text-xs num">{{ line.price | inr }} each</span>
+                      </div>
+
+                      <button
+                        type="button"
+                        class="line__remove"
+                        (click)="remove(line.medicineId, line.name)"
+                        [attr.aria-label]="'Remove ' + line.name"
+                      >
+                        ✕
+                      </button>
+                    </li>
+                  }
+                </ul>
+              </article>
+            }
+
+            <!-- Rejected lines, with the reason and a way out -->
+            @if (priced.blocked.length) {
+              <article class="card card--pad card--rail card--warning">
+                <h2>{{ priced.blocked.length }} item{{ priced.blocked.length > 1 ? 's need' : ' needs' }} a prescription</h2>
+                <p class="text-sm">
+                  These are prescription-only. Attach a valid prescription to order them.
+                </p>
+
+                <ul class="blocked">
+                  @for (line of priced.blocked; track line.medicineId) {
+                    <li>
+                      <strong>{{ line.name }}</strong>
+                      <span class="muted text-xs">{{ line.strength }} · {{ line.quantity }} unit(s)</span>
+                    </li>
+                  }
+                </ul>
+
+                <div class="row row--wrap">
+                  <a class="btn btn--primary btn--sm" routerLink="/patient/prescriptions">
+                    Attach a prescription
+                  </a>
+                  <button type="button" class="btn btn--outline btn--sm" (click)="removeBlocked()">
+                    Remove them
+                  </button>
+                </div>
+              </article>
+            }
+
+            @if (priced.outOfStock.length) {
+              <article class="card card--pad card--rail card--danger">
+                <h2>Out of stock</h2>
+                <ul class="blocked">
+                  @for (line of priced.outOfStock; track line.medicineId) {
+                    <li>
+                      <strong>{{ line.name }}</strong>
+                      <span class="muted text-xs">
+                        You asked for {{ line.quantity }}, {{ line.available }} available
+                      </span>
+                    </li>
+                  }
+                </ul>
+                <button type="button" class="btn btn--outline btn--sm" (click)="removeBlocked()">
+                  Remove them
+                </button>
+              </article>
+            }
+          </div>
+
+          <!-- Bill -->
+          <aside class="stack">
+            <article class="card card--pad stack--sm">
+              <h2>Bill summary</h2>
+
+              <ul class="bill">
+                <li>
+                  <span>Medicines ({{ priced.lines.length }})</span>
+                  <span class="num">{{ priced.bill.itemsTotal | inr }}</span>
+                </li>
+                @if (priced.bill.discount) {
+                  <li class="is-credit">
+                    <span>Coupon {{ priced.coupon?.code }}</span>
+                    <span class="num">−{{ priced.bill.discount | inr }}</span>
+                  </li>
+                }
+                <li>
+                  <span>GST (5%)</span>
+                  <span class="num">{{ priced.bill.tax | inr }}</span>
+                </li>
+                <li>
+                  <span>{{ priced.bill.delivery ? 'Delivery' : 'Delivery (free)' }}</span>
+                  <span class="num">{{ priced.bill.delivery | inr }}</span>
+                </li>
+              </ul>
+
+              <div class="bill__total">
+                <span>Total</span>
+                <strong class="num">{{ priced.bill.total | inr }}</strong>
+              </div>
+
+              @if (priced.bill.delivery > 0) {
+                <p class="text-xs muted">
+                  Add {{ 499 - priced.bill.itemsTotal | inr }} more for free delivery.
+                </p>
+              }
+
+              <form class="coupon" (ngSubmit)="applyCoupon()">
+                <label class="field">
+                  <span class="field__label">Coupon code</span>
+                  <input
+                    name="coupon"
+                    [ngModel]="coupon()"
+                    (ngModelChange)="coupon.set($event)"
+                    placeholder="FIRSTCARE"
+                    autocapitalize="characters"
+                  />
+                </label>
+                <button type="submit" class="btn btn--outline">Apply</button>
+              </form>
+
+              @if (priced.couponError) {
+                <p class="field__error" role="alert">{{ priced.couponError }}</p>
+              } @else if (priced.coupon) {
+                <p class="field__hint">{{ priced.coupon.label }}</p>
+              }
+
+              <button
+                type="button"
+                class="btn btn--primary btn--lg btn--block"
+                [disabled]="!priced.lines.length || hasProblems()"
+                (click)="checkout()"
+              >
+                Checkout
+              </button>
+
+              @if (hasProblems()) {
+                <p class="text-xs muted">
+                  Resolve the flagged items above before checking out.
+                </p>
+              }
+            </article>
+
+            @if (cart.prescriptionId(); as attached) {
+              <article class="card card--pad stack--sm">
+                <h2>Prescription</h2>
+                <p class="text-sm">
+                  <span class="mono">{{ attached }}</span> is attached to this basket.
+                </p>
+                <div class="row row--wrap">
+                  <a class="btn btn--outline btn--sm" [routerLink]="['/patient/prescriptions', attached]">
+                    View
+                  </a>
+                  <button type="button" class="btn btn--ghost btn--sm" (click)="detachPrescription()">
+                    Detach
+                  </button>
+                </div>
+              </article>
+            }
+          </aside>
+        </div>
+      }
+    </mc-data-state>
+  }
+</section>

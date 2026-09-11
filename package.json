@@ -1,17 +1,24 @@
 {
   "name": "portfolio",
   "version": "1.0.0",
-  "description": "Pradeep Chauhan — Senior Front-End Developer portfolio, built with Angular 22.",
+  "description": "Angular 22 monorepo — portfolio, FreshKart storefront and MediCare360 hospital platform, with an Express API.",
   "scripts": {
     "ng": "ng",
     "start": "ng serve portfolio",
     "start:shop": "ng serve shop",
     "build": "ng build portfolio",
     "build:shop": "ng build shop",
-    "build:libs": "ng build core && ng build ui && ng build shop-core",
-    "build:all": "npm run build:libs && ng build portfolio && ng build shop",
+    "build:libs": "ng build core && ng build ui && ng build shop-core && ng build medicare-core",
+    "build:all": "npm run build:libs && ng build portfolio && ng build shop && ng build medicare",
     "test": "ng test portfolio",
-    "test:shop": "ng test shop"
+    "test:shop": "ng test shop",
+    "start:medicare": "ng serve medicare",
+    "build:medicare": "ng build medicare",
+    "test:medicare": "ng test medicare",
+    "api": "node server/src/index.js",
+    "api:seed": "node server/src/db/seed.js --force",
+    "test:all": "ng test portfolio --watch=false --browsers=ChromeHeadless && ng test shop --watch=false --browsers=ChromeHeadless && ng test medicare --watch=false --browsers=ChromeHeadless",
+    "api:test": "node server/test/api.test.mjs"
   },
   "prettier": {
     "overrides": [
@@ -51,6 +58,7 @@
     "typescript": "~6.0.0"
   },
   "workspaces": [
-    "projects/*"
+    "projects/*",
+    "server"
   ]
 }

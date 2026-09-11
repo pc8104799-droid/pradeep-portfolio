@@ -1,0 +1,228 @@
+<section class="page">
+  <mc-data-state
+    [busy]="patient.loading()"
+    [error]="patient.error()"
+    [skeletonLines]="3"
+    [skeletonHeight]="7"
+    errorTitle="That patient record could not be opened"
+    (retry)="patient.load()"
+  >
+    @if (patient.data(); as person) {
+      <header class="page__head">
+        <div class="patient-head">
+          <span class="avatar avatar--lg" aria-hidden="true">{{ person.name | initials }}</span>
+          <div>
+            <h1>{{ person.name }}</h1>
+            <p>
+              <span class="mono">{{ person.id }}</span> · {{ person.age }} years ·
+              {{ person.gender | label }}
+            </p>
+          </div>
+        </div>
+
+        <a class="btn btn--outline" routerLink="/doctor/patients">← All patients</a>
+      </header>
+
+      <!-- Clinical alerts first: the things that change what you prescribe. -->
+      @if (person.allergies.length || person.conditions.length) {
+        <div class="alerts">
+          @if (person.allergies.length) {
+            <mc-note tone="danger">
+              <strong>Allergies:</strong> {{ person.allergies | listOr }}
+            </mc-note>
+          }
+          @if (person.conditions.length) {
+            <mc-note tone="warning">
+              <strong>Existing conditions:</strong> {{ person.conditions | listOr }}
+            </mc-note>
+          }
+        </div>
+      }
+
+      <div class="split">
+        <div class="stack">
+          <!-- History -->
+          <article class="card card--flush">
+            <header class="card__head"><h2>Clinical timeline</h2></header>
+
+            <mc-data-state
+              [busy]="timeline.loading()"
+              [error]="timeline.error()"
+              [empty]="timeline.empty()"
+              [skeletonLines]="4"
+              [skeletonHeight]="2.5"
+              emptyTitle="No history"
+              emptyBody="Nothing has been recorded for this patient yet."
+              (retry)="timeline.load()"
+            >
+              <div class="years">
+                @for (year of timeline.data()?.years ?? []; track year.year) {
+                  <section>
+                    <h3 class="years__label">{{ year.year }}</h3>
+
+                    <ul class="thread">
+                      @for (entry of year.entries; track entry.id) {
+                        <li [class]="'is-' + entry.kind">
+                          <span class="thread__date num">{{ entry.date | day: 'short' }}</span>
+                          <div>
+                            <strong>{{ entry.title }}</strong>
+                            <span class="muted text-xs">{{ entry.subtitle }}</span>
+                          </div>
+                          <span class="badge">{{ entry.kind }}</span>
+                        </li>
+                      }
+                    </ul>
+                  </section>
+                }
+              </div>
+            </mc-data-state>
+          </article>
+
+          <!-- Prescriptions -->
+          <article class="card card--flush">
+            <header class="card__head"><h2>Prescriptions</h2></header>
+
+            <mc-data-state
+              [busy]="prescriptions.loading()"
+              [error]="prescriptions.error()"
+              [empty]="prescriptions.empty()"
+              [skeletonLines]="3"
+              [skeletonHeight]="2.5"
+              emptyTitle="No prescriptions"
+              emptyBody="Nothing has been prescribed to this patient by you."
+              (retry)="prescriptions.load()"
+            >
+              <ul class="rows">
+                @for (rx of prescriptions.data()?.items ?? []; track rx.id) {
+                  <li>
+                    <a [routerLink]="['/doctor/prescriptions', rx.id]">
+                      <div>
+                        <strong>{{ rx.diagnosis }}</strong>
+                        <span class="muted text-xs">
+                          {{ rx.medicines.length }} medicines · {{ rx.issuedAt | day: 'short' }}
+                        </span>
+                      </div>
+                      <mc-status [status]="rx.status" />
+                    </a>
+                  </li>
+                }
+              </ul>
+            </mc-data-state>
+          </article>
+
+          <!-- Reports -->
+          <article class="card card--flush">
+            <header class="card__head"><h2>Lab reports</h2></header>
+
+            <mc-data-state
+              [busy]="reports.loading()"
+              [error]="reports.error()"
+              [empty]="reports.empty()"
+              [skeletonLines]="3"
+              [skeletonHeight]="2.5"
+              emptyTitle="No reports"
+              emptyBody="Tests you order for this patient appear here once the lab releases them."
+              (retry)="reports.load()"
+            >
+              <ul class="rows">
+                @for (report of reports.data()?.items ?? []; track report.id) {
+                  <li>
+                    <a [routerLink]="['/doctor/reports', report.id]">
+                      <div>
+                        <strong>{{ report.testName }}</strong>
+                        <span class="muted text-xs">{{ report.result }}</span>
+                      </div>
+                      <mc-status [status]="report.status" />
+                    </a>
+                  </li>
+                }
+              </ul>
+            </mc-data-state>
+          </article>
+        </div>
+
+        <aside class="stack">
+          <article class="card card--pad stack--sm">
+            <h2>Patient details</h2>
+
+            <div class="kv">
+              <div class="kv__row">
+                <span class="kv__key">Patient ID</span>
+                <span class="kv__value mono">{{ person.id }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Date of birth</span>
+                <span class="kv__value">{{ person.dateOfBirth | day }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Blood group</span>
+                <span class="kv__value">{{ person.bloodGroup }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Mobile</span>
+                <span class="kv__value">{{ person.mobile }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Emergency</span>
+                <span class="kv__value">
+                  {{ person.emergencyContactName }}
+                  <span class="muted text-xs">
+                    {{ person.emergencyContactRelationship }} · {{ person.emergencyContact }}
+                  </span>
+                </span>
+              </div>
+              @if (person.guardianName) {
+                <div class="kv__row">
+                  <span class="kv__key">Guardian</span>
+                  <span class="kv__value">{{ person.guardianName }} · {{ person.guardianMobile }}</span>
+                </div>
+              }
+              <div class="kv__row">
+                <span class="kv__key">Previous hospital</span>
+                <span class="kv__value">{{ person.previousHospital || '—' }}</span>
+              </div>
+            </div>
+
+            <mc-note tone="info">
+              Address, occupation and insurance details are withheld from the clinical view.
+            </mc-note>
+          </article>
+
+          <article class="card card--flush">
+            <header class="card__head"><h2>Visits with you</h2></header>
+
+            <mc-data-state
+              [busy]="visits.loading()"
+              [error]="visits.error()"
+              [empty]="visits.empty()"
+              [skeletonLines]="3"
+              [skeletonHeight]="2.5"
+              emptyTitle="No visits"
+              emptyBody="Nothing booked with you yet."
+              (retry)="visits.load()"
+            >
+              <ul class="rows">
+                @for (visit of visits.data()?.items ?? []; track visit.id) {
+                  <li>
+                    <a [routerLink]="['/doctor/appointments', visit.id]">
+                      <div>
+                        <strong>{{ visit.date | day: 'short' }} · {{ visit.time | clock }}</strong>
+                        <span class="muted text-xs truncate">{{ visit.reason }}</span>
+                      </div>
+                      <mc-status [status]="visit.status" />
+                    </a>
+                  </li>
+                }
+              </ul>
+            </mc-data-state>
+          </article>
+
+          <article class="card card--pad qr-card">
+            <h2>Patient QR</h2>
+            <mc-qr-code [value]="person.id" [caption]="person.name" [size]="300" />
+          </article>
+        </aside>
+      </div>
+    }
+  </mc-data-state>
+</section>

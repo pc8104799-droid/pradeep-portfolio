@@ -1,0 +1,128 @@
+.depts {
+  padding-block: 0.15rem;
+}
+
+.toolbar {
+  gap: var(--gap-sm);
+}
+
+.linkish {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: underline;
+  margin-left: 0.35rem;
+}
+
+.sort {
+  max-width: 12rem;
+}
+
+/* ------------------------------------------------------------ doctor card */
+
+.doc {
+  display: grid;
+  gap: 0.7rem;
+  transition:
+    border-color var(--t) var(--ease),
+    box-shadow var(--t) var(--ease);
+}
+
+.doc:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow);
+}
+
+.doc__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+}
+
+.doc__rating {
+  display: grid;
+  justify-items: end;
+  text-align: right;
+  flex: none;
+}
+
+.doc__rating strong {
+  color: var(--warning);
+  font-size: 0.92rem;
+}
+
+.doc__tags {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.doc__about {
+  color: var(--ink-2);
+  font-size: 0.86rem;
+}
+
+.doc__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  flex-wrap: wrap;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--stroke);
+}
+
+.doc__fee strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.doc__next {
+  min-width: 0;
+}
+
+/* The actions sit at the far end on a wide card and wrap under on a phone. */
+.doc__actions {
+  display: flex;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+
+/* ---------------------------------------------------------------- filters */
+
+.filters {
+  display: grid;
+  gap: var(--gap);
+  align-content: start;
+}
+
+.filters h2 {
+  font-size: 0.95rem;
+}
+
+.filters input[type="range"] {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  accent-color: var(--primary);
+}
+
+.filters .field__label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.filters .field__label .num {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* On desktop the filter rail stays put while the results scroll. */
+@media (min-width: 1080px) {
+  .filters {
+    position: sticky;
+    top: calc(var(--header-h) + 1rem);
+  }
+}

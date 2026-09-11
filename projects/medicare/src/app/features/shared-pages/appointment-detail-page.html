@@ -1,0 +1,375 @@
+<section class="page">
+  <mc-data-state
+    [busy]="appointment.loading()"
+    [error]="appointment.error()"
+    [skeletonLines]="3"
+    [skeletonHeight]="7"
+    errorTitle="That appointment could not be loaded"
+    (retry)="appointment.load()"
+  >
+    @if (appointment.data(); as visit) {
+      <header class="page__head">
+        <div>
+          <h1>{{ isPatientView() ? visit.doctorName : visit.patientName }}</h1>
+          <p>
+            {{ visit.departmentName }} · {{ visit.date | day }} at {{ visit.time | clock }}
+            <span class="mono text-xs"> · {{ visit.id }}</span>
+          </p>
+        </div>
+
+        <a class="btn btn--outline" [routerLink]="'/' + panel() + '/appointments'">← All appointments</a>
+      </header>
+
+      <div class="status-line card card--pad" [class.is-warning]="visit.status === 'pending'">
+        <div class="row row--wrap">
+          <mc-status [status]="visit.status" />
+          <mc-status [status]="visit.paymentStatus" [text]="'Payment ' + visit.paymentStatus" />
+          @if (visit.token) {
+            <span class="badge badge--primary">Token {{ visit.token }}</span>
+          }
+          @if (visit.queueStatus) {
+            <mc-status [status]="visit.queueStatus" />
+          }
+        </div>
+
+        <p class="text-sm">{{ statusNote(visit) }}</p>
+      </div>
+
+      <div class="split">
+        <div class="stack">
+          <article class="card card--pad stack--sm">
+            <h2>Appointment</h2>
+
+            <div class="kv">
+              <div class="kv__row">
+                <span class="kv__key">{{ isPatientView() ? 'Doctor' : 'Patient' }}</span>
+                <span class="kv__value">
+                  @if (isPatientView()) {
+                    <a [routerLink]="['/patient/doctors', visit.doctorId]">{{ visit.doctorName }}</a>
+                  } @else {
+                    <a [routerLink]="['/doctor/patients', visit.patientId]">{{ visit.patientName }}</a>
+                    <span class="mono text-xs muted"> · {{ visit.patientId }}</span>
+                  }
+                </span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Department</span>
+                <span class="kv__value">{{ visit.departmentName }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Branch</span>
+                <span class="kv__value">{{ visit.branch?.name ?? '—' }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">When</span>
+                <span class="kv__value">
+                  {{ visit.date | day }} · {{ visit.time | clock }} – {{ visit.endTime | clock }}
+                </span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Type</span>
+                <span class="kv__value">
+                  {{ visit.consultationType | label }} · {{ visit.visitType | label }}
+                </span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Reason</span>
+                <span class="kv__value">{{ visit.reason }}</span>
+              </div>
+              @if (visit.symptoms?.length) {
+                <div class="kv__row">
+                  <span class="kv__key">Symptoms</span>
+                  <span class="kv__value">{{ visit.symptoms | listOr }}</span>
+                </div>
+              }
+              @if (visit.rescheduledFrom; as from) {
+                <div class="kv__row">
+                  <span class="kv__key">Moved from</span>
+                  <span class="kv__value">{{ from.date | day }} at {{ from.time | clock }}</span>
+                </div>
+              }
+              @if (visit.cancelReason) {
+                <div class="kv__row">
+                  <span class="kv__key">Cancelled</span>
+                  <span class="kv__value">{{ visit.cancelReason }}</span>
+                </div>
+              }
+            </div>
+          </article>
+
+          @if (!isPatientView() && visit.patient; as patient) {
+            <article class="card card--pad stack--sm">
+              <h2>Clinical background</h2>
+
+              <div class="kv">
+                <div class="kv__row">
+                  <span class="kv__key">Age / gender</span>
+                  <span class="kv__value">{{ patient.age }} · {{ patient.gender | label }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Blood group</span>
+                  <span class="kv__value">{{ patient.bloodGroup }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Allergies</span>
+                  <span class="kv__value" [class.warn]="patient.allergies.length">
+                    {{ patient.allergies | listOr: 'None recorded' }}
+                  </span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Conditions</span>
+                  <span class="kv__value">{{ patient.conditions | listOr: 'None recorded' }}</span>
+                </div>
+              </div>
+
+              <a class="btn btn--outline btn--sm" [routerLink]="['/doctor/patients', visit.patientId]">
+                Full patient record →
+              </a>
+            </article>
+          }
+
+          @if (visit.consultation; as consultation) {
+            <article class="card card--pad stack--sm">
+              <h2>Consultation</h2>
+
+              <div class="kv">
+                <div class="kv__row">
+                  <span class="kv__key">Diagnosis</span>
+                  <span class="kv__value">{{ consultation.diagnosis || 'Not recorded yet' }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Treatment</span>
+                  <span class="kv__value">{{ consultation.treatmentPlan || '—' }}</span>
+                </div>
+                @if (consultation.followUpDate) {
+                  <div class="kv__row">
+                    <span class="kv__key">Follow-up</span>
+                    <span class="kv__value">{{ consultation.followUpDate | day }}</span>
+                  </div>
+                }
+              </div>
+            </article>
+          }
+
+          @if (visit.prescription; as rx) {
+            <article class="card card--flush">
+              <header class="card__head">
+                <h2>Prescription</h2>
+                <a class="btn btn--ghost btn--sm" [routerLink]="['/' + panel() + '/prescriptions', rx.id]">
+                  Open ℞ →
+                </a>
+              </header>
+
+              <div class="table-wrap">
+                <table class="data">
+                  <thead>
+                    <tr>
+                      <th>Medicine</th>
+                      <th>Dose</th>
+                      <th>Frequency</th>
+                      <th>Duration</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (medicine of rx.medicines; track medicine.name) {
+                      <tr>
+                        <td>
+                          <strong>{{ medicine.name }}</strong>
+                          <div class="muted text-xs">{{ medicine.strength }}</div>
+                        </td>
+                        <td>{{ medicine.dosage }}</td>
+                        <td>{{ medicine.frequency }}</td>
+                        <td>{{ medicine.duration }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          }
+
+          @if (visit.reports?.length) {
+            <article class="card card--flush">
+              <header class="card__head"><h2>Reports from this visit</h2></header>
+
+              <ul class="links">
+                @for (report of visit.reports!; track report.id) {
+                  <li>
+                    <a [routerLink]="['/' + panel() + '/reports', report.id]">
+                      <div>
+                        <strong>{{ report.testName }}</strong>
+                        <span class="muted text-xs">{{ report.lab }} · {{ report.reportedOn | day: 'short' }}</span>
+                      </div>
+                      <mc-status [status]="report.status" />
+                    </a>
+                  </li>
+                }
+              </ul>
+            </article>
+          }
+        </div>
+
+        <aside class="stack">
+          <article class="card card--pad stack--sm actions">
+            <h2>What you can do</h2>
+
+            @if (action.error(); as error) {
+              <p class="note note--danger" role="alert">{{ error.message }}</p>
+            }
+
+            @if (canPay()) {
+              <a class="btn btn--primary btn--block" [routerLink]="['/patient/pay', visit.paymentId]">
+                Pay {{ visit.fee | inr }} to confirm
+              </a>
+            }
+
+            @if (canConsult()) {
+              <button type="button" class="btn btn--primary btn--block" (click)="startConsultation()">
+                {{ visit.consultationId ? 'Resume consultation' : 'Start consultation' }}
+              </button>
+            }
+
+            @if (canCheckIn() && isPatientView()) {
+              <button type="button" class="btn btn--primary btn--block" [disabled]="action.busy()" (click)="checkIn()">
+                Check in at reception
+              </button>
+            }
+
+            @if (canModify()) {
+              <button type="button" class="btn btn--outline btn--block" (click)="openReschedule()">
+                Reschedule
+              </button>
+              <button type="button" class="btn btn--ghost btn--block" [disabled]="action.busy()" (click)="cancel()">
+                Cancel appointment
+              </button>
+            }
+
+            @if (visit.status === 'completed' && visit.consultationId) {
+              <a class="btn btn--outline btn--block" [routerLink]="['/' + panel() + '/appointments']">
+                Back to list
+              </a>
+            }
+
+            @if (visit.paymentStatus === 'successful') {
+              <a class="btn btn--ghost btn--block" [routerLink]="['/patient/payments', visit.paymentId]">
+                View receipt
+              </a>
+            }
+          </article>
+
+          <article class="card card--pad qr-card">
+            <h2>Appointment QR</h2>
+            <p class="text-sm muted">
+              Reception scans this to check you in. It carries the appointment ID and nothing else.
+            </p>
+            <mc-qr-code [value]="visit.id" [caption]="visit.departmentName" [size]="340" />
+          </article>
+
+          @if (visit.payment; as payment) {
+            <article class="card card--pad stack--sm">
+              <h2>Billing</h2>
+
+              <div class="kv">
+                <div class="kv__row">
+                  <span class="kv__key">Fee</span>
+                  <span class="kv__value num">{{ visit.fee | inr }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Charged</span>
+                  <span class="kv__value num">{{ payment.amount | inr }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Method</span>
+                  <span class="kv__value">{{ payment.method ? (payment.method | label) : 'Not paid' }}</span>
+                </div>
+                @if (payment.transactionId) {
+                  <div class="kv__row">
+                    <span class="kv__key">Transaction</span>
+                    <span class="kv__value mono text-xs">{{ payment.transactionId }}</span>
+                  </div>
+                }
+              </div>
+            </article>
+          }
+        </aside>
+      </div>
+    }
+  </mc-data-state>
+</section>
+
+<!-- Reschedule -->
+<mc-modal
+  [open]="rescheduleOpen()"
+  heading="Move this appointment"
+  width="34rem"
+  (closed)="rescheduleOpen.set(false)"
+>
+  <div class="stack">
+    <div class="field">
+      <span class="field__label">Pick a new date</span>
+      <div class="date-strip">
+        @for (date of nextDates(); track date) {
+          <button
+            type="button"
+            class="chip"
+            [class.is-active]="newDate() === date"
+            (click)="pickDate(date)"
+          >
+            {{ date | day: 'short' }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <mc-data-state
+      [busy]="slots.loading()"
+      [error]="slots.error()"
+      [skeletonLines]="2"
+      [skeletonHeight]="3"
+      errorTitle="Could not read the slots"
+      (retry)="slots.load()"
+    >
+      @if (slots.data(); as day) {
+        @if (!day.working) {
+          <p class="note note--warning">{{ day.reason ?? 'Not consulting on this day.' }}</p>
+        } @else {
+          <div class="field">
+            <span class="field__label">Free times on {{ day.date | day }}</span>
+            <div class="slot-grid">
+              @for (slot of day.slots; track slot.time) {
+                <button
+                  type="button"
+                  class="chip"
+                  [class.is-active]="newTime() === slot.time"
+                  [disabled]="!slot.available"
+                  (click)="newTime.set(slot.time)"
+                >
+                  {{ slot.time | clock }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+      }
+    </mc-data-state>
+
+    @if (action.error(); as error) {
+      <p class="note note--danger" role="alert">{{ error.message }}</p>
+    }
+  </div>
+
+  <div slot="actions">
+    <button type="button" class="btn btn--ghost" (click)="rescheduleOpen.set(false)">Cancel</button>
+    <button
+      type="button"
+      class="btn btn--primary"
+      [disabled]="!newTime() || action.busy()"
+      (click)="reschedule()"
+    >
+      @if (action.busy()) {
+        <span class="btn__spinner" aria-hidden="true"></span>
+      }
+      Move appointment
+    </button>
+  </div>
+</mc-modal>

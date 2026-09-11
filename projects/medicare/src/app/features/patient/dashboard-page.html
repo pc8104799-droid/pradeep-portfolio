@@ -1,0 +1,300 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>{{ greeting() }}, {{ firstName() }}</h1>
+      <p>Everything from your last visit and everything booked ahead, in one place.</p>
+    </div>
+
+    <div class="row row--wrap">
+      <a class="btn btn--outline" routerLink="/patient/qr">Show my QR</a>
+      <a class="btn btn--primary" routerLink="/patient/book">Book an appointment</a>
+    </div>
+  </header>
+
+  <mc-data-state
+    [busy]="summary.loading()"
+    [error]="summary.error()"
+    [skeletonLines]="4"
+    errorTitle="Your dashboard did not load"
+    (retry)="reload()"
+  >
+    @if (summary.data(); as data) {
+      <div class="stack" [class.is-reloading]="summary.reloading()">
+        <!-- The single next action, chosen by priority rather than shown as a
+             list of four competing banners. -->
+        @if (callToAction(); as action) {
+          <div class="cta card card--pad" [class]="'cta--' + action.tone">
+            <div>
+              <h2>{{ action.title }}</h2>
+              <p>{{ action.body }}</p>
+            </div>
+            <a class="btn btn--primary" [routerLink]="action.link">{{ action.label }}</a>
+          </div>
+        }
+
+        <div class="grid grid--metrics">
+          @for (tile of tiles(); track tile.label) {
+            <mc-stat [label]="tile.label" [value]="tile.value" [hint]="tile.hint" [link]="tile.link" />
+          }
+        </div>
+
+        <div class="split">
+          <div class="stack">
+            <!-- Upcoming visit -->
+            <article class="card card--flush">
+              <header class="card__head">
+                <h2>Next appointment</h2>
+                <a class="btn btn--ghost btn--sm" routerLink="/patient/appointments">All appointments →</a>
+              </header>
+
+              @if (data.upcomingAppointment; as next) {
+                <div class="card__body visit">
+                  <mc-person [name]="next.doctorName" [meta]="next.departmentName" size="lg" />
+
+                  <div class="kv">
+                    <div class="kv__row">
+                      <span class="kv__key">When</span>
+                      <span class="kv__value">{{ next.date | day }} at {{ next.time | clock }}</span>
+                    </div>
+                    <div class="kv__row">
+                      <span class="kv__key">Type</span>
+                      <span class="kv__value">
+                        {{ next.consultationType | label }} · {{ next.visitType | label }}
+                      </span>
+                    </div>
+                    <div class="kv__row">
+                      <span class="kv__key">Reason</span>
+                      <span class="kv__value">{{ next.reason }}</span>
+                    </div>
+                    <div class="kv__row">
+                      <span class="kv__key">Status</span>
+                      <span class="kv__value">
+                        <mc-status [status]="next.status" />
+                        <mc-status [status]="next.paymentStatus" [text]="'Payment ' + next.paymentStatus" />
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="row row--wrap">
+                    <a class="btn btn--outline btn--sm" [routerLink]="['/patient/appointments', next.id]">
+                      Open
+                    </a>
+                    @if (next.token) {
+                      <span class="badge badge--primary">Token {{ next.token }}</span>
+                    }
+                  </div>
+                </div>
+              } @else {
+                <div class="card__body empty-inline">
+                  <p class="muted">Nothing booked. Most departments have a slot within two days.</p>
+                  <a class="btn btn--primary btn--sm" routerLink="/patient/doctors">Find a doctor</a>
+                </div>
+              }
+            </article>
+
+            <!-- Current medication -->
+            <article class="card card--flush">
+              <header class="card__head">
+                <h2>Current medicines</h2>
+                @if (data.latestPrescription; as rx) {
+                  <a class="btn btn--ghost btn--sm" [routerLink]="['/patient/prescriptions', rx.id]">
+                    View prescription →
+                  </a>
+                }
+              </header>
+
+              @if (data.currentMedicines.length) {
+                <ul class="meds">
+                  @for (medicine of data.currentMedicines; track medicine.name) {
+                    <li>
+                      <div>
+                        <strong>{{ medicine.name }}</strong>
+                        <span class="muted text-xs">{{ medicine.strength }} · {{ medicine.form }}</span>
+                      </div>
+                      <div class="meds__dose">
+                        <span>{{ medicine.frequency }}</span>
+                        <span class="muted text-xs">{{ medicine.timing }} · {{ medicine.duration }}</span>
+                      </div>
+                    </li>
+                  }
+                </ul>
+
+                <footer class="card__foot">
+                  <a class="btn btn--primary btn--sm" routerLink="/patient/pharmacy">Order these medicines</a>
+                </footer>
+              } @else {
+                <div class="card__body">
+                  <p class="muted">No active prescription. Medicines appear here after a consultation.</p>
+                </div>
+              }
+            </article>
+
+            <!-- Recent reports -->
+            <article class="card card--flush">
+              <header class="card__head">
+                <h2>Recent lab reports</h2>
+                <a class="btn btn--ghost btn--sm" routerLink="/patient/reports">All reports →</a>
+              </header>
+
+              @if (data.recentReports.length) {
+                <div class="table-wrap">
+                  <table class="data">
+                    <thead>
+                      <tr>
+                        <th>Test</th>
+                        <th>Reported</th>
+                        <th>Result</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (report of data.recentReports; track report.id) {
+                        <tr>
+                          <td>
+                            <strong>{{ report.testName }}</strong>
+                            <div class="muted text-xs">{{ report.lab }}</div>
+                          </td>
+                          <td class="num">{{ report.reportedOn | day: 'short' }}</td>
+                          <td><mc-status [status]="report.status" /></td>
+                          <td class="cell-actions">
+                            <a class="btn btn--ghost btn--sm" [routerLink]="['/patient/reports', report.id]">
+                              Open
+                            </a>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              } @else {
+                <div class="card__body">
+                  <p class="muted">No lab reports yet.</p>
+                </div>
+              }
+            </article>
+          </div>
+
+          <!-- Right rail -->
+          <div class="stack">
+            <article class="card card--pad health">
+              <div class="spread">
+                <h2>Health summary</h2>
+                <a class="btn btn--ghost btn--sm" routerLink="/patient/emergency">Emergency card →</a>
+              </div>
+
+              <div class="health__grid">
+                <div class="health__blood">
+                  <span class="text-xs muted">Blood group</span>
+                  <strong>{{ data.patient.bloodGroup === 'unknown' ? '—' : data.patient.bloodGroup }}</strong>
+                </div>
+
+                <div class="kv">
+                  <div class="kv__row">
+                    <span class="kv__key">Patient ID</span>
+                    <span class="kv__value mono">{{ data.patient.id }}</span>
+                  </div>
+                  <div class="kv__row">
+                    <span class="kv__key">Age</span>
+                    <span class="kv__value">{{ data.patient.age }} years · {{ data.patient.gender | label }}</span>
+                  </div>
+                  <div class="kv__row">
+                    <span class="kv__key">Allergies</span>
+                    <span class="kv__value" [class.warn]="data.patient.allergies.length">
+                      {{ allergyList(data) }}
+                    </span>
+                  </div>
+                  <div class="kv__row">
+                    <span class="kv__key">Conditions</span>
+                    <span class="kv__value">{{ data.patient.conditions | listOr: 'None recorded' }}</span>
+                  </div>
+                  <div class="kv__row">
+                    <span class="kv__key">Emergency</span>
+                    <span class="kv__value">
+                      {{ data.patient.emergencyContactName }}
+                      <span class="muted text-xs">
+                        {{ data.patient.emergencyContactRelationship }} · {{ data.patient.emergencyContact }}
+                      </span>
+                    </span>
+                  </div>
+                  @if (data.patient.insuranceProvider) {
+                    <div class="kv__row">
+                      <span class="kv__key">Insurance</span>
+                      <span class="kv__value">
+                        {{ data.patient.insuranceProvider }}
+                        <span class="muted text-xs mono">{{ data.patient.insuranceNumber }}</span>
+                      </span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </article>
+
+            @if (data.activeOrders.length) {
+              <article class="card card--flush">
+                <header class="card__head">
+                  <h2>Medicine orders in progress</h2>
+                </header>
+
+                <ul class="orders">
+                  @for (order of data.activeOrders; track order.id) {
+                    <li>
+                      <a [routerLink]="['/patient/pharmacy/orders', order.id]">
+                        <div>
+                          <strong class="mono">{{ order.id }}</strong>
+                          <span class="muted text-xs">
+                            {{ order.lines.length }} item{{ order.lines.length > 1 ? 's' : '' }} ·
+                            {{ order.bill.total | inr }}
+                          </span>
+                        </div>
+                        <mc-status [status]="order.stage" />
+                      </a>
+                    </li>
+                  }
+                </ul>
+              </article>
+            }
+
+            @if (dashboard.data(); as numbers) {
+              <article class="card card--pad">
+                <div class="spread">
+                  <h2>Spending</h2>
+                  <span class="badge">{{ numbers.spent | inr }} total</span>
+                </div>
+                <mc-bar-chart [points]="numbers.charts.spendByMonth" [currency]="true" caption="Last six months" />
+              </article>
+
+              @if (numbers.charts.visitsByDepartment.length) {
+                <article class="card card--pad">
+                  <h2>Visits by department</h2>
+                  <mc-donut-chart [points]="numbers.charts.visitsByDepartment" unit="visits" />
+                </article>
+              }
+            }
+
+            <article class="card card--pad family">
+              <div class="spread">
+                <h2>Family</h2>
+                <a class="btn btn--ghost btn--sm" routerLink="/patient/family">Manage →</a>
+              </div>
+
+              @if (data.familyMembers.length) {
+                <ul class="family__list">
+                  @for (member of data.familyMembers; track member.id) {
+                    <li>
+                      <mc-person [name]="member.name" [meta]="member.relationship + ' · ' + member.age + ' yrs'" size="sm" />
+                      <span class="badge">{{ member.bloodGroup }}</span>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="muted text-sm">
+                  Add the people you book for, so their records stay with yours.
+                </p>
+              }
+            </article>
+          </div>
+        </div>
+      </div>
+    }
+  </mc-data-state>
+</section>

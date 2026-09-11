@@ -1,0 +1,91 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.shell-grid {
+  display: grid;
+  min-height: 100dvh;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Phone and tablet: the sidebar is a drawer that slides over the content. */
+.shell-side {
+  position: fixed;
+  inset-block: 0;
+  left: 0;
+  z-index: 50;
+  width: min(var(--sidebar), 82vw);
+  transform: translateX(-100%);
+  transition: transform var(--t) var(--ease);
+  box-shadow: var(--shadow-lg);
+}
+
+.is-nav-open .shell-side {
+  transform: none;
+}
+
+.shell-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgb(6 18 26 / 45%);
+  border: 0;
+  animation: fade var(--t) var(--ease) both;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.shell-main {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+}
+
+.shell-content {
+  min-width: 0;
+  /* Room for the bottom of a long page above the phone's browser chrome. */
+  padding-bottom: 2rem;
+}
+
+/* Desktop: the sidebar becomes a permanent column and stops overlaying. */
+@media (min-width: 1024px) {
+  .shell-grid {
+    grid-template-columns: var(--sidebar) minmax(0, 1fr);
+  }
+
+  .shell-side {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    transform: none;
+    box-shadow: none;
+    z-index: 10;
+  }
+
+  .shell-scrim {
+    display: none;
+  }
+}
+
+@media print {
+  .shell-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .shell-side {
+    display: none;
+  }
+
+  .shell-content {
+    padding: 0;
+  }
+}

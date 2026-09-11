@@ -1,0 +1,112 @@
+.status-line {
+  display: grid;
+  gap: 0.5rem;
+  border-left: 3px solid var(--primary);
+}
+
+.status-line.is-warning {
+  border-left-color: var(--warning);
+  background: var(--warning-soft);
+}
+
+.status-line p {
+  color: var(--ink-2);
+}
+
+.note {
+  display: block;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.note--danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.note--warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.kv__value.warn {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.kv__value a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.links li a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  padding: 0.6rem var(--pad-card);
+  border-bottom: 1px solid var(--stroke);
+}
+
+.links li:last-child a {
+  border-bottom: 0;
+}
+
+.links li a:hover {
+  background: var(--surface-2);
+}
+
+.links strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.actions h2,
+.qr-card h2 {
+  font-size: 0.95rem;
+}
+
+.qr-card {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: center;
+  text-align: center;
+}
+
+/* --------------------------------------------------- reschedule dialog */
+
+.date-strip {
+  display: flex;
+  gap: 0.3rem;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+  scrollbar-width: thin;
+}
+
+.date-strip .chip {
+  flex: none;
+}
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.2rem, 1fr));
+  gap: 0.35rem;
+}
+
+.slot-grid .chip {
+  justify-content: center;
+}
+
+.slot-grid .chip:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+@media (min-width: 1080px) {
+  aside {
+    position: sticky;
+    top: calc(var(--header-h) + 1rem);
+  }
+}

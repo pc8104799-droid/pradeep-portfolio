@@ -1,0 +1,172 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.auth {
+  display: grid;
+  min-height: 100dvh;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* ------------------------------------------------------------ brand side */
+
+.auth__brand {
+  display: grid;
+  gap: 1.5rem;
+  align-content: space-between;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  background: var(--primary);
+  color: var(--primary-ink);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.brand__mark {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: var(--radius-sm);
+  /* A translucent plate rather than a second colour, so the mark works on
+     every theme's primary without a per-theme override. */
+  background: rgb(255 255 255 / 18%);
+  font-size: 1.1rem;
+}
+
+.auth__pitch h1 {
+  font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+  margin-bottom: 0.5rem;
+}
+
+.auth__pitch p {
+  opacity: 0.85;
+  max-width: 46ch;
+}
+
+.auth__points {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 1.25rem;
+  font-size: 0.88rem;
+}
+
+.auth__points li {
+  display: flex;
+  gap: 0.55rem;
+  opacity: 0.9;
+}
+
+.auth__points li::before {
+  content: "✓";
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.auth__themes {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  opacity: 0.9;
+}
+
+.auth__themes > span {
+  margin-right: 0.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.swatch {
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: var(--radius-xs);
+  border: 1px solid rgb(255 255 255 / 40%);
+  background: linear-gradient(135deg, var(--a) 50%, var(--b) 50%);
+  transition: transform var(--t-fast) var(--ease-spring);
+}
+
+.swatch:hover {
+  transform: scale(1.1);
+}
+
+.swatch.is-active {
+  box-shadow: 0 0 0 2px var(--primary-ink);
+}
+
+/* ------------------------------------------------------------- form side */
+
+.auth__main {
+  display: grid;
+  gap: var(--gap);
+  align-content: center;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  background: var(--bg);
+}
+
+.auth__form {
+  width: 100%;
+  max-width: 30rem;
+  margin-inline: auto;
+}
+
+.auth__aside {
+  width: 100%;
+  max-width: 30rem;
+  margin-inline: auto;
+}
+
+.auth__aside:empty {
+  display: none;
+}
+
+/* On a wide screen the two panels sit side by side, and a long registration
+   form scrolls inside its own column rather than pushing the brand panel. */
+@media (min-width: 900px) {
+  .auth {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  }
+
+  .auth__brand {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+  }
+
+  .auth__main {
+    align-content: safe center;
+    padding-block: 2.5rem;
+  }
+
+  .auth__form,
+  .auth__aside {
+    max-width: 34rem;
+    margin-inline: 0;
+  }
+}
+
+@media (min-width: 1240px) {
+  /* Wide enough to put the supporting panel beside the form. */
+  .auth__main {
+    grid-template-columns: minmax(0, 22rem) minmax(0, 18rem);
+    justify-content: center;
+    align-items: start;
+    align-content: safe center;
+  }
+
+  .auth__form,
+  .auth__aside {
+    max-width: none;
+  }
+
+  .auth__aside {
+    position: sticky;
+    top: 2.5rem;
+  }
+}

@@ -1,0 +1,183 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Your profile</h1>
+      <p>What patients see when they find you in the directory.</p>
+    </div>
+
+    <a class="btn btn--outline" routerLink="/doctor/settings">Appearance & security →</a>
+  </header>
+
+  <mc-data-state
+    [busy]="profile.loading()"
+    [error]="profile.error()"
+    [skeletonLines]="3"
+    [skeletonHeight]="7"
+    errorTitle="Your profile did not load"
+    (retry)="profile.load()"
+  >
+    @if (profile.data(); as doctor) {
+      <div class="split">
+        <form class="stack" [formGroup]="form" (ngSubmit)="save()" novalidate>
+          @if (action.error(); as error) {
+            <p class="note note--danger" role="alert">{{ error.message }}</p>
+          }
+
+          <fieldset class="fieldset">
+            <legend>Editable by you</legend>
+
+            <label class="field" [class.is-invalid]="control('phone').invalid && control('phone').touched">
+              <span class="field__label">Contact number <span class="req">*</span></span>
+              <input formControlName="phone" inputmode="tel" />
+              <mc-field-error [control]="control('phone')" label="Contact number" />
+            </label>
+
+            <div class="field">
+              <span class="field__label">Languages you consult in</span>
+              <div class="row row--wrap">
+                @for (language of languages; track language) {
+                  <button
+                    type="button"
+                    class="chip"
+                    [class.is-active]="speaks(language)"
+                    [attr.aria-pressed]="speaks(language)"
+                    (click)="toggleLanguage(language)"
+                  >
+                    {{ language }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <label class="field" [class.is-invalid]="control('about').invalid && control('about').touched">
+              <span class="field__label">About you <span class="req">*</span></span>
+              <textarea formControlName="about" rows="4"></textarea>
+              <mc-field-error [control]="control('about')" label="About" />
+              <span class="field__hint">
+                Shown on your public profile. Patients read this before booking.
+              </span>
+            </label>
+
+            <label class="check" [class.is-selected]="form.controls.acceptsOnline.value">
+              <input type="checkbox" formControlName="acceptsOnline" />
+              <span class="text-sm">
+                I take online consultations
+                <span class="muted">— patients can pick a video visit when booking</span>
+              </span>
+            </label>
+          </fieldset>
+
+          <fieldset class="fieldset fieldset--locked">
+            <legend>Set by hospital administration</legend>
+
+            <div class="kv">
+              <div class="kv__row">
+                <span class="kv__key">Doctor ID</span>
+                <span class="kv__value mono">{{ doctor.id }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Qualification</span>
+                <span class="kv__value">{{ doctor.qualification }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Specialisation</span>
+                <span class="kv__value">{{ doctor.specialization }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Department</span>
+                <span class="kv__value">{{ doctor.departmentName }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Experience</span>
+                <span class="kv__value">{{ doctor.experience }} years</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Registration</span>
+                <span class="kv__value mono">{{ doctor.registrationNumber }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Consultation fee</span>
+                <span class="kv__value num">{{ doctor.consultationFee | inr }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Follow-up fee</span>
+                <span class="kv__value num">{{ doctor.followUpFee | inr }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Email</span>
+                <span class="kv__value">{{ doctor.email }}</span>
+              </div>
+            </div>
+
+            <p class="field__hint">
+              Ask the hospital administrator to change any of these — they affect billing and
+              medical-council records.
+            </p>
+          </fieldset>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn--ghost" [disabled]="form.pristine" (click)="reset()">
+              Discard changes
+            </button>
+            <button type="submit" class="btn btn--primary" [disabled]="action.busy() || form.pristine">
+              @if (action.busy()) {
+                <span class="btn__spinner" aria-hidden="true"></span>
+              }
+              Save profile
+            </button>
+          </div>
+        </form>
+
+        <aside class="stack">
+          <article class="card card--pad preview">
+            <span class="preview__label">How patients see you</span>
+
+            <mc-person [name]="doctor.name" [meta]="doctor.qualification" size="lg" />
+
+            <div class="row row--wrap">
+              <span class="badge badge--primary">{{ doctor.departmentName }}</span>
+              <span class="badge">{{ doctor.experience }} yrs</span>
+              <span class="badge badge--warning">★ {{ doctor.rating }}</span>
+              @if (form.controls.acceptsOnline.value) {
+                <span class="badge badge--info">Online consults</span>
+              }
+            </div>
+
+            <p class="text-sm">{{ form.controls.about.value || doctor.about }}</p>
+
+            <p class="text-sm muted">
+              Speaks {{ form.controls.languages.value.join(', ') || '—' }}
+            </p>
+
+            <div class="kv">
+              <div class="kv__row">
+                <span class="kv__key">Consultations</span>
+                <span class="kv__value num">{{ doctor.consultations }}</span>
+              </div>
+              <div class="kv__row">
+                <span class="kv__key">Ratings</span>
+                <span class="kv__value num">{{ doctor.ratingCount }}</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card card--pad qr-card">
+            <h2>Your QR</h2>
+            <p class="text-xs muted">Printed on prescriptions so the pharmacy can verify them.</p>
+            <mc-qr-code [value]="doctor.id" [caption]="doctor.name" [size]="300" />
+          </article>
+
+          <article class="card card--pad stack--sm">
+            <h2>Branches</h2>
+            @for (branch of doctor.branches ?? []; track branch.id) {
+              <div>
+                <strong>{{ branch.name }}</strong>
+                <p class="text-sm muted">{{ branch.address }}</p>
+              </div>
+            }
+          </article>
+        </aside>
+      </div>
+    }
+  </mc-data-state>
+</section>

@@ -1,0 +1,125 @@
+.note {
+  display: block;
+  padding: 0.65rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.note--danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* ------------------------------------------------------------------ bill */
+
+.bill {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.bill li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+
+.bill li.is-credit {
+  color: var(--success);
+}
+
+.bill__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  padding-top: 0.6rem;
+  margin-top: 0.2rem;
+  border-top: 1px solid var(--stroke-strong);
+}
+
+.bill__total strong {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+
+.context {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.context strong {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+}
+
+/* --------------------------------------------------------------- methods */
+
+.methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+  gap: 0.45rem;
+}
+
+.method {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+  text-align: left;
+  transition: all var(--t) var(--ease);
+}
+
+.method:hover {
+  border-color: var(--stroke-strong);
+}
+
+.method.is-active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.method strong {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+}
+
+/* ------------------------------------------------------------------ done */
+
+.done {
+  display: grid;
+  gap: 0.4rem;
+  justify-items: center;
+  text-align: center;
+  padding-block: 1rem;
+}
+
+.done__mark {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-pill);
+  background: var(--success-soft);
+  color: var(--success);
+  font-size: 1.5rem;
+  font-weight: 700;
+  animation: pop var(--t) var(--ease-spring) both;
+}
+
+.done h2 {
+  font-size: 1.3rem;
+}
+
+.done .row {
+  margin-top: 0.6rem;
+  justify-content: center;
+}

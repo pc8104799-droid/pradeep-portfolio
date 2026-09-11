@@ -1,0 +1,262 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Checkout</h1>
+      <p>Where the medicines go, and when you would like them.</p>
+    </div>
+
+    <a class="btn btn--outline" routerLink="/patient/pharmacy/cart">← Back to basket</a>
+  </header>
+
+  @if (cart.isEmpty()) {
+    <article class="card card--pad">
+      <p class="muted">Your basket is empty.</p>
+      <a class="btn btn--primary" routerLink="/patient/pharmacy">Browse the store</a>
+    </article>
+  } @else {
+    <div class="split">
+      <div class="stack">
+        <!-- Address -->
+        <article class="card card--pad stack">
+          <div class="spread">
+            <h2>Delivery address</h2>
+            @if (!addingAddress()) {
+              <button type="button" class="btn btn--ghost btn--sm" (click)="addingAddress.set(true)">
+                + Add new
+              </button>
+            }
+          </div>
+
+          <mc-data-state
+            [busy]="addresses.loading()"
+            [error]="addresses.error()"
+            [skeletonLines]="2"
+            [skeletonHeight]="4"
+            errorTitle="Could not load your addresses"
+            (retry)="addresses.load()"
+          >
+            @if ((addresses.data()?.items ?? []).length) {
+              <div class="addresses" role="radiogroup" aria-label="Delivery address">
+                @for (address of addresses.data()?.items ?? []; track address.id) {
+                  <button
+                    type="button"
+                    role="radio"
+                    class="address"
+                    [class.is-active]="addressId() === address.id"
+                    [attr.aria-checked]="addressId() === address.id"
+                    (click)="addressId.set(address.id)"
+                  >
+                    <div class="address__top">
+                      <strong>{{ address.label }}</strong>
+                      @if (address.isDefault) {
+                        <span class="badge badge--primary">Default</span>
+                      }
+                    </div>
+
+                    <span class="text-sm">{{ address.name }} · {{ address.phone }}</span>
+                    <span class="muted text-sm">
+                      {{ address.line1 }}, {{ address.city }}, {{ address.state }} {{ address.pincode }}
+                    </span>
+                    @if (address.landmark) {
+                      <span class="muted text-xs">{{ address.landmark }}</span>
+                    }
+                  </button>
+                }
+              </div>
+            }
+          </mc-data-state>
+
+          @if (addingAddress()) {
+            <form class="stack" [formGroup]="form" (ngSubmit)="saveAddress()" novalidate>
+              <hr class="divider" />
+              <h3>New address</h3>
+
+              @if (addressAction.error(); as error) {
+                <p class="note note--danger" role="alert">{{ error.message }}</p>
+              }
+
+              <div class="field-grid">
+                <label class="field">
+                  <span class="field__label">Label</span>
+                  <input formControlName="label" placeholder="Home, Office" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Full name <span class="req">*</span></span>
+                  <input formControlName="name" autocomplete="name" />
+                  <mc-field-error [control]="control('name')" label="Name" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Phone <span class="req">*</span></span>
+                  <input formControlName="phone" inputmode="tel" />
+                  <mc-field-error [control]="control('phone')" label="Phone" />
+                </label>
+              </div>
+
+              <label class="field">
+                <span class="field__label">Address <span class="req">*</span></span>
+                <input formControlName="line1" autocomplete="street-address" />
+                <mc-field-error [control]="control('line1')" label="Address" />
+              </label>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span class="field__label">City <span class="req">*</span></span>
+                  <input formControlName="city" />
+                  <mc-field-error [control]="control('city')" label="City" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">State <span class="req">*</span></span>
+                  <input formControlName="state" />
+                  <mc-field-error [control]="control('state')" label="State" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">PIN code <span class="req">*</span></span>
+                  <input formControlName="pincode" inputmode="numeric" maxlength="6" />
+                  <mc-field-error [control]="control('pincode')" label="PIN code" />
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Landmark</span>
+                  <input formControlName="landmark" />
+                </label>
+              </div>
+
+              <div class="row row--wrap">
+                <button type="submit" class="btn btn--primary" [disabled]="addressAction.busy()">
+                  @if (addressAction.busy()) {
+                    <span class="btn__spinner" aria-hidden="true"></span>
+                  }
+                  Save address
+                </button>
+
+                @if ((addresses.data()?.items ?? []).length) {
+                  <button type="button" class="btn btn--ghost" (click)="addingAddress.set(false)">
+                    Cancel
+                  </button>
+                }
+              </div>
+            </form>
+          }
+        </article>
+
+        <!-- Slot -->
+        <article class="card card--pad stack--sm">
+          <h2>Delivery slot</h2>
+
+          <div class="row row--wrap">
+            @for (option of slots; track option) {
+              <button
+                type="button"
+                class="chip"
+                [class.is-active]="slot() === option"
+                (click)="slot.set(option)"
+              >
+                {{ option }}
+              </button>
+            }
+          </div>
+
+          <p class="text-xs muted">
+            Slots are indicative in this demo. A real deployment would check rider availability
+            against the pharmacy's dispatch schedule.
+          </p>
+        </article>
+      </div>
+
+      <!-- Order summary -->
+      <aside class="stack">
+        <mc-data-state
+          [busy]="quote.loading()"
+          [error]="quote.error()"
+          [skeletonLines]="2"
+          [skeletonHeight]="6"
+          errorTitle="Could not price your order"
+          (retry)="quote.load()"
+        >
+          @if (quote.data(); as priced) {
+            <article class="card card--pad stack--sm">
+              <h2>Order summary</h2>
+
+              <ul class="items">
+                @for (line of priced.lines; track line.medicineId) {
+                  <li>
+                    <span class="truncate">
+                      {{ line.name }}
+                      <span class="muted text-xs">× {{ line.quantity }}</span>
+                    </span>
+                    <span class="num">{{ line.lineTotal | inr }}</span>
+                  </li>
+                }
+              </ul>
+
+              <hr class="divider" />
+
+              <ul class="bill">
+                <li>
+                  <span>Subtotal</span>
+                  <span class="num">{{ priced.bill.itemsTotal | inr }}</span>
+                </li>
+                @if (priced.bill.discount) {
+                  <li class="is-credit">
+                    <span>Coupon {{ priced.coupon?.code }}</span>
+                    <span class="num">−{{ priced.bill.discount | inr }}</span>
+                  </li>
+                }
+                <li>
+                  <span>GST (5%)</span>
+                  <span class="num">{{ priced.bill.tax | inr }}</span>
+                </li>
+                <li>
+                  <span>Delivery</span>
+                  <span class="num">{{ priced.bill.delivery | inr }}</span>
+                </li>
+              </ul>
+
+              <div class="bill__total">
+                <span>Payable</span>
+                <strong class="num">{{ priced.bill.total | inr }}</strong>
+              </div>
+
+              @if (priced.prescriptionStatus === 'verified') {
+                <mc-note tone="success">
+                  Prescription <span class="mono">{{ cart.prescriptionId() }}</span> verified for
+                  the ℞-only items in this order.
+                </mc-note>
+              }
+
+              @if (priced.blocked.length || priced.outOfStock.length) {
+                <mc-note tone="danger">
+                  Some items cannot be ordered. Go back to the basket to resolve them.
+                </mc-note>
+              }
+
+              @if (action.error(); as error) {
+                <p class="note note--danger" role="alert">{{ error.message }}</p>
+              }
+
+              <button
+                type="button"
+                class="btn btn--primary btn--lg btn--block"
+                [disabled]="!canPlace() || action.busy()"
+                (click)="place()"
+              >
+                @if (action.busy()) {
+                  <span class="btn__spinner" aria-hidden="true"></span>
+                }
+                Place order & pay
+              </button>
+
+              @if (!addressId()) {
+                <p class="text-xs muted">Choose a delivery address to continue.</p>
+              }
+            </article>
+          }
+        </mc-data-state>
+      </aside>
+    </div>
+  }
+</section>

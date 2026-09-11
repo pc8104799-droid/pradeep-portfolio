@@ -1,0 +1,213 @@
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  height: var(--header-h);
+  padding-inline: clamp(0.6rem, 2vw, 1.25rem);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--stroke);
+}
+
+.top__menu {
+  font-size: 1.1rem;
+}
+
+@media (min-width: 1024px) {
+  .top__menu {
+    display: none;
+  }
+}
+
+.top__title {
+  display: grid;
+  min-width: 0;
+  line-height: 1.25;
+  margin-right: auto;
+}
+
+.top__title strong {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.top__bell,
+.top__cart {
+  position: relative;
+  font-size: 1rem;
+}
+
+.top__count {
+  position: absolute;
+  top: 0.05rem;
+  right: 0.05rem;
+  min-width: 1.05rem;
+  padding: 0 0.2rem;
+  border-radius: var(--radius-pill);
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.05rem;
+  text-align: center;
+}
+
+/* --------------------------------------------------------- account menu */
+
+.top__account {
+  position: relative;
+  margin-left: 0.25rem;
+}
+
+.top__trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.4rem 0.25rem 0.25rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+  transition: border-color var(--t) var(--ease);
+}
+
+.top__trigger:hover {
+  border-color: var(--stroke-strong);
+}
+
+/* The name is noise on a phone; the avatar alone identifies the account. */
+@media (max-width: 640px) {
+  .top__trigger mc-person ::ng-deep .person__text,
+  .top__chevron {
+    display: none;
+  }
+}
+
+.top__chevron {
+  color: var(--ink-3);
+  font-size: 0.7rem;
+}
+
+.top__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: transparent;
+  cursor: default;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 2;
+  width: min(17rem, calc(100vw - 1.5rem));
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.4rem;
+  box-shadow: var(--shadow-lg);
+  animation: pop var(--t-fast) var(--ease) both;
+}
+
+.menu__head {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.55rem 0.6rem;
+  border-bottom: 1px solid var(--stroke);
+  margin-bottom: 0.25rem;
+}
+
+.menu__head strong {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+}
+
+.menu__themes {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--stroke);
+  margin-bottom: 0.25rem;
+}
+
+.menu__label {
+  display: block;
+  color: var(--ink-3);
+  font-size: 0.68rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.35rem;
+}
+
+.menu__swatches {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.swatch {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--stroke-strong);
+  /* Half surface, half accent — enough to recognise a theme at this size. */
+  background: linear-gradient(135deg, var(--a) 50%, var(--b) 50%);
+  transition:
+    transform var(--t-fast) var(--ease-spring),
+    box-shadow var(--t-fast) var(--ease);
+}
+
+.swatch:hover {
+  transform: scale(1.08);
+}
+
+.swatch.is-active {
+  box-shadow: 0 0 0 2px var(--primary);
+}
+
+.menu__links {
+  display: grid;
+}
+
+.menu__links a,
+.menu__signout {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.86rem;
+  text-align: left;
+  color: var(--ink-2);
+  transition: background var(--t-fast) var(--ease);
+}
+
+.menu__links a:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.menu__signout {
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--stroke);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.menu__signout:hover {
+  background: var(--danger-soft);
+}

@@ -1,0 +1,194 @@
+h2 {
+  font-size: 0.95rem;
+}
+
+h3 {
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+
+.note {
+  display: block;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.87rem;
+}
+
+.note--danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.note--danger .btn {
+  margin-top: 0.5rem;
+}
+
+.kv__value.warn {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.field__derived {
+  display: flex;
+  align-items: center;
+  min-height: 2.45rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--stroke-strong);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- vitals */
+
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+  gap: var(--gap-sm);
+}
+
+/* ---------------------------------------------------------- prescription */
+
+.meds {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.med-row {
+  position: relative;
+  display: grid;
+  gap: var(--gap-sm);
+  grid-template-columns: repeat(auto-fit, minmax(min(130px, 100%), 1fr));
+  padding: 0.85rem;
+  padding-right: 2.2rem;
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+
+/* The medicine name and its instructions run the full width of the row; the
+   dose fields sit in a grid underneath. */
+.med-row__name,
+.med-row__note {
+  grid-column: 1 / -1;
+}
+
+.med-row__name .row input {
+  flex: 1;
+}
+
+.med-row__remove {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  color: var(--ink-3);
+  font-size: 0.8rem;
+  padding: 0.25rem;
+  border-radius: var(--radius-xs);
+}
+
+.med-row__remove:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* -------------------------------------------------------------- history */
+
+.history li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.55rem var(--pad-card);
+  border-bottom: 1px solid var(--stroke);
+}
+
+.history li:last-child {
+  border-bottom: 0;
+}
+
+.history__date {
+  color: var(--ink-3);
+  font-size: 0.75rem;
+  min-width: 4.2rem;
+}
+
+.history strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+/* ---------------------------------------------------------------- tests */
+
+.tests li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  padding: 0.6rem var(--pad-card);
+  border-bottom: 1px solid var(--stroke);
+  flex-wrap: wrap;
+}
+
+.tests li:last-child {
+  border-bottom: 0;
+}
+
+.tests strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+/* --------------------------------------------------------------- picker */
+
+.picker {
+  display: grid;
+  gap: 0.3rem;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+.picker button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+  text-align: left;
+  transition: all var(--t-fast) var(--ease);
+}
+
+.picker button:hover {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.picker strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+/* -------------------------------------------------------------- actions */
+
+.wizard-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+}
+
+.wizard-actions .btn--ghost {
+  margin-right: auto;
+}
+
+@media (min-width: 1080px) {
+  aside {
+    position: sticky;
+    top: calc(var(--header-h) + 1rem);
+  }
+}

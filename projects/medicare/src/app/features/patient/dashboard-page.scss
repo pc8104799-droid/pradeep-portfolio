@@ -1,0 +1,177 @@
+/* --------------------------------------------------------- call to action */
+
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  flex-wrap: wrap;
+  border-left: 3px solid var(--primary);
+}
+
+.cta h2 {
+  font-size: 1rem;
+}
+
+.cta p {
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  margin-top: 0.15rem;
+  max-width: 60ch;
+}
+
+.cta--warning {
+  border-left-color: var(--warning);
+  background: var(--warning-soft);
+}
+
+.cta--success {
+  border-left-color: var(--success);
+  background: var(--success-soft);
+}
+
+/* ----------------------------------------------------------------- visit */
+
+.visit {
+  display: grid;
+  gap: var(--gap);
+}
+
+.visit .kv__value {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.empty-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  flex-wrap: wrap;
+}
+
+/* ------------------------------------------------------------- medicines */
+
+.meds {
+  display: grid;
+}
+
+.meds li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  padding: 0.65rem var(--pad-card);
+  border-bottom: 1px solid var(--stroke);
+  flex-wrap: wrap;
+}
+
+.meds li:last-child {
+  border-bottom: 0;
+}
+
+.meds strong {
+  display: block;
+  font-size: 0.9rem;
+}
+
+.meds__dose {
+  display: grid;
+  text-align: right;
+  font-size: 0.85rem;
+}
+
+/* ---------------------------------------------------------------- health */
+
+.health {
+  display: grid;
+  gap: var(--gap);
+}
+
+.health h2 {
+  font-size: 0.95rem;
+}
+
+.health__grid {
+  display: grid;
+  gap: var(--gap);
+}
+
+.health__blood {
+  display: grid;
+  gap: 0.1rem;
+  justify-items: center;
+  padding: 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.health__blood strong {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.kv__value.warn {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- orders */
+
+.orders li a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  padding: 0.6rem var(--pad-card);
+  border-bottom: 1px solid var(--stroke);
+  transition: background var(--t-fast) var(--ease);
+}
+
+.orders li:last-child a {
+  border-bottom: 0;
+}
+
+.orders li a:hover {
+  background: var(--surface-2);
+}
+
+.orders strong {
+  display: block;
+  font-size: 0.85rem;
+}
+
+/* ---------------------------------------------------------------- family */
+
+.family {
+  display: grid;
+  gap: var(--gap-sm);
+}
+
+.family h2 {
+  font-size: 0.95rem;
+}
+
+.family__list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.family__list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+}
+
+/* On a wide screen the health card can sit beside the blood group block. */
+@media (min-width: 480px) {
+  .health__grid {
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    align-items: start;
+  }
+}

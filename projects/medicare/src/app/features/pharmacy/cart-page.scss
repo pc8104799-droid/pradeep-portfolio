@@ -1,0 +1,151 @@
+h2 {
+  font-size: 0.95rem;
+}
+
+.empty {
+  display: grid;
+  gap: 0.6rem;
+  justify-items: center;
+  text-align: center;
+  padding-block: clamp(2rem, 6vw, 3.5rem);
+}
+
+.empty__mark {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-3);
+  color: var(--ink-3);
+  font-size: 1.4rem;
+}
+
+.empty .row {
+  margin-top: 0.5rem;
+  justify-content: center;
+}
+
+/* ----------------------------------------------------------------- lines */
+
+.lines li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.6rem var(--gap-sm);
+  align-items: center;
+  padding: 0.75rem var(--pad-card);
+  border-bottom: 1px solid var(--stroke);
+}
+
+.lines li:last-child {
+  border-bottom: 0;
+}
+
+.line__info {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.line__info strong {
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+}
+
+.line__info a:hover strong {
+  color: var(--primary);
+}
+
+.line__price {
+  display: grid;
+  justify-items: end;
+  text-align: right;
+}
+
+.line__price strong {
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+
+.line__remove {
+  color: var(--ink-3);
+  font-size: 0.8rem;
+  padding: 0.3rem;
+  border-radius: var(--radius-xs);
+}
+
+.line__remove:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* Four columns once there is room: item, quantity, price, remove. */
+@media (min-width: 620px) {
+  .lines li {
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+  }
+}
+
+.blocked {
+  display: grid;
+  gap: 0.3rem;
+  margin-block: 0.6rem;
+}
+
+.blocked strong {
+  font-size: 0.88rem;
+  margin-right: 0.4rem;
+}
+
+/* ------------------------------------------------------------------ bill */
+
+.bill {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bill li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  font-size: 0.88rem;
+  color: var(--ink-2);
+}
+
+.bill li.is-credit {
+  color: var(--success);
+}
+
+.bill__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--stroke-strong);
+}
+
+.bill__total strong {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+}
+
+.coupon {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+
+.coupon .field {
+  flex: 1;
+}
+
+@media (min-width: 1080px) {
+  aside {
+    position: sticky;
+    top: calc(var(--header-h) + 1rem);
+  }
+}

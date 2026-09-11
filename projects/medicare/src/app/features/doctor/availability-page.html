@@ -1,0 +1,245 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Availability & leave</h1>
+      <p>
+        What you publish here is exactly what patients can book. Slots are generated from this
+        schedule on every request.
+      </p>
+    </div>
+
+    <a class="btn btn--outline" routerLink="/doctor/appointments">See what is booked →</a>
+  </header>
+
+  <mc-data-state
+    [busy]="availability.loading()"
+    [error]="availability.error()"
+    [skeletonLines]="4"
+    [skeletonHeight]="4"
+    errorTitle="Your schedule did not load"
+    (retry)="availability.load()"
+  >
+    @if (draft(); as schedule) {
+      <div class="split">
+        <div class="stack">
+          <!-- Weekly schedule -->
+          <article class="card card--pad stack">
+            <div class="spread">
+              <h2>Weekly hours</h2>
+              <span class="badge">{{ weeklyHours() }} hrs · ~{{ weeklyCapacity() }} patients</span>
+            </div>
+
+            <div class="week">
+              @for (day of days; track day.key) {
+                <div class="day" [class.is-off]="!dayOf(day.key).working">
+                  <div class="day__head">
+                    <label class="check day__toggle" [class.is-selected]="dayOf(day.key).working">
+                      <input
+                        type="checkbox"
+                        [checked]="dayOf(day.key).working"
+                        (change)="toggleDay(day.key)"
+                      />
+                      <span>{{ day.label }}</span>
+                    </label>
+
+                    @if (dayOf(day.key).working) {
+                      <div class="row">
+                        <button type="button" class="btn btn--ghost btn--sm" (click)="addWindow(day.key)">
+                          + Session
+                        </button>
+                        <button type="button" class="btn btn--ghost btn--sm" (click)="copyToAll(day.key)">
+                          Copy to all
+                        </button>
+                      </div>
+                    }
+                  </div>
+
+                  @if (dayOf(day.key).working) {
+                    <div class="day__windows">
+                      @for (window of dayOf(day.key).windows; track $index; let index = $index) {
+                        <div class="window">
+                          <label class="field">
+                            <span class="sr-only">{{ day.label }} session {{ index + 1 }} start</span>
+                            <input
+                              type="time"
+                              [ngModel]="window.start"
+                              (ngModelChange)="setWindow(day.key, index, 'start', $event)"
+                            />
+                          </label>
+
+                          <span class="window__dash" aria-hidden="true">–</span>
+
+                          <label class="field">
+                            <span class="sr-only">{{ day.label }} session {{ index + 1 }} end</span>
+                            <input
+                              type="time"
+                              [ngModel]="window.end"
+                              (ngModelChange)="setWindow(day.key, index, 'end', $event)"
+                            />
+                          </label>
+
+                          <button
+                            type="button"
+                            class="window__remove"
+                            (click)="removeWindow(day.key, index)"
+                            [attr.aria-label]="'Remove ' + day.label + ' session ' + (index + 1)"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <p class="muted text-sm">Not consulting</p>
+                  }
+                </div>
+              }
+            </div>
+          </article>
+
+          <!-- Slot shape -->
+          <article class="card card--pad stack--sm">
+            <h2>Slot length</h2>
+            <p class="text-sm muted">
+              How long each consultation is booked for, and how many patients share a slot.
+            </p>
+
+            <div class="row row--wrap">
+              @for (minutes of slotOptions; track minutes) {
+                <button
+                  type="button"
+                  class="chip"
+                  [class.is-active]="schedule.slotMinutes === minutes"
+                  (click)="setSlotMinutes(minutes)"
+                >
+                  {{ minutes }} min
+                </button>
+              }
+            </div>
+
+            <label class="field max-per">
+              <span class="field__label">Patients per slot</span>
+              <input
+                type="number"
+                min="1"
+                max="6"
+                [ngModel]="schedule.maxPerSlot"
+                (ngModelChange)="setMaxPerSlot(+$event)"
+              />
+              <span class="field__hint">
+                Above one, several patients can book the same time — useful for a walk-in clinic.
+              </span>
+            </label>
+          </article>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn--ghost" (click)="reset()">Discard changes</button>
+            <button type="button" class="btn btn--primary" [disabled]="saving.busy()" (click)="save()">
+              @if (saving.busy()) {
+                <span class="btn__spinner" aria-hidden="true"></span>
+              }
+              Publish hours
+            </button>
+          </div>
+        </div>
+
+        <!-- Leave -->
+        <aside class="stack">
+          <article class="card card--pad stack--sm" [formGroup]="leaveForm">
+            <h2>Book leave</h2>
+            <p class="text-sm muted">Nobody can book you on these dates.</p>
+
+            <div class="field-grid">
+              <label class="field">
+                <span class="field__label">From</span>
+                <input type="date" formControlName="from" [min]="today" />
+              </label>
+
+              <label class="field">
+                <span class="field__label">To</span>
+                <input type="date" formControlName="to" [min]="leaveForm.controls.from.value || today" />
+              </label>
+            </div>
+
+            <label class="field">
+              <span class="field__label">Reason</span>
+              <input formControlName="reason" placeholder="Conference, personal leave…" />
+            </label>
+
+            @if (leaveAction.error(); as error) {
+              <p class="note note--danger" role="alert">{{ error.message }}</p>
+            }
+
+            <button type="button" class="btn btn--primary" [disabled]="leaveAction.busy()" (click)="addLeave()">
+              @if (leaveAction.busy()) {
+                <span class="btn__spinner" aria-hidden="true"></span>
+              }
+              Book leave
+            </button>
+          </article>
+
+          @if (clashes().length) {
+            <article class="card card--pad card--rail card--warning">
+              <h2>{{ clashes().length }} appointment(s) already booked</h2>
+              <p class="text-sm">
+                Leave does not cancel anything automatically. Reschedule or cancel each of these.
+              </p>
+
+              <ul class="clashes">
+                @for (clash of clashes(); track clash.id) {
+                  <li>
+                    <div>
+                      <strong>{{ clash.patientName }}</strong>
+                      <span class="muted text-xs">{{ clash.date | day: 'short' }} · {{ clash.time | clock }}</span>
+                    </div>
+                    <a class="btn btn--outline btn--sm" [routerLink]="['/doctor/appointments', clash.id]">
+                      Open
+                    </a>
+                  </li>
+                }
+              </ul>
+
+              <button type="button" class="btn btn--ghost btn--sm" (click)="clashes.set([])">
+                Dismiss
+              </button>
+            </article>
+          }
+
+          <article class="card card--flush">
+            <header class="card__head"><h2>Booked leave</h2></header>
+
+            <mc-data-state
+              [busy]="leaves.loading()"
+              [error]="leaves.error()"
+              [empty]="leaves.empty()"
+              [skeletonLines]="2"
+              [skeletonHeight]="2.5"
+              emptyTitle="No leave booked"
+              emptyBody="Your schedule is open for the next three weeks."
+              (retry)="leaves.load()"
+            >
+              <ul class="leaves">
+                @for (leave of leaves.data()?.items ?? []; track leave.id) {
+                  <li [class.is-past]="leave.to < today">
+                    <div>
+                      <strong>{{ leave.from | day: 'short' }} – {{ leave.to | day: 'short' }}</strong>
+                      <span class="muted text-xs">{{ leave.reason }}</span>
+                    </div>
+
+                    @if (leave.to >= today) {
+                      <button type="button" class="btn btn--ghost btn--sm" (click)="removeLeave(leave)">
+                        Remove
+                      </button>
+                    } @else {
+                      <span class="badge">Past</span>
+                    }
+                  </li>
+                }
+              </ul>
+            </mc-data-state>
+          </article>
+        </aside>
+      </div>
+    }
+  </mc-data-state>
+</section>
