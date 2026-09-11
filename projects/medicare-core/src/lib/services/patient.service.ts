@@ -25,6 +25,14 @@ export class PatientService {
   }
 
   /**
+   * Registers a walk-in at the reception desk. The temporary password comes
+   * back once, to be handed over — it is never stored anywhere readable.
+   */
+  register(details: Record<string, unknown>): Promise<{ patient: Patient; temporaryPassword: string }> {
+    return this.api.post('/patients', details);
+  }
+
+  /**
    * The joined dashboard picture in one call — appointments, prescriptions,
    * reports, payments and family, already sorted.
    */

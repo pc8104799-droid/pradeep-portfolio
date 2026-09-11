@@ -1,24 +1,32 @@
 <section class="page">
   <header class="page__head">
     <div>
-      <h1>Medical store</h1>
+      <h1>{{ canBuy() ? 'Medical store' : 'Catalogue' }}</h1>
       <p>
         {{ results.data()?.total ?? 0 }} medicines and devices, dispensed from the hospital pharmacy.
+        @if (!canBuy()) {
+          This is exactly what a patient sees.
+        }
       </p>
     </div>
 
     <div class="row row--wrap">
-      <a class="btn btn--outline" routerLink="/patient/pharmacy/orders">Your orders</a>
-      <a class="btn btn--primary" routerLink="/patient/pharmacy/cart">
-        Basket
-        @if (cart.count() > 0) {
-          <span class="badge badge--primary">{{ cart.count() }}</span>
-        }
-      </a>
+      @if (canBuy()) {
+        <a class="btn btn--outline" routerLink="/patient/pharmacy/orders">Your orders</a>
+        <a class="btn btn--primary" routerLink="/patient/pharmacy/cart">
+          Basket
+          @if (cart.count() > 0) {
+            <span class="badge badge--primary">{{ cart.count() }}</span>
+          }
+        </a>
+      } @else {
+        <a class="btn btn--outline" routerLink="/pharmacy/orders">Dispensing queue</a>
+        <a class="btn btn--primary" routerLink="/pharmacy/inventory">Manage stock</a>
+      }
     </div>
   </header>
 
-  @if (prescriptionId(); as attached) {
+  @if (canBuy() && prescriptionId(); as attached) {
     <div class="card card--pad card--rail rx-banner">
       <div>
         <h2>Prescription attached</h2>
@@ -37,7 +45,7 @@
         </button>
       </div>
     </div>
-  } @else {
+  } @else if (canBuy()) {
     <mc-note tone="info">
       Prescription-only medicines need a valid prescription. Open one from
       <a routerLink="/patient/prescriptions">your prescriptions</a> and choose “Order these
@@ -110,7 +118,7 @@
         <article class="med card card--pad" [class.is-out]="medicine.stock === 0">
           <header class="med__head">
             <div class="med__title">
-              <a [routerLink]="['/patient/pharmacy', medicine.id]">
+              <a [routerLink]="[base(), medicine.id]">
                 <strong>{{ medicine.name }}</strong>
               </a>
               <span class="muted text-xs">{{ medicine.genericName }}</span>
@@ -140,7 +148,14 @@
           </div>
 
           <footer class="med__foot">
-            @if (blockedReason(medicine); as blocked) {
+            @if (!canBuy()) {
+              <span class="badge" [class.badge--danger]="medicine.stock === 0">
+                {{ medicine.stock }} in stock
+              </span>
+              <a class="btn btn--outline btn--sm" [routerLink]="['/pharmacy/catalogue', medicine.id]">
+                Open
+              </a>
+            } @else if (blockedReason(medicine); as blocked) {
               <span class="badge badge--danger">{{ blocked }}</span>
               @if (blocked === 'Prescription required') {
                 <a class="btn btn--outline btn--sm" routerLink="/patient/prescriptions">Attach one</a>

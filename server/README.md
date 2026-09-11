@@ -56,10 +56,17 @@ published availability, their leave and the appointments that actually exist. A 
 cannot drift out of sync with the bookings, and changing working hours changes the booking
 calendar immediately with nothing to migrate.
 
-**Roles are enforced here.** The Angular route guards are navigation polish; `requireRole` and
-the ownership assertions are the decision. A patient reading another patient's record, a doctor
-reading a patient they have never treated, or anyone resolving a QR code for somebody else's
-prescription all get a 403 — the tests cover each case.
+**Roles are enforced here, field by field.** The Angular route guards are navigation polish;
+`requireRole` and the ownership assertions are the decision. A patient reading another patient's
+record, a doctor reading a patient they have never treated, or anyone resolving a QR code for
+somebody else's prescription all get a 403.
+
+It goes past route access. `lib/visibility.js` decides which *fields* of a patient each role
+receives: reception and the patient get everything, a doctor loses the address, occupation and
+insurance details, and the pharmacy is cut down to name, age, mobile and allergies. Every route
+that returns a patient — the record, the directory, an appointment, a QR scan — goes through it,
+because a UI that says "withheld from the clinical view" is only telling the truth if the
+response actually withholds it.
 
 **One failure shape.** Every error is `{ error: { status, message, details? } }`. `details` is
 keyed by field name, which is what lets a reactive form mark the exact control the server
@@ -88,6 +95,10 @@ Everything lives under `/api`. Lists accept `?q=`, `?sort=field` / `?sort=-field
 
 `/medicines` also takes `inStock`, `maxPrice` and `prescriptionRequired`.
 
+`PATCH /medicines/:id` (pharmacy or admin) takes `stock`, `price` and `expiryDate` — and nothing
+else. Renaming a medicine or changing whether it needs a prescription is a regulatory matter
+rather than a counter decision, so those fields are refused.
+
 ### Doctors
 
 | Method | Path | Notes |
@@ -106,6 +117,7 @@ Everything lives under `/api`. Lists accept `?q=`, `?sort=field` / `?sort=-field
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/patients` | Staff only. A doctor sees only patients they have treated. |
+| `POST` | `/patients` | Reception registers a walk-in; returns a temporary password once. |
 | `GET` | `/patients/:id` | |
 | `GET` | `/patients/:id/summary` | The joined dashboard: appointments, prescriptions, reports, payments, orders, family. |
 | `GET` | `/patients/:id/emergency` | The emergency card. |
@@ -162,7 +174,9 @@ Everything lives under `/api`. Lists accept `?q=`, `?sort=field` / `?sort=-field
 | `GET` | `/payments/:id/receipt` | Everything a printable receipt needs. |
 | `GET` | `/notifications`, `/notifications/unread-count` | `POST /:id/read`, `POST /read-all`, `DELETE /:id`. |
 | `GET` `POST` | `/qr/resolve[/:code]` | Resolves `PT-`, `AP-`, `RX-`, `MED-`, `RP-`, `MR-`, `PAY-`, `ORD-`, `BR-`. What comes back depends on who asks. |
-| `GET` | `/stats/doctor/:id`, `/stats/patient/:id`, `/stats/hospital` | Dashboard aggregates, computed server-side. |
+| `GET` | `/stats/doctor/:id`, `/stats/patient/:id` | Dashboard aggregates, computed server-side. |
+| `GET` | `/stats/hospital` | Reception: today's clinic, money, pharmacy alerts, charts. Admin only. |
+| `GET` | `/stats/pharmacy` | The counter: dispensing queue by stage, stock health, takings. |
 | `GET` | `/health` | Status, uptime and a row count per collection. |
 
 ## Collections in `db.json`

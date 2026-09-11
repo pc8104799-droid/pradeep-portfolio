@@ -5,8 +5,8 @@ Three applications, four libraries and one REST API in a single workspace:
 - **Portfolio** — a public portfolio plus a signed-in workspace for editing every part of it.
 - **FreshKart** — a food and grocery storefront: browse, cart, coupons, checkout, UPI / card /
   cash payment, and order tracking.
-- **MediCare360** — a hospital platform with a patient panel and a doctor panel over a real
-  Node backend: booking, consultations, prescriptions, lab reports, a medical store, payments
+- **MediCare360** — a hospital platform with four role-based panels over a real Node backend:
+  booking, consultations, prescriptions, lab reports, a medical store, stock control, payments
   and QR check-in.
 
 Zoneless, signal-based, no UI library, no icon font, no animation library — every component,
@@ -32,13 +32,24 @@ npm run build:all      # libraries then both apps
 
 npm test               # portfolio:   45 specs
 npm run test:shop      # FreshKart:   53 specs
-npm run test:medicare  # MediCare360: 38 specs
+npm run test:medicare  # MediCare360: 43 specs
 npm run api:seed       # regenerate the hospital's demo data
 ```
 
 MediCare360 needs the API running: two terminals, `npm run api` in one and
 `npm run start:medicare` in the other. The sign-in screen fetches the four demo accounts from
-the API and fills the form in one click, so there is nothing to memorise.
+the API and fills the form in one click, so there is nothing to memorise — and each one lands
+in its own panel.
+
+If port 3000 is already taken on your machine, start the API elsewhere and tell the app once,
+from the browser console — no rebuild, no edit:
+
+```bash
+PORT=3100 npm run api
+```
+```js
+localStorage.setItem('medicare360-api', 'http://127.0.0.1:3100/api')
+```
 
 ## FreshKart — the storefront
 
@@ -90,7 +101,8 @@ applications, this one is not driven by a bundled JSON file: it talks to
 [`server/`](server/README.md), an Express API over a JSON document store, and every rule that
 matters is enforced there rather than in the browser.
 
-Two panels behind role guards, each with its own sidebar and its own lazy chunks.
+Four panels behind role guards, each with its own sidebar and its own lazy chunks. Sign in as
+any of the four demo accounts and the app routes you into the one that belongs to you.
 
 ### Patient panel
 
@@ -128,10 +140,44 @@ Two panels behind role guards, each with its own sidebar and its own lazy chunks
 | `/doctor/availability` | Weekly hours and leave. What is published here is what patients can book |
 | `/doctor/earnings` | Today / week / month / outstanding, with every transaction |
 
+### Reception panel (admin)
+
+
+| Route | What it does |
+| --- | --- |
+| `/admin/dashboard` | The day in front of the desk: expected, in the building, not arrived, unpaid, busiest departments |
+| `/admin/appointments` | Every consultant's book — filter by department and status, check in or cancel from the row |
+| `/admin/register` | Short walk-in form; creates the account and shows the temporary password once, to hand over |
+| `/admin/patients` | Whole-hospital directory by name, ID, mobile, city or blood group |
+| `/admin/patients/:id` | The clinical record **plus** the administrative half — address, insurance, billing |
+| `/admin/doctors` | Who can see someone, and when — next free slot per consultant |
+| `/admin/departments` | Branches and departments, with doctor counts and starting fees |
+| `/admin/payments` | Every transaction, consultations and pharmacy together, with a page total to reconcile |
+| `/admin/orders` | The pharmacy queue, for when the desk is asked about a delivery |
+
+### Pharmacy panel
+
+| Route | What it does |
+| --- | --- |
+| `/pharmacy/dashboard` | What is waiting to be dispensed, then what is about to run out |
+| `/pharmacy/orders` | The dispensing queue, **oldest first** — advance a stage in place |
+| `/pharmacy/verify` | Scan or type a ℞ number; the server rules on it, and a slip over 90 days old is refused |
+| `/pharmacy/inventory` | Restock, reprice, watch expiry — opens on "needs attention", not the full list |
+| `/pharmacy/catalogue` | Exactly what a patient sees, minus the basket |
+
+Reception and the pharmacy share several screens with the other panels — an appointment, a
+prescription, a report, a patient record, the QR scanner. Those are one component each, mounted
+in every subtree, reading the panel from the signed-in role. What differs is which actions the
+screen offers: a patient pays, reception checks in on their behalf, a doctor consults, the
+pharmacy dispenses.
+
 ### The flow that ties it together
 
 ```
-patient books ─→ pays ─→ appointment confirmed ─→ checks in, gets a token
+patient books ─→ pays ─→ appointment confirmed
+                              │
+                              ├─ patient checks in by QR ──┐
+                              └─ or reception checks them in ┴─→ token issued
                                                         │
 doctor sees the queue ─→ starts the consultation ─→ diagnosis
                                                         │
@@ -139,13 +185,17 @@ doctor sees the queue ─→ starts the consultation ─→ diagnosis
                                                         │
                             consultation completed ─→ medical record written
                                                         │
-patient is notified ─→ reads the record ─→ orders the medicines ─→ pays ─→ tracks delivery
+patient is notified ─→ reads the record ─→ orders the medicines ─→ pays
+                                                        │
+pharmacy verifies the ℞ ─→ dispenses ─→ advances the order ─→ patient tracks it
                                                         │
                                             follow-up booked from the record
 ```
 
 Every arrow is a request to the API, and every step writes the notification the other side
-sees. Nothing on either panel is a screen that only looks the part.
+sees. A token issued at the desk is the same token the doctor calls; an order the pharmacy
+advances is the order the patient watches move. Nothing on any panel is a screen that only
+looks the part.
 
 ### What is real, and what is not
 
@@ -156,11 +206,18 @@ Real:
   server-side. The client sends choices, never amounts.
 - **Slot availability.** Derived from the doctor's hours, their leave and the bookings that
   exist. Two patients racing for 10:30 means the second gets a `409`, not a double booking.
-- **Role enforcement.** A patient cannot read another patient, a doctor cannot read a patient
-  they have never treated, and a QR code resolves only to what the scanner is entitled to see.
+- **Role enforcement, and the field-level part of it.** A patient cannot read another patient,
+  a doctor cannot read a patient they have never treated, and a QR code resolves only to what
+  the scanner is entitled to see. It goes further than route access: the server strips address,
+  occupation and insurance out of a patient record before a doctor receives it, and cuts it down
+  to name and allergies for the pharmacy — so the clinical view saying "withheld" is a statement
+  about the response, not a decision the browser made.
 - **The allergy check.** Prescribing something a patient reacts to is refused until the doctor
   confirms it deliberately.
-- **Stock.** Decremented when an order is placed, returned when it is cancelled.
+- **Stock.** Decremented when an order is placed, returned when it is cancelled, and editable
+  from the pharmacy's inventory screen — where the API accepts quantity, price and expiry, and
+  refuses the name and the prescription flag, because those are regulatory rather than counter
+  decisions.
 
 Not real:
 
@@ -343,7 +400,7 @@ Viewport-relative type is tokenised as `--h1-size` / `--h2-size` so the layout t
 - **flow** — every route renders, guests redirected to sign in with the destination remembered,
   adding to cart from the product page, a cash order placed end to end
 
-`npm run test:medicare` runs 38 specs over the hospital platform:
+`npm run test:medicare` runs 43 specs over the hospital platform:
 
 - **async state** — the loading / reloading / ready / empty / error states every screen renders
   through, an empty page envelope counting as empty, and a slow first response losing to the
@@ -354,14 +411,16 @@ Viewport-relative type is tokenised as `--h1-size` / `--h2-size` so the layout t
   message, blank query values dropped from filter URLs
 - **interceptors** — the bearer token added to our own API only, the session dropped on a 401,
   and *kept* when it is the login call that was rejected
-- **auth** — each role routed to its own panel, sign-out clearing everything
+- **auth** — all four roles routed to their own panel and home route, the branch exposed only
+  to desk accounts, sign-out clearing everything
 - **basket** — add / increment / remove, quantity clamped, a corrupt stored basket survived,
   and the quote request carrying ids and quantities but never a price
 - **theme** — all six themes written to the document root and remembered, light/dark toggle,
   density
 - **guards** — a visitor redirected with the destination remembered, a patient kept out of the
-  doctor panel with `?denied`, a doctor kept out of the patient panel, a signed-in account sent
-  away from sign-in, reception routed into the patient shell
+  doctor panel with `?denied`, a doctor kept out of the patient panel, reception and pharmacy
+  each landing in their own panel and kept out of the other three, a signed-in account sent away
+  from sign-in
 - **screens** — the sign-in page listing the demo accounts the API reports, and explaining
   itself when the API is not running; the 404 page offering a way back
 - **pipes** — Indian rupee grouping, clinic date and 12-hour clock formats, relative times,

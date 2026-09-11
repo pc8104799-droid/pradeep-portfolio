@@ -1,6 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CatalogService, PharmacyService, ToastService, trackedState } from '@pc/medicare-core';
+import {
+  AuthService,
+  CatalogService,
+  PharmacyService,
+  ToastService,
+  trackedState,
+} from '@pc/medicare-core';
 import { MC_ATOMS } from '../../shared/ui/atoms';
 import { MC_CONTROLS } from '../../shared/ui/controls';
 import { DataState } from '../../shared/ui/data-state';
@@ -35,7 +41,9 @@ import { MC_PIPES } from '../../shared/pipes';
               <p>{{ item.genericName }} · {{ item.manufacturer }}</p>
             </div>
 
-            <a class="btn btn--outline" routerLink="/patient/pharmacy">← Medical store</a>
+            <a class="btn btn--outline" [routerLink]="base()">
+              ← {{ canBuy() ? 'Medical store' : 'Catalogue' }}
+            </a>
           </header>
 
           <div class="split">
@@ -86,7 +94,7 @@ import { MC_PIPES } from '../../shared/pipes';
                 </div>
               </article>
 
-              @if (item.prescriptionRequired) {
+              @if (item.prescriptionRequired && canBuy()) {
                 <mc-note tone="warning">
                   This medicine is dispensed only against a valid prescription. Attach one from
                   <a routerLink="/patient/prescriptions">your prescriptions</a> before ordering —
@@ -101,7 +109,7 @@ import { MC_PIPES } from '../../shared/pipes';
                   <ul class="related">
                     @for (other of item.related!; track other.id) {
                       <li>
-                        <a [routerLink]="['/patient/pharmacy', other.id]">
+                        <a [routerLink]="[base(), other.id]">
                           <div>
                             <strong>{{ other.name }}</strong>
                             <span class="muted text-xs">{{ other.strength }} · {{ other.form }}</span>
@@ -132,7 +140,29 @@ import { MC_PIPES } from '../../shared/pipes';
 
                 <span class="muted text-sm">{{ item.packSize }} · inclusive of all taxes</span>
 
-                @if (item.stock === 0) {
+                @if (!canBuy()) {
+                  <!-- Staff see the shelf position rather than a buy button. -->
+                  <div class="kv">
+                    <div class="kv__row">
+                      <span class="kv__key">In stock</span>
+                      <span class="kv__value num" [class.warn]="item.stock < 25">
+                        {{ item.stock }} units
+                      </span>
+                    </div>
+                    <div class="kv__row">
+                      <span class="kv__key">Stock value</span>
+                      <span class="kv__value num">{{ item.price * item.stock | inr }}</span>
+                    </div>
+                    <div class="kv__row">
+                      <span class="kv__key">Expires</span>
+                      <span class="kv__value">{{ item.expiryDate | day }}</span>
+                    </div>
+                  </div>
+
+                  <a class="btn btn--primary btn--block" routerLink="/pharmacy/inventory" [queryParams]="{ q: item.name }">
+                    Restock or reprice
+                  </a>
+                } @else if (item.stock === 0) {
                   <mc-note tone="danger">
                     Out of stock at the hospital pharmacy. Check the alternatives below.
                   </mc-note>
@@ -233,6 +263,11 @@ import { MC_PIPES } from '../../shared/pipes';
       gap: 0.6rem;
     }
 
+    .kv__value.warn {
+      color: var(--warning);
+      font-weight: 700;
+    }
+
     @media (min-width: 1080px) {
       aside {
         position: sticky;
@@ -248,6 +283,13 @@ export class MedicinePage {
 
   private readonly catalog = inject(CatalogService);
   private readonly toasts = inject(ToastService);
+  private readonly auth = inject(AuthService);
+
+  /** Only a patient can put this in a basket; staff are checking the shelf. */
+  protected readonly canBuy = computed(() => this.auth.panel() === 'patient');
+  protected readonly base = computed(() =>
+    this.canBuy() ? '/patient/pharmacy' : '/pharmacy/catalogue',
+  );
 
   protected readonly medicine = trackedState(
     () => this.medicineId(),

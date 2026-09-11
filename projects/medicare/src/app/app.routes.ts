@@ -4,14 +4,18 @@ import { authGuard, guestGuard, roleGuard } from '@pc/medicare-core';
 /**
  * The route tree.
  *
- * Two shells, one per audience, each behind a role guard: `/patient/*` for
- * people receiving care and `/doctor/*` for people giving it. The split is
- * deliberate — the two roles share almost no navigation, and keeping them in
+ * Four shells, one per audience, each behind a role guard: `/patient/*` for
+ * people receiving care, `/doctor/*` for people giving it, `/admin/*` for the
+ * reception desk and `/pharmacy/*` for the dispensing counter. The split is
+ * deliberate — the four roles share almost no navigation, and keeping them in
  * separate subtrees means the sidebar, the page titles and the lazy chunks all
  * divide along the same line.
  *
- * Reception and pharmacy accounts are routed into the patient shell for now;
- * their own panels drop in as further children without touching either of these.
+ * A handful of screens are genuinely shared: an appointment, a prescription, a
+ * report, a patient's record, the QR scanner, notifications and appearance.
+ * Those live in `features/shared-pages` and read the panel from the signed-in
+ * role, so one component serves every subtree that mounts it rather than four
+ * near-identical copies drifting apart.
  */
 export const routes: Routes = [
   {
@@ -43,7 +47,7 @@ export const routes: Routes = [
 
   {
     path: 'patient',
-    canActivate: [roleGuard('patient', 'admin', 'pharmacy')],
+    canActivate: [roleGuard('patient')],
     loadComponent: () => import('./layout/shell').then((m) => m.Shell),
     data: { panel: 'patient' },
     children: [
@@ -230,7 +234,8 @@ export const routes: Routes = [
       },
       {
         path: 'patients/:patientId',
-        loadComponent: () => import('./features/doctor/patient-detail-page').then((m) => m.DoctorPatientDetailPage),
+        loadComponent: () =>
+          import('./features/shared-pages/patient-record-page').then((m) => m.PatientRecordPage),
         title: 'Patient — MediCare360',
       },
       {
@@ -283,6 +288,174 @@ export const routes: Routes = [
         path: 'profile',
         loadComponent: () => import('./features/doctor/profile-page').then((m) => m.DoctorProfilePage),
         title: 'Your profile — MediCare360',
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/shared-pages/settings-page').then((m) => m.SettingsPage),
+        title: 'Appearance & security — MediCare360',
+      },
+    ],
+  },
+
+  /* -------------------------------------------------- reception / admin */
+
+  {
+    path: 'admin',
+    canActivate: [roleGuard('admin')],
+    loadComponent: () => import('./layout/shell').then((m) => m.Shell),
+    data: { panel: 'admin' },
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/admin/dashboard-page').then((m) => m.AdminDashboardPage),
+        title: 'Reception dashboard — MediCare360',
+      },
+      {
+        path: 'appointments',
+        loadComponent: () => import('./features/admin/appointments-page').then((m) => m.AdminAppointmentsPage),
+        title: 'Appointments — MediCare360',
+      },
+      {
+        path: 'appointments/:appointmentId',
+        loadComponent: () =>
+          import('./features/shared-pages/appointment-detail-page').then((m) => m.AppointmentDetailPage),
+        title: 'Appointment — MediCare360',
+      },
+      {
+        path: 'register',
+        loadComponent: () => import('./features/admin/register-patient-page').then((m) => m.RegisterPatientPage),
+        title: 'Register a patient — MediCare360',
+      },
+      {
+        path: 'patients',
+        loadComponent: () => import('./features/admin/patients-page').then((m) => m.AdminPatientsPage),
+        title: 'Patients — MediCare360',
+      },
+      {
+        path: 'patients/:patientId',
+        loadComponent: () =>
+          import('./features/shared-pages/patient-record-page').then((m) => m.PatientRecordPage),
+        title: 'Patient — MediCare360',
+      },
+      {
+        path: 'doctors',
+        loadComponent: () => import('./features/admin/doctors-page').then((m) => m.AdminDoctorsPage),
+        title: 'Doctors — MediCare360',
+      },
+      {
+        path: 'departments',
+        loadComponent: () => import('./features/admin/departments-page').then((m) => m.AdminDepartmentsPage),
+        title: 'Departments & branches — MediCare360',
+      },
+      {
+        path: 'payments',
+        loadComponent: () => import('./features/admin/payments-page').then((m) => m.AdminPaymentsPage),
+        title: 'Payments — MediCare360',
+      },
+      {
+        path: 'payments/:paymentId',
+        loadComponent: () => import('./features/shared-pages/receipt-page').then((m) => m.ReceiptPage),
+        title: 'Receipt — MediCare360',
+      },
+      {
+        path: 'orders',
+        loadComponent: () => import('./features/pharmacy/queue-page').then((m) => m.PharmacyQueuePage),
+        title: 'Pharmacy orders — MediCare360',
+      },
+      {
+        path: 'orders/:orderId',
+        loadComponent: () => import('./features/pharmacy/order-detail-page').then((m) => m.OrderDetailPage),
+        title: 'Order — MediCare360',
+      },
+      {
+        path: 'prescriptions/:prescriptionId',
+        loadComponent: () =>
+          import('./features/shared-pages/prescription-detail-page').then((m) => m.PrescriptionDetailPage),
+        title: 'Prescription — MediCare360',
+      },
+      {
+        path: 'reports/:reportId',
+        loadComponent: () => import('./features/shared-pages/report-detail-page').then((m) => m.ReportDetailPage),
+        title: 'Report — MediCare360',
+      },
+      {
+        path: 'qr',
+        loadComponent: () => import('./features/shared-pages/qr-page').then((m) => m.QrPage),
+        title: 'Scan a code — MediCare360',
+      },
+      {
+        path: 'notifications',
+        loadComponent: () => import('./features/shared-pages/notifications-page').then((m) => m.NotificationsPage),
+        title: 'Notifications — MediCare360',
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/shared-pages/settings-page').then((m) => m.SettingsPage),
+        title: 'Appearance & security — MediCare360',
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------ pharmacy desk */
+
+  {
+    path: 'pharmacy',
+    canActivate: [roleGuard('pharmacy')],
+    loadComponent: () => import('./layout/shell').then((m) => m.Shell),
+    data: { panel: 'pharmacy' },
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/pharmacy/dashboard-page').then((m) => m.PharmacyDashboardPage),
+        title: 'Pharmacy dashboard — MediCare360',
+      },
+      {
+        path: 'orders',
+        loadComponent: () => import('./features/pharmacy/queue-page').then((m) => m.PharmacyQueuePage),
+        title: 'Dispensing queue — MediCare360',
+      },
+      {
+        path: 'orders/:orderId',
+        loadComponent: () => import('./features/pharmacy/order-detail-page').then((m) => m.OrderDetailPage),
+        title: 'Order — MediCare360',
+      },
+      {
+        path: 'verify',
+        loadComponent: () => import('./features/pharmacy/verify-page').then((m) => m.VerifyPrescriptionPage),
+        title: 'Verify a prescription — MediCare360',
+      },
+      {
+        path: 'inventory',
+        loadComponent: () => import('./features/pharmacy/inventory-page').then((m) => m.InventoryPage),
+        title: 'Inventory — MediCare360',
+      },
+      {
+        path: 'catalogue',
+        loadComponent: () => import('./features/pharmacy/catalogue-page').then((m) => m.CataloguePage),
+        title: 'Catalogue — MediCare360',
+      },
+      {
+        path: 'catalogue/:medicineId',
+        loadComponent: () => import('./features/pharmacy/medicine-page').then((m) => m.MedicinePage),
+        title: 'Medicine — MediCare360',
+      },
+      {
+        path: 'prescriptions/:prescriptionId',
+        loadComponent: () =>
+          import('./features/shared-pages/prescription-detail-page').then((m) => m.PrescriptionDetailPage),
+        title: 'Prescription — MediCare360',
+      },
+      {
+        path: 'qr',
+        loadComponent: () => import('./features/shared-pages/qr-page').then((m) => m.QrPage),
+        title: 'Scan a code — MediCare360',
+      },
+      {
+        path: 'notifications',
+        loadComponent: () => import('./features/shared-pages/notifications-page').then((m) => m.NotificationsPage),
+        title: 'Notifications — MediCare360',
       },
       {
         path: 'settings',

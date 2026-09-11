@@ -1,0 +1,154 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Appointments</h1>
+      <p>
+        {{ list.data()?.total ?? 0 }} in this view.
+        @if (counts().notArrived) {
+          <span class="flag">{{ counts().notArrived }} not arrived.</span>
+        }
+        @if (counts().unpaid) {
+          <span class="flag flag--warn">{{ counts().unpaid }} unpaid.</span>
+        }
+      </p>
+    </div>
+
+    <div class="row row--wrap">
+      <a class="btn btn--outline" routerLink="/admin/qr">Check in by QR</a>
+      <button type="button" class="btn btn--outline" (click)="list.load()">Refresh</button>
+    </div>
+  </header>
+
+  <div class="spread">
+    <div class="row row--wrap" role="tablist" aria-label="Appointment range">
+      @for (option of tabs; track option.id) {
+        <button
+          type="button"
+          role="tab"
+          class="chip"
+          [class.is-active]="tab() === option.id"
+          [attr.aria-selected]="tab() === option.id"
+          (click)="patch({ tab: option.id })"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+
+    <mc-search
+      [value]="search()"
+      placeholder="Patient, doctor or appointment ID"
+      (valueChange)="patch({ search: $event })"
+    />
+  </div>
+
+  <div class="row row--wrap filters">
+    <label class="field">
+      <span class="sr-only">Department</span>
+      <select [ngModel]="departmentId()" (ngModelChange)="patch({ departmentId: $event })">
+        <option value="">All departments</option>
+        @for (department of catalog.departments(); track department.id) {
+          <option [value]="department.id">{{ department.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span class="sr-only">Status</span>
+      <select [ngModel]="status()" (ngModelChange)="patch({ status: $event })">
+        @for (option of statuses; track option) {
+          <option [value]="option">{{ option ? (option | label) : 'Any status' }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  <mc-data-state
+    [busy]="list.loading()"
+    [error]="list.error()"
+    [empty]="list.empty()"
+    [skeletonLines]="6"
+    [skeletonHeight]="3.5"
+    emptyTitle="Nothing booked in this view"
+    emptyBody="Try a different range, or clear the department and status filters."
+    (retry)="list.load()"
+  >
+    <div class="card card--flush" [class.is-reloading]="list.reloading() || action.busy()">
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
+            <tr>
+              <th>When</th>
+              <th>Patient</th>
+              <th>Doctor</th>
+              <th>Status</th>
+              <th>Payment</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (visit of list.data()?.items ?? []; track visit.id) {
+              <tr [class.is-today]="visit.date === today">
+                <td>
+                  <strong class="num">{{ visit.date | day: 'short' }}</strong>
+                  <div class="muted text-xs num">{{ visit.time | clock }}</div>
+                </td>
+                <td>
+                  <a [routerLink]="['/admin/patients', visit.patientId]">
+                    <strong>{{ visit.patientName }}</strong>
+                  </a>
+                  <div class="mono text-xs muted">{{ visit.patientId }}</div>
+                </td>
+                <td>
+                  {{ visit.doctorName }}
+                  <div class="muted text-xs">{{ visit.departmentName }}</div>
+                </td>
+                <td>
+                  <mc-status [status]="visit.status" />
+                  @if (visit.token) {
+                    <span class="badge badge--primary">Token {{ visit.token }}</span>
+                  }
+                </td>
+                <td>
+                  <mc-status [status]="visit.paymentStatus" />
+                  <div class="muted text-xs num">{{ visit.fee | inr }}</div>
+                </td>
+                <td class="cell-actions">
+                  @if (canCheckIn(visit)) {
+                    <button
+                      type="button"
+                      class="btn btn--primary btn--sm"
+                      [disabled]="action.busy()"
+                      (click)="checkIn(visit)"
+                    >
+                      Check in
+                    </button>
+                  }
+
+                  <a class="btn btn--outline btn--sm" [routerLink]="['/admin/appointments', visit.id]">
+                    Open
+                  </a>
+
+                  @if (['pending', 'confirmed', 'rescheduled'].includes(visit.status)) {
+                    <button type="button" class="btn btn--ghost btn--sm" (click)="cancel(visit)">
+                      Cancel
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    @if (list.data(); as page) {
+      <mc-paginator
+        [page]="page.page"
+        [pages]="page.pages"
+        [total]="page.total"
+        (pageChange)="patch({ page: $event })"
+      />
+    }
+  </mc-data-state>
+</section>

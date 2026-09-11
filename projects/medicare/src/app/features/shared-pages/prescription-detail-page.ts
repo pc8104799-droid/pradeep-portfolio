@@ -27,7 +27,7 @@ export class PrescriptionDetailPage {
   private readonly clinical = inject(ClinicalService);
 
   protected readonly auth = inject(AuthService);
-  protected readonly panel = computed(() => (this.auth.role() === 'doctor' ? 'doctor' : 'patient'));
+  protected readonly panel = computed(() => this.auth.panel());
 
   protected readonly prescription = trackedState(
     () => this.prescriptionId(),

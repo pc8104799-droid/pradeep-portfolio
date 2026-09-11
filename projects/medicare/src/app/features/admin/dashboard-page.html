@@ -1,0 +1,250 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>{{ greeting() }}, reception</h1>
+      <p>{{ auth.branch()?.name ?? 'MediCare360' }} — {{ today | day }}</p>
+    </div>
+
+    <div class="row row--wrap">
+      <button type="button" class="btn btn--outline" (click)="reload()">Refresh</button>
+      <a class="btn btn--outline" routerLink="/admin/qr">Check in by QR</a>
+      <a class="btn btn--primary" routerLink="/admin/register">Register a patient</a>
+    </div>
+  </header>
+
+  <mc-data-state
+    [busy]="dashboard.loading()"
+    [error]="dashboard.error()"
+    [skeletonLines]="4"
+    [skeletonHeight]="5"
+    errorTitle="The reception dashboard did not load"
+    (retry)="dashboard.load()"
+  >
+    @if (dashboard.data(); as data) {
+      <div class="stack" [class.is-reloading]="dashboard.reloading()">
+        <!-- Today, at a glance -->
+        <div class="grid grid--metrics">
+          <mc-stat
+            label="Expected today"
+            [value]="data.today.expected"
+            [hint]="data.today.doctorsOnDuty + ' doctors on duty'"
+            link="/admin/appointments"
+          />
+          <mc-stat
+            label="In the building"
+            [value]="data.today.checkedIn"
+            [hint]="data.today.waiting + ' waiting · ' + data.today.inConsultation + ' with a doctor'"
+          />
+          <mc-stat
+            label="Not arrived"
+            [value]="data.today.notArrived"
+            hint="Confirmed but not checked in"
+            [tone]="data.today.notArrived ? 'warning' : ''"
+          />
+          <mc-stat
+            label="Taken today"
+            [value]="data.money.revenueToday"
+            [currency]="true"
+            [hint]="(data.money.revenueMonth | inr) + ' this month'"
+            link="/admin/payments"
+          />
+        </div>
+
+        <!-- What needs chasing -->
+        @if (data.money.unpaidCount || data.pharmacy.outOfStock || data.onLeave) {
+          <div class="alerts">
+            @if (data.money.unpaidCount) {
+              <mc-note tone="warning">
+                <strong>{{ data.money.unpaidCount }}</strong> unpaid booking(s) worth
+                {{ data.money.unpaidValue | inr }} — an unpaid consultation is an unconfirmed one.
+              </mc-note>
+            }
+            @if (data.pharmacy.outOfStock) {
+              <mc-note tone="danger">
+                <strong>{{ data.pharmacy.outOfStock }}</strong> medicine(s) out of stock, and
+                {{ data.pharmacy.lowStock }} running low.
+              </mc-note>
+            }
+            @if (data.onLeave) {
+              <mc-note tone="info">
+                <strong>{{ data.onLeave }}</strong> doctor(s) are on leave today — their dates
+                cannot be booked.
+              </mc-note>
+            }
+          </div>
+        }
+
+        <div class="split">
+          <div class="stack">
+            <!-- The waiting room -->
+            <article class="card card--flush">
+              <header class="card__head">
+                <h2>In the building now ({{ inBuilding().length }})</h2>
+                <a class="btn btn--ghost btn--sm" routerLink="/admin/appointments">Today's list →</a>
+              </header>
+
+              <mc-data-state
+                [busy]="clinic.loading()"
+                [error]="clinic.error()"
+                [skeletonLines]="3"
+                [skeletonHeight]="2.5"
+                errorTitle="Today's clinic did not load"
+                (retry)="clinic.load()"
+              >
+                @if (inBuilding().length) {
+                  <ul class="rows">
+                    @for (visit of inBuilding(); track visit.id) {
+                      <li>
+                        <a [routerLink]="['/admin/appointments', visit.id]">
+                          <span class="token num">{{ visit.token ?? '—' }}</span>
+
+                          <div>
+                            <strong>{{ visit.patientName }}</strong>
+                            <span class="muted text-xs">
+                              {{ visit.doctorName }} · {{ visit.time | clock }}
+                            </span>
+                          </div>
+
+                          <mc-status [status]="visit.queueStatus ?? visit.status" />
+                        </a>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <div class="card__body">
+                    <p class="muted">The waiting room is empty.</p>
+                  </div>
+                }
+              </mc-data-state>
+            </article>
+
+            <!-- Expected but not here -->
+            <article class="card card--flush">
+              <header class="card__head">
+                <h2>Not arrived yet ({{ data.today.notArrived }})</h2>
+              </header>
+
+              @if (notArrived().length) {
+                <ul class="rows">
+                  @for (visit of notArrived(); track visit.id) {
+                    <li>
+                      <a [routerLink]="['/admin/appointments', visit.id]">
+                        <span class="token token--ghost num">{{ visit.time | clock }}</span>
+
+                        <div>
+                          <strong>{{ visit.patientName }}</strong>
+                          <span class="muted text-xs">
+                            {{ visit.doctorName }} · {{ visit.departmentName }}
+                          </span>
+                        </div>
+
+                        <span class="badge">Check in →</span>
+                      </a>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <div class="card__body">
+                  <p class="muted">Everyone booked for today has arrived.</p>
+                </div>
+              }
+            </article>
+
+            <article class="card card--pad">
+              <div class="spread">
+                <h2>Appointments, last 14 days</h2>
+                <span class="badge">{{ data.totals.patients }} patients registered</span>
+              </div>
+              <mc-bar-chart [points]="data.charts.daily" caption="Across the hospital" />
+            </article>
+          </div>
+
+          <aside class="stack">
+            @if (unpaid().length) {
+              <article class="card card--flush">
+                <header class="card__head"><h2>Unpaid today</h2></header>
+
+                <ul class="rows rows--tight">
+                  @for (visit of unpaid(); track visit.id) {
+                    <li>
+                      <a [routerLink]="['/admin/appointments', visit.id]">
+                        <div>
+                          <strong>{{ visit.patientName }}</strong>
+                          <span class="muted text-xs">
+                            {{ visit.doctorName }} · {{ visit.time | clock }}
+                          </span>
+                        </div>
+                        <span class="badge badge--warning num">{{ visit.fee | inr }}</span>
+                      </a>
+                    </li>
+                  }
+                </ul>
+              </article>
+            }
+
+            @if (data.charts.byDepartment.length) {
+              <article class="card card--pad">
+                <h2>Busiest departments today</h2>
+                <mc-donut-chart [points]="data.charts.byDepartment" unit="visits" />
+              </article>
+            }
+
+            <article class="card card--pad stack--sm">
+              <h2>The hospital</h2>
+
+              <div class="kv">
+                <div class="kv__row">
+                  <span class="kv__key">Patients</span>
+                  <span class="kv__value num">{{ data.totals.patients }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">New this month</span>
+                  <span class="kv__value num">{{ data.totals.registeredThisMonth }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Doctors</span>
+                  <span class="kv__value num">{{ data.totals.doctors }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Departments</span>
+                  <span class="kv__value num">{{ data.totals.departments }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Branches</span>
+                  <span class="kv__value num">{{ data.totals.branches }}</span>
+                </div>
+              </div>
+
+              <a class="btn btn--outline btn--block" routerLink="/admin/departments">
+                Departments & branches
+              </a>
+            </article>
+
+            <article class="card card--pad stack--sm">
+              <h2>Pharmacy</h2>
+
+              <div class="kv">
+                <div class="kv__row">
+                  <span class="kv__key">Open orders</span>
+                  <span class="kv__value num">{{ data.pharmacy.openOrders }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Out of stock</span>
+                  <span class="kv__value num" [class.warn]="data.pharmacy.outOfStock">
+                    {{ data.pharmacy.outOfStock }}
+                  </span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Running low</span>
+                  <span class="kv__value num">{{ data.pharmacy.lowStock }}</span>
+                </div>
+              </div>
+
+              <a class="btn btn--outline btn--block" routerLink="/admin/orders">Pharmacy orders</a>
+            </article>
+          </aside>
+        </div>
+      </div>
+    }
+  </mc-data-state>
+</section>

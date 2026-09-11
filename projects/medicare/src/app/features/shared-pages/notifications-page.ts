@@ -245,7 +245,7 @@ export class NotificationsPage {
   protected readonly page = signal(1);
   protected readonly action = new ActionState();
 
-  private readonly panel = computed(() => (this.auth.role() === 'doctor' ? 'doctor' : 'patient'));
+  private readonly panel = computed(() => this.auth.panel());
 
   protected readonly list = lazyState(() =>
     this.notifications.list({
@@ -266,12 +266,15 @@ export class NotificationsPage {
   }
 
   /**
-   * Notification links are written patient-side by the API. A doctor following
-   * one needs it pointed at their own panel instead.
+   * Notification links are written patient-side by the API, because that is
+   * where most of them are read. Anyone else following one needs it pointed at
+   * their own subtree.
    */
   protected link(item: AppNotification): string {
     const link = item.link ?? '/';
-    return this.panel() === 'doctor' ? link.replace('/patient/', '/doctor/') : link;
+    const panel = this.panel();
+
+    return panel === 'patient' ? link : link.replace('/patient/', `/${panel}/`);
   }
 
   protected setKind(kind: string): void {

@@ -4,6 +4,7 @@ import type {
   AuthSession,
   Doctor,
   HospitalBranch,
+  Panel,
   Patient,
   Role,
   SessionUser,
@@ -54,20 +55,32 @@ export class AuthService {
     this._user()?.role === 'doctor' ? (this._profile() as Doctor | null) : null,
   );
 
-  /** Where a signed-in account belongs when it lands on `/`. */
-  readonly homeRoute = computed(() => {
+  /**
+   * The panel this account works in — also the URL prefix for its routes, so
+   * shared screens (notifications, QR, settings) can build their own links.
+   */
+  readonly panel = computed<Panel>(() => {
     switch (this._user()?.role) {
       case 'doctor':
-        return '/doctor/dashboard';
-      case 'patient':
-        return '/patient/dashboard';
+        return 'doctor';
       case 'admin':
+        return 'admin';
       case 'pharmacy':
-        return '/patient/dashboard';
+        return 'pharmacy';
       default:
-        return '/login';
+        return 'patient';
     }
   });
+
+  /** Where a signed-in account belongs when it lands on `/`. */
+  readonly homeRoute = computed(() =>
+    this._user() ? `/${this.panel()}/dashboard` : '/login',
+  );
+
+  /** The branch a reception or pharmacy account is signed in at. */
+  readonly branch = computed(() =>
+    this.has('admin', 'pharmacy') ? (this._profile() as HospitalBranch | null) : null,
+  );
 
   /**
    * Re-establishes the session from the stored token. Called once at bootstrap

@@ -6,6 +6,7 @@ import {
   PharmacyService,
   ThemeService,
   ToastService,
+  type Panel,
   type ThemeId,
 } from '@pc/medicare-core';
 import { Person } from '../shared/ui/atoms';
@@ -119,7 +120,11 @@ import { Person } from '../shared/ui/atoms';
               </div>
 
               <div class="menu__links">
-                <a [routerLink]="'/' + panel() + '/profile'" (click)="menuOpen.set(false)">Your profile</a>
+                <!-- Reception and pharmacy accounts belong to a desk rather
+                     than a person, so there is no profile to edit. -->
+                @if (panel() === 'patient' || panel() === 'doctor') {
+                  <a [routerLink]="'/' + panel() + '/profile'" (click)="menuOpen.set(false)">Your profile</a>
+                }
                 <a [routerLink]="'/' + panel() + '/settings'" (click)="menuOpen.set(false)">Appearance & security</a>
                 <a [routerLink]="'/' + panel() + '/qr'" (click)="menuOpen.set(false)">Scan a code</a>
               </div>
@@ -134,7 +139,7 @@ import { Person } from '../shared/ui/atoms';
   styleUrl: './topbar.scss',
 })
 export class Topbar {
-  readonly panel = input.required<'patient' | 'doctor'>();
+  readonly panel = input.required<Panel>();
   readonly title = input('');
   readonly subtitle = input('');
   readonly navOpen = input(false);

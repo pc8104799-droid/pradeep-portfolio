@@ -1,16 +1,74 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '../api/api.service';
-import type { DoctorDashboard, PatientDashboard } from '../models/medicare.models';
+import type { ChartPoint, DoctorDashboard, PatientDashboard } from '../models/medicare.models';
 
+/** What the reception desk sees: the day in front of them, not lifetime totals. */
 export interface HospitalStats {
-  readonly patients: number;
-  readonly doctors: number;
-  readonly departments: number;
-  readonly appointmentsToday: number;
-  readonly revenueToday: number;
-  readonly pendingOrders: number;
-  readonly lowStock: number;
-  readonly outOfStock: number;
+  readonly totals: {
+    readonly patients: number;
+    readonly doctors: number;
+    readonly departments: number;
+    readonly branches: number;
+    readonly registeredThisMonth: number;
+  };
+  readonly today: {
+    readonly expected: number;
+    readonly checkedIn: number;
+    readonly waiting: number;
+    readonly inConsultation: number;
+    readonly completed: number;
+    readonly cancelled: number;
+    readonly noShow: number;
+    readonly notArrived: number;
+    readonly doctorsOnDuty: number;
+  };
+  readonly money: {
+    readonly revenueToday: number;
+    readonly revenueMonth: number;
+    readonly unpaidCount: number;
+    readonly unpaidValue: number;
+    readonly refundedMonth: number;
+  };
+  readonly pharmacy: {
+    readonly openOrders: number;
+    readonly lowStock: number;
+    readonly outOfStock: number;
+  };
+  readonly charts: {
+    readonly byDepartment: readonly ChartPoint[];
+    readonly daily: readonly ChartPoint[];
+    readonly revenue: readonly ChartPoint[];
+  };
+  readonly onLeave: number;
+}
+
+/** What the pharmacy counter sees: the dispensing queue and the shelves. */
+export interface PharmacyStats {
+  readonly queue: {
+    readonly placed: number;
+    readonly confirmed: number;
+    readonly preparing: number;
+    readonly readyForPickup: number;
+    readonly outForDelivery: number;
+    readonly deliveredToday: number;
+    readonly awaitingPayment: number;
+    readonly needsPrescription: number;
+  };
+  readonly inventory: {
+    readonly lines: number;
+    readonly outOfStock: number;
+    readonly lowStock: number;
+    readonly expiringSoon: number;
+    readonly stockValue: number;
+  };
+  readonly money: {
+    readonly revenueToday: number;
+    readonly revenueMonth: number;
+  };
+  readonly charts: {
+    readonly revenue: readonly ChartPoint[];
+    readonly byCategory: readonly ChartPoint[];
+  };
 }
 
 /**
@@ -34,5 +92,9 @@ export class StatsService {
 
   hospital(): Promise<HospitalStats> {
     return this.api.get('/stats/hospital');
+  }
+
+  pharmacy(): Promise<PharmacyStats> {
+    return this.api.get('/stats/pharmacy');
   }
 }

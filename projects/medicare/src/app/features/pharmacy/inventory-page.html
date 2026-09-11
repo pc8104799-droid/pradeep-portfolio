@@ -1,0 +1,190 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Inventory</h1>
+      <p>Restock, reprice and keep an eye on expiry dates.</p>
+    </div>
+
+    <mc-search
+      [value]="search()"
+      placeholder="Medicine, generic name or brand"
+      (valueChange)="setSearch($event)"
+    />
+  </header>
+
+  <mc-data-state
+    [busy]="medicines.loading()"
+    [error]="medicines.error()"
+    [empty]="medicines.empty()"
+    [skeletonLines]="5"
+    [skeletonHeight]="3.5"
+    emptyTitle="Nothing matches that search"
+    emptyBody="Try the generic name rather than the brand."
+    (retry)="medicines.load()"
+  >
+    @if (totals(); as totals) {
+      <div class="grid grid--metrics">
+        <mc-stat label="Lines stocked" [value]="totals.lines" [hint]="'Stock value ' + (totals.value | inr)" />
+        <mc-stat
+          label="Out of stock"
+          [value]="totals.out"
+          hint="Nothing on the shelf"
+          [tone]="totals.out ? 'danger' : ''"
+        />
+        <mc-stat
+          label="Running low"
+          [value]="totals.low"
+          [hint]="'Under ' + lowStock + ' units'"
+          [tone]="totals.low ? 'warning' : ''"
+        />
+        <mc-stat
+          label="Expiring soon"
+          [value]="totals.expiring"
+          hint="Within 90 days"
+          [tone]="totals.expiring ? 'warning' : ''"
+        />
+      </div>
+    }
+
+    <div class="row row--wrap" role="group" aria-label="Filter stock">
+      @for (option of views; track option.id) {
+        <button
+          type="button"
+          class="chip"
+          [class.is-active]="view() === option.id"
+          (click)="setView(option.id)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+
+    @if (rows().length === 0) {
+      <article class="card card--pad clear">
+        <span class="clear__mark" aria-hidden="true">✓</span>
+        <h2>Nothing needs attention</h2>
+        <p class="muted">Every line is stocked and in date.</p>
+      </article>
+    } @else {
+      <div class="card card--flush" [class.is-reloading]="medicines.reloading() || action.busy()">
+        <div class="table-wrap">
+          <table class="data">
+            <thead>
+              <tr>
+                <th>Medicine</th>
+                <th>Category</th>
+                <th class="right">Price</th>
+                <th class="right">Stock</th>
+                <th>Expires</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (medicine of rows(); track medicine.id) {
+                <tr [class.is-out]="medicine.stock === 0">
+                  <td>
+                    <a [routerLink]="['/pharmacy/catalogue', medicine.id]">
+                      <strong>{{ medicine.name }}</strong>
+                    </a>
+                    <div class="muted text-xs">
+                      {{ medicine.genericName }} · {{ medicine.strength }} · {{ medicine.form }}
+                      @if (medicine.prescriptionRequired) {
+                        · ℞ only
+                      }
+                    </div>
+                  </td>
+                  <td class="text-sm">{{ medicine.categoryName }}</td>
+                  <td class="right num">{{ medicine.price | inr }}</td>
+                  <td class="right">
+                    @if (medicine.stock === 0) {
+                      <span class="badge badge--danger">Out</span>
+                    } @else if (medicine.stock < lowStock) {
+                      <span class="badge badge--warning num">{{ medicine.stock }}</span>
+                    } @else {
+                      <span class="num">{{ medicine.stock }}</span>
+                    }
+                  </td>
+                  <td class="num" [class.warn]="isExpiring(medicine)">
+                    {{ medicine.expiryDate | day: 'short' }}
+                  </td>
+                  <td class="cell-actions">
+                    <button type="button" class="btn btn--outline btn--sm" (click)="open(medicine)">
+                      Update
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  </mc-data-state>
+</section>
+
+<mc-modal
+  [open]="editing() !== null"
+  [heading]="editing() ? 'Update ' + editing()!.name : ''"
+  width="28rem"
+  (closed)="editing.set(null)"
+>
+  @if (editing(); as medicine) {
+    <div class="stack">
+      <p class="text-sm muted">
+        {{ medicine.genericName }} · {{ medicine.strength }} · {{ medicine.packSize }}
+      </p>
+
+      @if (action.error(); as error) {
+        <p class="note note--danger" role="alert">{{ error.message }}</p>
+      }
+
+      <div class="field">
+        <span class="field__label">Stock on the shelf</span>
+        <input type="number" min="0" [ngModel]="stock()" (ngModelChange)="stock.set(+$event)" />
+
+        <!-- Restocking happens in boxes, not one unit at a time. -->
+        <div class="row row--wrap quick">
+          @for (amount of [10, 25, 50, 100]; track amount) {
+            <button type="button" class="chip" (click)="addStock(amount)">+{{ amount }}</button>
+          }
+          <button type="button" class="chip" (click)="stock.set(0)">Set to 0</button>
+        </div>
+
+        <span class="field__hint">
+          Was {{ medicine.stock }}.
+          @if (stock() !== medicine.stock) {
+            Changing to {{ stock() }}.
+          }
+        </span>
+      </div>
+
+      <label class="field">
+        <span class="field__label">Price</span>
+        <input type="number" min="1" [ngModel]="price()" (ngModelChange)="price.set(+$event)" />
+        <span class="field__hint">
+          The listed MRP moves with it, so the {{ medicine.discount }}% discount stays honest.
+        </span>
+      </label>
+
+      <label class="field">
+        <span class="field__label">Expiry date</span>
+        <input type="date" [ngModel]="expiryDate()" (ngModelChange)="expiryDate.set($event)" />
+      </label>
+
+      <div class="preview">
+        <span class="text-xs muted">Stock value after this change</span>
+        <strong class="num">{{ stock() * price() | inr }}</strong>
+      </div>
+    </div>
+  }
+
+  <div slot="actions">
+    <button type="button" class="btn btn--ghost" (click)="editing.set(null)">Cancel</button>
+    <button type="button" class="btn btn--primary" [disabled]="action.busy()" (click)="save()">
+      @if (action.busy()) {
+        <span class="btn__spinner" aria-hidden="true"></span>
+      }
+      Save
+    </button>
+  </div>
+</mc-modal>

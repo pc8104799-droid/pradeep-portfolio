@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService, NotificationService } from '@pc/medicare-core';
+import { AuthService, NotificationService, type Panel } from '@pc/medicare-core';
 import { navFor, panelLabel, primaryActionFor } from './nav';
 
 /**
@@ -69,7 +69,7 @@ import { navFor, panelLabel, primaryActionFor } from './nav';
   styleUrl: './sidebar.scss',
 })
 export class Sidebar {
-  readonly panel = input.required<'patient' | 'doctor'>();
+  readonly panel = input.required<Panel>();
 
   /** Lets the shell close the mobile drawer when a link is followed. */
   readonly navigate = output<void>();

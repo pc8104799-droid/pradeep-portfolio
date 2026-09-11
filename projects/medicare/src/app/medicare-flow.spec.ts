@@ -119,14 +119,49 @@ describe('route guards', () => {
     expect(TestBed.inject(Router).url).toBe('/patient/dashboard');
   });
 
-  it('routes reception and pharmacy accounts into the patient shell', async () => {
+  it('routes a reception account into its own panel', async () => {
     await signInAs('admin', 'BR-000001');
 
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/');
     harness.detectChanges();
 
-    expect(TestBed.inject(Router).url).toBe('/patient/dashboard');
+    expect(TestBed.inject(Router).url).toBe('/admin/dashboard');
+  });
+
+  it('routes a pharmacy account into its own panel', async () => {
+    await signInAs('pharmacy', 'BR-000001');
+
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/');
+    harness.detectChanges();
+
+    expect(TestBed.inject(Router).url).toBe('/pharmacy/dashboard');
+  });
+
+  /**
+   * The regression this guards: reception and pharmacy used to be routed into
+   * the patient shell, which then asked the API for a *patient* summary using a
+   * branch id and rendered an error where the dashboard should be.
+   */
+  it('keeps staff out of the patient shell entirely', async () => {
+    await signInAs('admin', 'BR-000001');
+
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/patient/dashboard');
+
+    const url = TestBed.inject(Router).url;
+    expect(url).toContain('/admin/dashboard');
+    expect(url).toContain('denied=%2Fpatient%2Fdashboard');
+  });
+
+  it('keeps the pharmacy out of the reception panel', async () => {
+    await signInAs('pharmacy', 'BR-000001');
+
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/admin/payments');
+
+    expect(TestBed.inject(Router).url).toContain('/pharmacy/dashboard');
   });
 });
 

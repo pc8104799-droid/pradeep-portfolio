@@ -20,7 +20,14 @@
           </div>
         </div>
 
-        <a class="btn btn--outline" routerLink="/doctor/patients">← All patients</a>
+        <div class="row row--wrap">
+          <a class="btn btn--outline" [routerLink]="'/' + panel() + '/patients'">← All patients</a>
+          @if (isReception()) {
+            <a class="btn btn--primary" routerLink="/admin/appointments" [queryParams]="{ q: person.id }">
+              Their appointments
+            </a>
+          }
+        </div>
       </header>
 
       <!-- Clinical alerts first: the things that change what you prescribe. -->
@@ -89,17 +96,18 @@
               [skeletonLines]="3"
               [skeletonHeight]="2.5"
               emptyTitle="No prescriptions"
-              emptyBody="Nothing has been prescribed to this patient by you."
+              emptyBody="Nothing has been prescribed to this patient yet."
               (retry)="prescriptions.load()"
             >
               <ul class="rows">
                 @for (rx of prescriptions.data()?.items ?? []; track rx.id) {
                   <li>
-                    <a [routerLink]="['/doctor/prescriptions', rx.id]">
+                    <a [routerLink]="['/' + panel() + '/prescriptions', rx.id]">
                       <div>
                         <strong>{{ rx.diagnosis }}</strong>
                         <span class="muted text-xs">
-                          {{ rx.medicines.length }} medicines · {{ rx.issuedAt | day: 'short' }}
+                          {{ rx.doctorName }} · {{ rx.medicines.length }} medicines ·
+                          {{ rx.issuedAt | day: 'short' }}
                         </span>
                       </div>
                       <mc-status [status]="rx.status" />
@@ -121,13 +129,13 @@
               [skeletonLines]="3"
               [skeletonHeight]="2.5"
               emptyTitle="No reports"
-              emptyBody="Tests you order for this patient appear here once the lab releases them."
+              emptyBody="Lab results appear here once they are released."
               (retry)="reports.load()"
             >
               <ul class="rows">
                 @for (report of reports.data()?.items ?? []; track report.id) {
                   <li>
-                    <a [routerLink]="['/doctor/reports', report.id]">
+                    <a [routerLink]="['/' + panel() + '/reports', report.id]">
                       <div>
                         <strong>{{ report.testName }}</strong>
                         <span class="muted text-xs">{{ report.result }}</span>
@@ -183,13 +191,58 @@
               </div>
             </div>
 
-            <mc-note tone="info">
-              Address, occupation and insurance details are withheld from the clinical view.
-            </mc-note>
+            @if (!isReception()) {
+              <mc-note tone="info">
+                Address, occupation and insurance details are withheld from the clinical view.
+              </mc-note>
+            }
           </article>
 
+          <!-- Reception sees the administrative half as well. -->
+          @if (isReception()) {
+            <article class="card card--pad stack--sm">
+              <h2>Contact & billing</h2>
+
+              <div class="kv">
+                <div class="kv__row">
+                  <span class="kv__key">Email</span>
+                  <span class="kv__value">{{ person.email }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Address</span>
+                  <span class="kv__value">
+                    {{ person.address }}, {{ person.city }}, {{ person.state }} {{ person.pincode }}
+                  </span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Occupation</span>
+                  <span class="kv__value">{{ person.occupation || '—' }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Insurance</span>
+                  <span class="kv__value">
+                    @if (person.insuranceProvider) {
+                      {{ person.insuranceProvider }}
+                      <span class="muted text-xs mono">{{ person.insuranceNumber }}</span>
+                    } @else {
+                      Not covered
+                    }
+                  </span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Registered</span>
+                  <span class="kv__value">{{ person.registeredAt | day }}</span>
+                </div>
+                <div class="kv__row">
+                  <span class="kv__key">Home branch</span>
+                  <span class="kv__value">{{ person.branch?.name ?? '—' }}</span>
+                </div>
+              </div>
+            </article>
+          }
+
           <article class="card card--flush">
-            <header class="card__head"><h2>Visits with you</h2></header>
+            <header class="card__head"><h2>Visits</h2></header>
 
             <mc-data-state
               [busy]="visits.loading()"
@@ -198,16 +251,18 @@
               [skeletonLines]="3"
               [skeletonHeight]="2.5"
               emptyTitle="No visits"
-              emptyBody="Nothing booked with you yet."
+              emptyBody="Nothing booked yet."
               (retry)="visits.load()"
             >
               <ul class="rows">
                 @for (visit of visits.data()?.items ?? []; track visit.id) {
                   <li>
-                    <a [routerLink]="['/doctor/appointments', visit.id]">
+                    <a [routerLink]="['/' + panel() + '/appointments', visit.id]">
                       <div>
                         <strong>{{ visit.date | day: 'short' }} · {{ visit.time | clock }}</strong>
-                        <span class="muted text-xs truncate">{{ visit.reason }}</span>
+                        <span class="muted text-xs truncate">
+                          {{ isReception() ? visit.doctorName : visit.reason }}
+                        </span>
                       </div>
                       <mc-status [status]="visit.status" />
                     </a>

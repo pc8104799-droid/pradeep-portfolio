@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { store } from '../db/store.js';
+import { badRequest } from '../lib/http-error.js';
 import { listQuery } from '../lib/query.js';
+import { validate } from '../lib/validate.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
 
 /**
  * Reference data: branches, departments, the medicine catalogue and coupons.
@@ -79,6 +82,35 @@ catalogRoutes.get('/medicines/:id', (req, res) => {
     .slice(0, 6);
 
   res.json({ ...medicine, related });
+});
+
+/**
+ * Restocking and repricing, from the pharmacy's inventory screen.
+ *
+ * Deliberately narrow: stock, price and expiry are what a pharmacist owns.
+ * Renaming a medicine or changing whether it needs a prescription is a
+ * regulatory matter, not a counter decision, so those are not editable here.
+ */
+catalogRoutes.patch('/medicines/:id', requireAuth, requireRole('pharmacy', 'admin'), (req, res) => {
+  const medicine = store.findOrFail('medicines', req.params.id);
+
+  const input = validate(req.body, {
+    stock: { type: 'number', min: 0, max: 100000 },
+    price: { type: 'number', min: 1 },
+    expiryDate: { type: 'date' },
+  });
+
+  if (!Object.keys(input).length) {
+    throw badRequest('Nothing to update.', { stock: 'Send a stock, price or expiry date.' });
+  }
+
+  // Price and MRP move together, so the displayed discount stays honest.
+  const patch = { ...input };
+  if (input.price !== undefined) {
+    patch.mrp = Math.max(input.price, Math.round(input.price / (1 - medicine.discount / 100)));
+  }
+
+  res.json(store.update('medicines', medicine.id, patch));
 });
 
 catalogRoutes.get('/coupons', (req, res) => {

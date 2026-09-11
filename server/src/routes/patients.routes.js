@@ -3,9 +3,13 @@ import { store } from '../db/store.js';
 import { ageFrom } from '../lib/dates.js';
 import { badRequest } from '../lib/http-error.js';
 import { nextId, ymd } from '../lib/ids.js';
+import { notify } from '../lib/notify.js';
+import { hashPassword } from '../lib/password.js';
 import { listQuery } from '../lib/query.js';
 import { validate } from '../lib/validate.js';
+import { visiblePatient } from '../lib/visibility.js';
 import { assertPatientAccess, requireAuth, requireRole } from '../middleware/auth.js';
+import { asyncRoute } from '../middleware/errors.js';
 
 /** Patient records, their family members and their delivery addresses. */
 export const patientRoutes = Router();
@@ -28,20 +32,117 @@ patientRoutes.get('/', requireRole('doctor', 'admin', 'pharmacy'), (req, res) =>
     rows = rows.filter((patient) => mine.has(patient.id));
   }
 
-  res.json(
-    listQuery(rows, req.query, {
-      filterable: ['gender', 'bloodGroup', 'city'],
-      searchable: ['id', 'name', 'email', 'mobile'],
-      defaultSort: 'name',
-    }),
-  );
+  const page = listQuery(rows, req.query, {
+    filterable: ['gender', 'bloodGroup', 'city'],
+    searchable: ['id', 'name', 'email', 'mobile'],
+    defaultSort: 'name',
+  });
+
+  res.json({
+    ...page,
+    items: page.items.map((patient) => visiblePatient(patient, req.auth.role)),
+  });
 });
+
+/**
+ * Registers a walk-in at the reception desk.
+ *
+ * Separate from `/auth/register` because the situation is different: the
+ * patient is standing at a counter, not choosing a password. Reception records
+ * the minimum needed to treat someone and the account is created with a
+ * temporary password, which is returned once so it can be handed over.
+ */
+patientRoutes.post(
+  '/',
+  requireRole('admin'),
+  asyncRoute(async (req, res) => {
+    const input = validate(req.body, {
+      firstName: { required: true, minLength: 2 },
+      middleName: {},
+      lastName: { required: true },
+      dateOfBirth: { type: 'date', required: true },
+      gender: { required: true, oneOf: ['male', 'female', 'other'] },
+      bloodGroup: { default: 'unknown' },
+      mobile: { required: true, pattern: /^[+0-9 ()-]{10,18}$/ },
+      email: { type: 'email', required: true },
+      address: { default: '' },
+      city: { required: true },
+      state: { required: true },
+      country: { default: 'India' },
+      pincode: { pattern: /^\d{6}$/, message: 'Enter a 6-digit PIN code.', default: '' },
+      emergencyContactName: { required: true },
+      emergencyContact: { required: true, pattern: /^[+0-9 ()-]{10,18}$/ },
+      emergencyContactRelationship: { required: true },
+      guardianName: {},
+      guardianMobile: {},
+      guardianRelationship: {},
+      conditions: { type: 'array', default: [] },
+      allergies: { type: 'array', default: [] },
+      insuranceProvider: { default: '' },
+      insuranceNumber: { default: '' },
+      preferredBranchId: { default: req.auth.profileId },
+    });
+
+    if (store.findBy('users', (row) => row.email === input.email)) {
+      throw badRequest('That email already has an account.', {
+        email: 'Already registered — search for them instead.',
+      });
+    }
+
+    const age = ageFrom(input.dateOfBirth);
+
+    if (age < 18 && !input.guardianName) {
+      throw badRequest('A patient under 18 needs a guardian on the record.', {
+        guardianName: 'Guardian name is required for a patient under 18.',
+      });
+    }
+
+    const patientId = nextId('patient');
+    const patient = store.insert('patients', {
+      ...input,
+      id: patientId,
+      name: `${input.firstName} ${input.lastName}`,
+      age,
+      currentMedicines: [],
+      previousHospital: '',
+      maritalStatus: 'single',
+      occupation: '',
+      registeredAt: new Date().toISOString(),
+      status: 'active',
+    });
+
+    // Readable and obviously temporary, so nobody mistakes it for a real one.
+    const temporaryPassword = `MC-${patientId.slice(-4)}-${Math.floor(Math.random() * 9000 + 1000)}`;
+
+    store.insert('users', {
+      id: nextId('user'),
+      email: input.email,
+      passwordHash: await hashPassword(temporaryPassword),
+      role: 'patient',
+      name: patient.name,
+      profileId: patientId,
+      status: 'active',
+      createdAt: patient.registeredAt,
+    });
+
+    notify({
+      ownerId: patientId,
+      audience: 'patient',
+      kind: 'system',
+      title: 'Registered at MediCare360',
+      body: `Your patient ID is ${patientId}. Reception created this record — change your password when you first sign in.`,
+      link: '/patient/profile',
+    });
+
+    res.status(201).json({ patient, temporaryPassword });
+  }),
+);
 
 patientRoutes.get('/:id', (req, res) => {
   const patient = assertPatientAccess(req, req.params.id);
 
   res.json({
-    ...patient,
+    ...visiblePatient(patient, req.auth.role),
     age: ageFrom(patient.dateOfBirth),
     branch: store.find('hospitalBranches', patient.preferredBranchId),
   });

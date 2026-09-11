@@ -1,4 +1,4 @@
-import type { Role } from '@pc/medicare-core';
+import type { Panel, Role } from '@pc/medicare-core';
 
 export interface NavLink {
   readonly label: string;
@@ -18,9 +18,14 @@ export interface NavSection {
 /**
  * The sidebar, as data.
  *
- * Navigation is a list rather than markup so the sidebar, the mobile drawer and
- * the command palette all read from one source — and so adding a screen is one
- * entry here plus one route, with nothing to keep in sync by hand.
+ * Navigation is a list rather than markup so the sidebar and the mobile drawer
+ * read from one source — and so adding a screen is one entry here plus one
+ * route, with nothing to keep in sync by hand.
+ *
+ * Four panels, one per role. They are separate rather than one list with
+ * per-role filtering because the four jobs barely overlap: a patient manages
+ * their own care, a doctor runs a clinic, reception runs the building, and the
+ * pharmacy runs a counter.
  */
 const PATIENT_NAV: readonly NavSection[] = [
   {
@@ -90,24 +95,100 @@ const DOCTOR_NAV: readonly NavSection[] = [
   },
 ];
 
-export function navFor(panel: 'patient' | 'doctor'): readonly NavSection[] {
-  return panel === 'doctor' ? DOCTOR_NAV : PATIENT_NAV;
+const ADMIN_NAV: readonly NavSection[] = [
+  {
+    title: 'Front desk',
+    links: [
+      { label: 'Dashboard', path: '/admin/dashboard', icon: '⌂', hint: "Today across the hospital" },
+      { label: 'Appointments', path: '/admin/appointments', icon: '◷', hint: 'Check in, move, cancel' },
+      { label: 'Register a patient', path: '/admin/register', icon: '✚', hint: 'Walk-in registration' },
+      { label: 'Scan a code', path: '/admin/qr', icon: '▦', hint: 'Check in by QR' },
+    ],
+  },
+  {
+    title: 'Directory',
+    links: [
+      { label: 'Patients', path: '/admin/patients', icon: '⚭' },
+      { label: 'Doctors', path: '/admin/doctors', icon: '☤', hint: 'Fees, hours and leave' },
+      { label: 'Departments', path: '/admin/departments', icon: '⌸' },
+    ],
+  },
+  {
+    title: 'Operations',
+    links: [
+      { label: 'Payments', path: '/admin/payments', icon: '₹', hint: 'Every transaction' },
+      { label: 'Pharmacy orders', path: '/admin/orders', icon: '▤' },
+      { label: 'Notifications', path: '/admin/notifications', icon: '◉', badge: 'notifications' },
+      { label: 'Appearance', path: '/admin/settings', icon: '◐' },
+    ],
+  },
+];
+
+const PHARMACY_NAV: readonly NavSection[] = [
+  {
+    title: 'Counter',
+    links: [
+      { label: 'Dashboard', path: '/pharmacy/dashboard', icon: '⌂' },
+      { label: 'Dispensing queue', path: '/pharmacy/orders', icon: '▤', hint: 'Orders to fulfil' },
+      { label: 'Verify a prescription', path: '/pharmacy/verify', icon: '℞', hint: 'By ID or QR' },
+      { label: 'Scan a code', path: '/pharmacy/qr', icon: '▦' },
+    ],
+  },
+  {
+    title: 'Stock',
+    links: [
+      { label: 'Inventory', path: '/pharmacy/inventory', icon: '⊞', hint: 'Restock and reprice' },
+      { label: 'Catalogue', path: '/pharmacy/catalogue', icon: '⌕', hint: 'What patients see' },
+    ],
+  },
+  {
+    title: 'Account',
+    links: [
+      { label: 'Notifications', path: '/pharmacy/notifications', icon: '◉', badge: 'notifications' },
+      { label: 'Appearance', path: '/pharmacy/settings', icon: '◐' },
+    ],
+  },
+];
+
+const NAV: Record<Panel, readonly NavSection[]> = {
+  patient: PATIENT_NAV,
+  doctor: DOCTOR_NAV,
+  admin: ADMIN_NAV,
+  pharmacy: PHARMACY_NAV,
+};
+
+export function navFor(panel: Panel): readonly NavSection[] {
+  return NAV[panel] ?? PATIENT_NAV;
 }
 
 /**
  * The single action in the header — different work for different people.
- * A patient books; a doctor starts their clinic.
+ * A patient books, a doctor starts their clinic, reception registers a
+ * walk-in, the pharmacy opens the dispensing queue.
  */
-export function primaryActionFor(panel: 'patient' | 'doctor'): NavLink {
-  return panel === 'doctor'
-    ? { label: 'Open queue', path: '/doctor/queue', icon: '☰' }
-    : { label: 'Book appointment', path: '/patient/book', icon: '+' };
+export function primaryActionFor(panel: Panel): NavLink {
+  switch (panel) {
+    case 'doctor':
+      return { label: 'Open queue', path: '/doctor/queue', icon: '☰' };
+    case 'admin':
+      return { label: 'Register a patient', path: '/admin/register', icon: '+' };
+    case 'pharmacy':
+      return { label: 'Dispensing queue', path: '/pharmacy/orders', icon: '▤' };
+    default:
+      return { label: 'Book appointment', path: '/patient/book', icon: '+' };
+  }
 }
 
-/** What to call the panel in the header, given who is signed in. */
-export function panelLabel(panel: 'patient' | 'doctor', role: Role | null): string {
-  if (panel === 'doctor') return 'Doctor panel';
-  if (role === 'admin') return 'Reception desk';
-  if (role === 'pharmacy') return 'Pharmacy desk';
-  return 'Patient panel';
+/** What to call the panel in the header. */
+export function panelLabel(panel: Panel, role: Role | null): string {
+  switch (panel) {
+    case 'doctor':
+      return 'Doctor panel';
+    case 'admin':
+      return 'Reception desk';
+    case 'pharmacy':
+      return 'Pharmacy desk';
+    default:
+      return role === 'patient' ? 'Patient panel' : 'MediCare360';
+  }
 }

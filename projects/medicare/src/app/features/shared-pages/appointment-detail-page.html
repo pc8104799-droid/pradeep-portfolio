@@ -47,7 +47,7 @@
                   @if (isPatientView()) {
                     <a [routerLink]="['/patient/doctors', visit.doctorId]">{{ visit.doctorName }}</a>
                   } @else {
-                    <a [routerLink]="['/doctor/patients', visit.patientId]">{{ visit.patientName }}</a>
+                    <a [routerLink]="['/' + panel() + '/patients', visit.patientId]">{{ visit.patientName }}</a>
                     <span class="mono text-xs muted"> · {{ visit.patientId }}</span>
                   }
                 </span>
@@ -122,7 +122,7 @@
                 </div>
               </div>
 
-              <a class="btn btn--outline btn--sm" [routerLink]="['/doctor/patients', visit.patientId]">
+              <a class="btn btn--outline btn--sm" [routerLink]="['/' + panel() + '/patients', visit.patientId]">
                 Full patient record →
               </a>
             </article>
@@ -229,9 +229,9 @@
               </button>
             }
 
-            @if (canCheckIn() && isPatientView()) {
+            @if (canCheckIn()) {
               <button type="button" class="btn btn--primary btn--block" [disabled]="action.busy()" (click)="checkIn()">
-                Check in at reception
+                {{ isPatientView() ? 'Check in at reception' : 'Check this patient in' }}
               </button>
             }
 
@@ -250,8 +250,8 @@
               </a>
             }
 
-            @if (visit.paymentStatus === 'successful') {
-              <a class="btn btn--ghost btn--block" [routerLink]="['/patient/payments', visit.paymentId]">
+            @if (visit.paymentStatus === 'successful' && panel() !== 'doctor') {
+              <a class="btn btn--ghost btn--block" [routerLink]="['/' + panel() + '/payments', visit.paymentId]">
                 View receipt
               </a>
             }

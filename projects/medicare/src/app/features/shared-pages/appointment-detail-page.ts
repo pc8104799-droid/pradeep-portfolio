@@ -18,13 +18,13 @@ import { QrCode } from '../../shared/ui/qr';
 import { MC_PIPES } from '../../shared/pipes';
 
 /**
- * One appointment, from either side.
+ * One appointment, from whichever side is looking at it.
  *
- * The same record means different things to the two roles, so the page keeps
- * one body and swaps the actions: a patient pays, checks in, reschedules or
- * cancels; a doctor starts the consultation and opens the patient's history.
- * Splitting this into two near-identical pages would mean fixing every layout
- * bug twice.
+ * The record means different things to different roles, so the page keeps one
+ * body and swaps the actions: a patient pays, checks in, reschedules or
+ * cancels; reception does all of that on their behalf at the desk; a doctor
+ * starts the consultation. Splitting this into three near-identical pages would
+ * mean fixing every layout bug three times.
  */
 @Component({
   selector: 'mc-appointment-detail',
@@ -46,7 +46,7 @@ export class AppointmentDetailPage {
   protected readonly action = new ActionState();
   protected readonly today = new Date().toISOString().slice(0, 10);
 
-  protected readonly panel = computed(() => (this.auth.role() === 'doctor' ? 'doctor' : 'patient'));
+  protected readonly panel = computed(() => this.auth.panel());
 
   protected readonly appointment = trackedState(
     () => this.appointmentId(),
@@ -67,6 +67,11 @@ export class AppointmentDetailPage {
 
   protected readonly isPatientView = computed(() => this.panel() === 'patient');
 
+  /** Reception acts for the patient, so the two views share most actions. */
+  protected readonly actsForPatient = computed(
+    () => this.panel() === 'patient' || this.panel() === 'admin',
+  );
+
   protected readonly canPay = computed(() => {
     const appointment = this.appointment.data();
     return (
@@ -79,12 +84,21 @@ export class AppointmentDetailPage {
 
   protected readonly canCheckIn = computed(() => {
     const appointment = this.appointment.data();
-    return !!appointment && appointment.status === 'confirmed' && appointment.date === this.today;
+    return (
+      this.actsForPatient() &&
+      !!appointment &&
+      appointment.status === 'confirmed' &&
+      appointment.date === this.today
+    );
   });
 
   protected readonly canModify = computed(() => {
     const appointment = this.appointment.data();
-    return !!appointment && ['pending', 'confirmed', 'rescheduled'].includes(appointment.status);
+    return (
+      this.actsForPatient() &&
+      !!appointment &&
+      ['pending', 'confirmed', 'rescheduled'].includes(appointment.status)
+    );
   });
 
   protected readonly canConsult = computed(() => {

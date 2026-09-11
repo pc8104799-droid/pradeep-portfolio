@@ -1,0 +1,123 @@
+.hold-count {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.clear {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: center;
+  text-align: center;
+  padding-block: clamp(1.5rem, 5vw, 2.5rem);
+}
+
+.clear__mark {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: var(--radius-pill);
+  background: var(--success-soft);
+  color: var(--success);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.clear h2 {
+  font-size: 1rem;
+}
+
+/* ---------------------------------------------------------------- order */
+
+.order {
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  transition: border-color var(--t) var(--ease);
+}
+
+/* An order that cannot move gets a warning rail, so the eye skips it when
+   working down the queue. */
+.order.is-hold {
+  border-left: 3px solid var(--warning);
+}
+
+.order__who {
+  display: grid;
+  gap: 0.3rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--stroke);
+}
+
+.order__who strong {
+  font-size: 0.9rem;
+}
+
+.order__items {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.order__items ul {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.87rem;
+}
+
+.order__items li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.order__qty {
+  color: var(--primary);
+  font-weight: 700;
+  min-width: 1.7rem;
+}
+
+.order__hold {
+  color: var(--warning);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.order__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+}
+
+.order__actions > strong {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+a.badge:hover {
+  text-decoration: underline;
+}
+
+/* Three columns once there is room: who, what, and what to do about it. */
+@media (min-width: 900px) {
+  .order {
+    grid-template-columns: 13rem minmax(0, 1fr) auto;
+  }
+
+  .order__who {
+    padding-bottom: 0;
+    border-bottom: 0;
+    border-right: 1px solid var(--stroke);
+    padding-right: var(--gap);
+    height: 100%;
+  }
+
+  .order__actions {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+}

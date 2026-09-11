@@ -1,0 +1,31 @@
+.flag {
+  margin-left: 0.35rem;
+  font-weight: 600;
+}
+
+.flag--warn {
+  color: var(--warning);
+}
+
+.filters {
+  gap: var(--gap-sm);
+}
+
+.filters .field {
+  max-width: 13rem;
+  min-width: 9rem;
+  flex: 1;
+}
+
+/* Today's rows carry a rail so they stand out in a long list. */
+tr.is-today td:first-child {
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
+td a:hover strong {
+  color: var(--primary);
+}
+
+td mc-status + .badge {
+  margin-left: 0.25rem;
+}

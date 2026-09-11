@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } 
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs';
-import { AuthService, CatalogService, NotificationService } from '@pc/medicare-core';
+import { AuthService, CatalogService, NotificationService, type Panel } from '@pc/medicare-core';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 
@@ -57,8 +57,8 @@ export class Shell {
   protected readonly navOpen = signal(false);
 
   /** Which panel this shell instance is rendering, from the route data. */
-  protected readonly panel = computed<'patient' | 'doctor'>(
-    () => (this.route.snapshot.data['panel'] as 'patient' | 'doctor') ?? 'patient',
+  protected readonly panel = computed<Panel>(
+    () => (this.route.snapshot.data['panel'] as Panel) ?? this.auth.panel(),
   );
 
   /**
@@ -76,13 +76,20 @@ export class Shell {
     { initialValue: '' },
   );
 
+  /** The line under the page title: who is signed in, and where. */
   protected readonly greeting = computed(() => {
     const user = this.auth.user();
     if (!user) return '';
 
-    return this.panel() === 'doctor'
-      ? `${user.name} · ${this.auth.doctor()?.departmentName ?? 'Consultant'}`
-      : `${user.name} · ${user.profileId}`;
+    switch (this.panel()) {
+      case 'doctor':
+        return `${user.name} · ${this.auth.doctor()?.departmentName ?? 'Consultant'}`;
+      case 'admin':
+      case 'pharmacy':
+        return `${user.name} · ${this.auth.branch()?.city ?? 'MediCare360'}`;
+      default:
+        return `${user.name} · ${user.profileId}`;
+    }
   });
 
   constructor() {

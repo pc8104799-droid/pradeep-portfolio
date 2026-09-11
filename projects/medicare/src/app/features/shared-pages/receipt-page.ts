@@ -1,6 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { PaymentService, trackedState, type ConsultationBill, type OrderBill } from '@pc/medicare-core';
+import {
+  AuthService,
+  PaymentService,
+  trackedState,
+  type ConsultationBill,
+  type OrderBill,
+} from '@pc/medicare-core';
 import { MC_ATOMS } from '../../shared/ui/atoms';
 import { DataState } from '../../shared/ui/data-state';
 import { QrCode } from '../../shared/ui/qr';
@@ -38,7 +44,7 @@ import { MC_PIPES } from '../../shared/pipes';
             </div>
 
             <div class="row row--wrap">
-              <a class="btn btn--outline" routerLink="/patient/payments">← All payments</a>
+              <a class="btn btn--outline" [routerLink]="'/' + panel() + '/payments'">← All payments</a>
               <button type="button" class="btn btn--primary" (click)="print()">Print / save as PDF</button>
             </div>
           </header>
@@ -143,6 +149,10 @@ export class ReceiptPage {
   readonly paymentId = input.required<string>();
 
   private readonly payments = inject(PaymentService);
+  private readonly auth = inject(AuthService);
+
+  /** Both the patient and reception can print a receipt, each from their own list. */
+  protected readonly panel = computed(() => this.auth.panel());
 
   protected readonly receipt = trackedState(
     () => this.paymentId(),

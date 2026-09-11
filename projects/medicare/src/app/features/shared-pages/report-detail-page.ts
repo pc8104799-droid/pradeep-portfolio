@@ -292,7 +292,7 @@ export class ReportDetailPage {
   protected readonly action = new ActionState();
   protected readonly comment = signal('');
 
-  protected readonly panel = computed(() => (this.auth.role() === 'doctor' ? 'doctor' : 'patient'));
+  protected readonly panel = computed(() => this.auth.panel());
 
   protected readonly report = trackedState(
     () => this.reportId(),

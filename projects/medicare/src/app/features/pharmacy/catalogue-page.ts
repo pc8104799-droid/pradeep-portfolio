@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   ActionState,
+  AuthService,
   CatalogService,
   lazyState,
   PharmacyService,
@@ -30,6 +31,10 @@ const SORTS = [
  * to check the price and the stock of what they have been prescribed. What they
  * cannot do is add one to the basket until a valid prescription is attached,
  * and the card says exactly that rather than silently disabling a button.
+ *
+ * The pharmacy desk mounts the same page to see exactly what a patient sees,
+ * minus the basket: checking how a medicine looks on the shelf is a different
+ * question from restocking it, which is what the inventory screen is for.
  */
 @Component({
   selector: 'mc-pharmacy-catalogue',
@@ -45,9 +50,18 @@ export class CataloguePage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly toasts = inject(ToastService);
+  private readonly auth = inject(AuthService);
 
   protected readonly sorts = SORTS;
   protected readonly action = new ActionState();
+
+  /** Only a patient has a basket; staff are here to look. */
+  protected readonly canBuy = computed(() => this.auth.panel() === 'patient');
+
+  /** Where a medicine card links to, which differs per panel. */
+  protected readonly base = computed(() =>
+    this.canBuy() ? '/patient/pharmacy' : '/pharmacy/catalogue',
+  );
 
   protected readonly filters = signal<MedicineQuery>(this.readQuery());
 

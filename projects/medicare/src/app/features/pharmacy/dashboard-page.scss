@@ -1,0 +1,59 @@
+h2 {
+  font-size: 0.95rem;
+}
+
+.alerts {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.kv__value.warn {
+  color: var(--warning);
+  font-weight: 700;
+}
+
+/* ----------------------------------------------------------------- rows */
+
+.rows li a,
+.stock li a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  padding: 0.6rem var(--pad-card);
+  border-bottom: 1px solid var(--stroke);
+  transition: background var(--t-fast) var(--ease);
+}
+
+.rows li:last-child a,
+.stock li:last-child a {
+  border-bottom: 0;
+}
+
+.rows li a:hover,
+.stock li a:hover {
+  background: var(--surface-2);
+}
+
+.rows strong,
+.stock strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.rows span,
+.stock span {
+  display: block;
+}
+
+/* The stock list is denser: it is scanned, not read. */
+.stock li a {
+  padding-block: 0.45rem;
+}
+
+@media (min-width: 1080px) {
+  aside {
+    position: sticky;
+    top: calc(var(--header-h) + 1rem);
+  }
+}

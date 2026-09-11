@@ -149,22 +149,174 @@ statsRoutes.get('/patient/:patientId', (req, res) => {
   });
 });
 
-/** Hospital-wide figures for the reception desk. */
+/**
+ * Hospital-wide figures for the reception desk.
+ *
+ * Reception's job is the day in front of them: who is expected, who has not
+ * arrived, what is unpaid, and which departments are busy. So the numbers lean
+ * on today rather than on lifetime totals.
+ */
 statsRoutes.get('/hospital', requireRole('admin'), (_req, res) => {
   const today = ymd();
+  const monthPrefix = today.slice(0, 7);
+
   const appointments = store.collection('appointments');
+  const todays = appointments.filter((row) => row.date === today);
+  const payments = store.collection('payments');
+
+  const settledOn = (predicate) =>
+    payments
+      .filter((row) => row.status === 'successful' && predicate(row.paidAt ?? ''))
+      .reduce((sum, row) => sum + row.amount, 0);
+
+  // Which departments are actually busy today, biggest first.
+  const byDepartment = Object.entries(
+    todays.reduce((counts, row) => {
+      counts[row.departmentName] = (counts[row.departmentName] ?? 0) + 1;
+      return counts;
+    }, {}),
+  )
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value);
 
   res.json({
-    patients: store.collection('patients').length,
-    doctors: store.collection('doctors').length,
-    departments: store.collection('departments').length,
-    appointmentsToday: appointments.filter((row) => row.date === today).length,
-    revenueToday: store
-      .filter('payments', (row) => row.status === 'successful' && (row.paidAt ?? '').startsWith(today))
-      .reduce((sum, row) => sum + row.amount, 0),
-    pendingOrders: store.filter('medicineOrders', (row) => row.stage !== 'delivered').length,
-    lowStock: store.filter('medicines', (row) => row.stock > 0 && row.stock < 25).length,
-    outOfStock: store.filter('medicines', (row) => row.stock === 0).length,
+    totals: {
+      patients: store.collection('patients').length,
+      doctors: store.collection('doctors').length,
+      departments: store.collection('departments').length,
+      branches: store.collection('hospitalBranches').length,
+      registeredThisMonth: store.filter('patients', (row) =>
+        (row.registeredAt ?? '').startsWith(monthPrefix),
+      ).length,
+    },
+    today: {
+      expected: todays.length,
+      checkedIn: todays.filter((row) => row.token !== null && row.token !== undefined).length,
+      waiting: todays.filter((row) => row.queueStatus === 'waiting').length,
+      inConsultation: todays.filter((row) => row.queueStatus === 'in-consultation').length,
+      completed: todays.filter((row) => row.status === 'completed').length,
+      cancelled: todays.filter((row) => row.status === 'cancelled').length,
+      noShow: todays.filter((row) => row.status === 'no-show').length,
+      notArrived: todays.filter((row) => row.status === 'confirmed' && !row.token).length,
+      doctorsOnDuty: new Set(todays.map((row) => row.doctorId)).size,
+    },
+    money: {
+      revenueToday: settledOn((date) => date.startsWith(today)),
+      revenueMonth: settledOn((date) => date.startsWith(monthPrefix)),
+      unpaidCount: payments.filter((row) => row.status === 'pending').length,
+      unpaidValue: payments
+        .filter((row) => row.status === 'pending')
+        .reduce((sum, row) => sum + row.amount, 0),
+      refundedMonth: payments.filter(
+        (row) => row.status === 'refunded' && (row.createdAt ?? '').startsWith(monthPrefix),
+      ).length,
+    },
+    pharmacy: {
+      openOrders: store.filter(
+        'medicineOrders',
+        (row) => row.stage !== 'delivered' && row.stage !== 'cancelled',
+      ).length,
+      lowStock: store.filter('medicines', (row) => row.stock > 0 && row.stock < 25).length,
+      outOfStock: store.filter('medicines', (row) => row.stock === 0).length,
+    },
+    charts: {
+      byDepartment: byDepartment.slice(0, 6),
+      daily: lastDays(14).map((date) => ({
+        label: date.slice(5),
+        date,
+        value: appointments.filter((row) => row.date === date).length,
+      })),
+      revenue: lastMonths(6).map((month) => ({
+        label: monthLabel(month),
+        value: settledOn((date) => date.startsWith(month)),
+      })),
+    },
+    onLeave: store.filter(
+      'doctorLeaves',
+      (row) => row.status === 'approved' && today >= row.from && today <= row.to,
+    ).length,
+  });
+});
+
+/**
+ * The pharmacy counter's own numbers: what is queued to dispense, and what is
+ * about to run out or expire.
+ */
+statsRoutes.get('/pharmacy', requireRole('pharmacy', 'admin'), (_req, res) => {
+  const today = ymd();
+  const monthPrefix = today.slice(0, 7);
+
+  const orders = store.collection('medicineOrders');
+  const medicines = store.collection('medicines');
+
+  const stage = (name) => orders.filter((row) => row.stage === name).length;
+
+  // Anything expiring inside 90 days is a stock decision, not a surprise.
+  const soon = shiftDate(today, 90);
+
+  res.json({
+    queue: {
+      placed: stage('placed'),
+      confirmed: stage('confirmed'),
+      preparing: stage('preparing'),
+      readyForPickup: stage('ready-for-pickup'),
+      outForDelivery: stage('out-for-delivery'),
+      deliveredToday: orders.filter(
+        (row) => row.stage === 'delivered' && (row.placedAt ?? '').startsWith(today),
+      ).length,
+      awaitingPayment: orders.filter((row) => row.paymentStatus === 'pending').length,
+      needsPrescription: orders.filter((row) => row.prescriptionStatus === 'required').length,
+    },
+    inventory: {
+      lines: medicines.length,
+      outOfStock: medicines.filter((row) => row.stock === 0).length,
+      lowStock: medicines.filter((row) => row.stock > 0 && row.stock < 25).length,
+      expiringSoon: medicines.filter((row) => row.expiryDate <= soon).length,
+      stockValue: medicines.reduce((sum, row) => sum + row.price * row.stock, 0),
+    },
+    money: {
+      revenueToday: store
+        .filter(
+          'payments',
+          (row) =>
+            row.kind === 'pharmacy' &&
+            row.status === 'successful' &&
+            (row.paidAt ?? '').startsWith(today),
+        )
+        .reduce((sum, row) => sum + row.amount, 0),
+      revenueMonth: store
+        .filter(
+          'payments',
+          (row) =>
+            row.kind === 'pharmacy' &&
+            row.status === 'successful' &&
+            (row.paidAt ?? '').startsWith(monthPrefix),
+        )
+        .reduce((sum, row) => sum + row.amount, 0),
+    },
+    charts: {
+      revenue: lastMonths(6).map((month) => ({
+        label: monthLabel(month),
+        value: store
+          .filter(
+            'payments',
+            (row) =>
+              row.kind === 'pharmacy' &&
+              row.status === 'successful' &&
+              (row.paidAt ?? '').startsWith(month),
+          )
+          .reduce((sum, row) => sum + row.amount, 0),
+      })),
+      byCategory: store
+        .collection('medicineCategories')
+        .map((category) => ({
+          label: category.name,
+          value: medicines.filter((row) => row.category === category.id && row.stock === 0).length,
+        }))
+        .filter((row) => row.value > 0)
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 6),
+    },
   });
 });
 

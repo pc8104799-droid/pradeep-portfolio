@@ -8,6 +8,7 @@ import { notify, notifyBoth } from '../lib/notify.js';
 import { listQuery } from '../lib/query.js';
 import { slotIsFree, slotsFor } from '../lib/slots.js';
 import { validate } from '../lib/validate.js';
+import { visiblePatient } from '../lib/visibility.js';
 import { requireAuth, requireRole } from '../middleware/auth.js';
 
 /** Booking, rescheduling, cancelling, and the live clinic queue. */
@@ -68,7 +69,7 @@ appointmentRoutes.get('/:id', (req, res) => {
 
   res.json({
     ...appointment,
-    patient: publicPatient(store.find('patients', appointment.patientId), req.auth.role),
+    patient: visiblePatient(store.find('patients', appointment.patientId), req.auth.role),
     doctor: store.find('doctors', appointment.doctorId),
     branch: store.find('hospitalBranches', appointment.branchId),
     payment: store.find('payments', appointment.paymentId),
@@ -335,7 +336,7 @@ appointmentRoutes.get('/queue/today', (req, res) => {
     })
     .map((row) => ({
       ...row,
-      patient: publicPatient(store.find('patients', row.patientId), req.auth.role),
+      patient: visiblePatient(store.find('patients', row.patientId), req.auth.role),
     }));
 
   res.json({
@@ -406,23 +407,6 @@ function readable(req, id) {
   }
 
   return appointment;
-}
-
-/**
- * A doctor treating a patient needs the clinical picture; they do not need the
- * patient's insurance number or home address, so those stay out of the response.
- */
-export function publicPatient(patient, role) {
-  if (!patient) return null;
-  if (role === 'patient' || role === 'admin') return patient;
-
-  const { insuranceNumber, address, pincode, occupation, ...safe } = patient;
-  void insuranceNumber;
-  void address;
-  void pincode;
-  void occupation;
-
-  return safe;
 }
 
 function daysBetween(from, to) {

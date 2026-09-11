@@ -10,6 +10,13 @@
 
 export type Role = 'patient' | 'doctor' | 'admin' | 'pharmacy';
 
+/**
+ * The four panels, which are also the URL prefixes their routes live under.
+ * Keeping them the same string is what lets a screen shared between panels
+ * build its own links without knowing which one it is rendering in.
+ */
+export type Panel = 'patient' | 'doctor' | 'admin' | 'pharmacy';
+
 export interface SessionUser {
   readonly id: string;
   readonly email: string;

@@ -1,0 +1,140 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>{{ panel() === 'admin' ? 'Pharmacy orders' : 'Dispensing queue' }}</h1>
+      <p>
+        {{ orders().length }} in this view, oldest first.
+        @if (blocked()) {
+          <span class="hold-count">{{ blocked() }} on hold.</span>
+        }
+      </p>
+    </div>
+
+    <div class="row row--wrap">
+      <button type="button" class="btn btn--outline" (click)="list.load()">Refresh</button>
+      @if (panel() === 'pharmacy') {
+        <a class="btn btn--primary" routerLink="/pharmacy/verify">Verify a prescription</a>
+      }
+    </div>
+  </header>
+
+  <div class="spread">
+    <div class="row row--wrap" role="tablist" aria-label="Order stage">
+      @for (option of tabs; track option.id) {
+        <button
+          type="button"
+          role="tab"
+          class="chip"
+          [class.is-active]="tab() === option.id"
+          [attr.aria-selected]="tab() === option.id"
+          (click)="setTab(option.id)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+
+    <mc-search
+      [value]="search()"
+      placeholder="Order ID or patient name"
+      (valueChange)="setSearch($event)"
+    />
+  </div>
+
+  <mc-data-state
+    [busy]="list.loading()"
+    [error]="list.error()"
+    [empty]="list.empty()"
+    [skeletonLines]="4"
+    [skeletonHeight]="5"
+    emptyTitle="No orders"
+    emptyBody="Orders placed from the medical store land here."
+    (retry)="list.load()"
+  >
+    @if (orders().length === 0) {
+      <article class="card card--pad clear">
+        <span class="clear__mark" aria-hidden="true">✓</span>
+        <h2>Nothing in this stage</h2>
+        <p class="muted">
+          {{ tab() === 'open' ? 'Every paid order has been prepared.' : 'Try another tab.' }}
+        </p>
+      </article>
+    }
+
+    <div class="stack--sm" [class.is-reloading]="list.reloading() || action.busy()">
+      @for (order of orders(); track order.id) {
+        <article class="order card card--pad" [class.is-hold]="holdReason(order)">
+          <div class="order__who">
+            <strong class="mono">{{ order.id }}</strong>
+            <mc-person [name]="order.patientName" [meta]="order.patientId" size="sm" />
+            <span class="muted text-xs">Placed {{ order.placedAt | when }}</span>
+          </div>
+
+          <div class="order__items">
+            <ul>
+              @for (line of order.lines.slice(0, 4); track line.medicineId) {
+                <li>
+                  <span class="order__qty num">{{ line.quantity }}×</span>
+                  {{ line.name }}
+                  <span class="muted text-xs">{{ line.strength }}</span>
+                  @if (line.prescriptionRequired) {
+                    <span class="badge badge--warning">℞</span>
+                  }
+                </li>
+              }
+              @if (order.lines.length > 4) {
+                <li class="muted text-sm">+ {{ order.lines.length - 4 }} more</li>
+              }
+            </ul>
+
+            <div class="row row--wrap">
+              <mc-status [status]="order.stage" />
+              @if (order.prescriptionId) {
+                <a class="badge badge--info" [routerLink]="['/' + panel() + '/prescriptions', order.prescriptionId]">
+                  {{ order.prescriptionId }}
+                </a>
+              }
+              <span class="badge">{{ order.deliverySlot }}</span>
+            </div>
+
+            @if (holdReason(order); as hold) {
+              <p class="order__hold" role="status">{{ hold }} — cannot be dispensed yet.</p>
+            }
+          </div>
+
+          <div class="order__actions">
+            <strong class="num">{{ order.bill.total | inr }}</strong>
+
+            <div class="row row--wrap">
+              @if (nextLabel(order); as label) {
+                <button
+                  type="button"
+                  class="btn btn--primary btn--sm"
+                  [disabled]="action.busy() || !!holdReason(order)"
+                  [title]="holdReason(order) ?? 'Move to the next stage'"
+                  (click)="advance(order)"
+                >
+                  {{ label }}
+                </button>
+              }
+
+              <a class="btn btn--outline btn--sm" [routerLink]="['/' + panel() + '/orders', order.id]">
+                Open
+              </a>
+
+              @if (order.stage !== 'delivered' && order.stage !== 'cancelled') {
+                <button type="button" class="btn btn--ghost btn--sm" (click)="cancel(order)">
+                  Cancel
+                </button>
+              }
+            </div>
+          </div>
+        </article>
+      }
+
+      @if (list.data(); as page) {
+        <mc-paginator [page]="page.page" [pages]="page.pages" [total]="page.total" (pageChange)="setPage($event)" />
+      }
+    </div>
+  </mc-data-state>
+</section>

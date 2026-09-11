@@ -18,6 +18,7 @@ import {
   TokenStore,
   ToastService,
   toParams,
+  type Role,
 } from '@pc/medicare-core';
 
 const BASE = 'http://api.test/api';
@@ -278,6 +279,59 @@ describe('AuthService', () => {
     expect(auth.homeRoute()).toBe('/doctor/dashboard');
     expect(auth.has('doctor')).toBeTrue();
     expect(auth.has('patient')).toBeFalse();
+  });
+
+  it('gives every role its own panel and home route', async () => {
+    const auth = TestBed.inject(AuthService);
+    const http = TestBed.inject(HttpTestingController);
+
+    const cases: { role: Role; profileId: string; panel: string }[] = [
+      { role: 'patient', profileId: 'PT-000001', panel: 'patient' },
+      { role: 'doctor', profileId: 'DR-000001', panel: 'doctor' },
+      { role: 'admin', profileId: 'BR-000001', panel: 'admin' },
+      { role: 'pharmacy', profileId: 'BR-000001', panel: 'pharmacy' },
+    ];
+
+    for (const entry of cases) {
+      const login = auth.login(`${entry.role}@medicare360.in`, 'x');
+
+      http.expectOne(`${BASE}/auth/login`).flush({
+        token: 'jwt',
+        expiresIn: 3600,
+        user: {
+          id: 'USR-1',
+          email: `${entry.role}@medicare360.in`,
+          role: entry.role,
+          name: 'Test',
+          profileId: entry.profileId,
+        },
+        profile: null,
+      });
+
+      await login;
+
+      expect(auth.panel()).toBe(entry.panel as never);
+      expect(auth.homeRoute()).toBe(`/${entry.panel}/dashboard`);
+    }
+  });
+
+  it('exposes the branch only to desk accounts', async () => {
+    const auth = TestBed.inject(AuthService);
+    const http = TestBed.inject(HttpTestingController);
+
+    const login = auth.login('admin@medicare360.in', 'x');
+    http.expectOne(`${BASE}/auth/login`).flush({
+      token: 'jwt',
+      expiresIn: 3600,
+      user: { id: 'USR-1', email: 'a@b.com', role: 'admin', name: 'Desk', profileId: 'BR-000001' },
+      profile: { id: 'BR-000001', name: 'MediCare360 Andheri', city: 'Mumbai' },
+    });
+
+    await login;
+
+    expect(auth.branch()?.city).toBe('Mumbai');
+    expect(auth.doctor()).toBeNull();
+    expect(auth.patient()).toBeNull();
   });
 
   it('clears everything on sign-out', async () => {

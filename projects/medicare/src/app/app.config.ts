@@ -20,20 +20,42 @@ import {
 } from '@pc/medicare-core';
 import { routes } from './app.routes';
 
+/** Where the bundled backend runs unless told otherwise. */
+const DEFAULT_API_URL = 'http://127.0.0.1:3000/api';
+
+/** The key a developer can set to point this build at a different host. */
+const API_OVERRIDE_KEY = 'medicare360-api';
+
 /**
- * The API host.
+ * Resolves the API host.
  *
- * Hard-coded to the local server because this project ships with its own
- * backend; it is an injection token so a deployed build can be pointed
- * elsewhere by overriding one provider.
+ * The default is the local server this project ships with. Port 3000 is a
+ * popular one, though, so it can be overridden per browser without editing or
+ * rebuilding anything:
+ *
+ * ```js
+ * localStorage.setItem('medicare360-api', 'http://127.0.0.1:3100/api')
+ * ```
+ *
+ * The value is validated as a URL before it is trusted — a typo should fall
+ * back to the default rather than break every request in the app.
  */
-const API_URL = 'http://127.0.0.1:3000/api';
+export function resolveApiBaseUrl(): string {
+  try {
+    const override = localStorage.getItem(API_OVERRIDE_KEY);
+    if (!override) return DEFAULT_API_URL;
+
+    return new URL(override).href.replace(/\/$/, '');
+  } catch {
+    return DEFAULT_API_URL;
+  }
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
 
-    { provide: API_BASE_URL, useValue: API_URL },
+    { provide: API_BASE_URL, useFactory: resolveApiBaseUrl },
 
     // Order matters: the auth interceptor adds the token on the way out, and
     // the error interceptor normalises the failure on the way back.

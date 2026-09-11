@@ -1,0 +1,118 @@
+.note {
+  display: block;
+  padding: 0.65rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.note--danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* The derived age sits where an input would, so the grid row stays even. */
+.field__derived {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.45rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--stroke-strong);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.fieldset.is-required > legend {
+  color: var(--warning);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+  position: sticky;
+  bottom: 0;
+  padding: 0.75rem 0;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+}
+
+.form-actions .btn--ghost {
+  margin-right: auto;
+}
+
+/* ------------------------------------------------------------- handover */
+
+.handover {
+  overflow: hidden;
+  border-top: 3px solid var(--success);
+  max-width: 46rem;
+}
+
+.handover__head {
+  display: grid;
+  gap: var(--gap);
+  align-items: center;
+  padding: var(--pad-card);
+  border-bottom: 1px solid var(--stroke);
+}
+
+@media (min-width: 560px) {
+  .handover__head {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+.handover__label {
+  display: block;
+  color: var(--ink-3);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.2rem;
+}
+
+.handover__head h2 {
+  font-size: clamp(1.3rem, 3vw, 1.7rem);
+}
+
+.handover__head p {
+  color: var(--ink-2);
+  font-size: 0.88rem;
+}
+
+/* The three things that get read out loud, side by side. */
+.handover__creds {
+  display: grid;
+  gap: var(--gap);
+  padding: var(--pad-card);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--stroke);
+}
+
+@media (min-width: 640px) {
+  .handover__creds {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.handover__creds strong {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.handover__note {
+  padding: var(--pad-card);
+}
+
+@media print {
+  .handover {
+    border: 2px solid #000;
+    max-width: none;
+  }
+}

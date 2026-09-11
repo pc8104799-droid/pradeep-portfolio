@@ -1,0 +1,304 @@
+<section class="page">
+  @if (created(); as result) {
+    <!-- The handover screen. The temporary password is shown once and never
+         again, so this is deliberately the whole page rather than a toast. -->
+    <header class="page__head no-print">
+      <div>
+        <h1>{{ result.patient.name }} is registered</h1>
+        <p>Hand this over, then move on to the next person.</p>
+      </div>
+
+      <div class="row row--wrap">
+        <button type="button" class="btn btn--outline" (click)="print()">Print the slip</button>
+        <button type="button" class="btn btn--primary" (click)="registerAnother()">
+          Register another
+        </button>
+      </div>
+    </header>
+
+    <article class="card handover">
+      <header class="handover__head">
+        <div>
+          <span class="handover__label">New patient record</span>
+          <h2>{{ result.patient.name }}</h2>
+          <p>
+            {{ result.patient.age }} years · {{ result.patient.gender | label }} ·
+            {{ result.patient.bloodGroup }}
+          </p>
+        </div>
+
+        <mc-qr-code [value]="result.patient.id" caption="Show at reception" [size]="320" />
+      </header>
+
+      <div class="handover__creds">
+        <div>
+          <span class="handover__label">Patient ID</span>
+          <strong class="mono">{{ result.patient.id }}</strong>
+        </div>
+        <div>
+          <span class="handover__label">Sign in with</span>
+          <strong>{{ result.patient.email }}</strong>
+        </div>
+        <div>
+          <span class="handover__label">Temporary password</span>
+          <strong class="mono">{{ result.temporaryPassword }}</strong>
+        </div>
+      </div>
+
+      <div class="handover__note">
+        <mc-note tone="warning">
+          This password is shown once and is not stored anywhere readable. Ask the patient to
+          change it the first time they sign in.
+        </mc-note>
+      </div>
+    </article>
+
+    <div class="row row--wrap no-print">
+      <a class="btn btn--primary" routerLink="/admin/appointments">Book them an appointment</a>
+      <a class="btn btn--outline" [routerLink]="['/admin/patients', result.patient.id]">
+        Open their record
+      </a>
+    </div>
+  } @else {
+    <header class="page__head">
+      <div>
+        <h1>Register a patient</h1>
+        <p>
+          The short form for a walk-in. The patient can fill in their history and insurance
+          themselves once they have signed in.
+        </p>
+      </div>
+
+      <a class="btn btn--outline" routerLink="/admin/patients">Search existing patients</a>
+    </header>
+
+    <form class="stack" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      @if (action.error(); as error) {
+        <p class="note note--danger" role="alert">
+          {{ error.message }}
+          @if (error.hasFieldErrors) {
+            <span class="text-xs"> Check the highlighted fields.</span>
+          }
+        </p>
+      }
+
+      <fieldset class="fieldset">
+        <legend>Who they are</legend>
+
+        <div class="field-grid">
+          <label class="field" [class.is-invalid]="control('firstName').invalid && control('firstName').touched">
+            <span class="field__label">First name <span class="req">*</span></span>
+            <input formControlName="firstName" autocomplete="off" />
+            <mc-field-error [control]="control('firstName')" label="First name" [serverError]="serverError('firstName')" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Middle name</span>
+            <input formControlName="middleName" autocomplete="off" />
+          </label>
+
+          <label class="field" [class.is-invalid]="control('lastName').invalid && control('lastName').touched">
+            <span class="field__label">Last name <span class="req">*</span></span>
+            <input formControlName="lastName" autocomplete="off" />
+            <mc-field-error [control]="control('lastName')" label="Last name" />
+          </label>
+        </div>
+
+        <div class="field-grid">
+          <label class="field" [class.is-invalid]="control('dateOfBirth').invalid && control('dateOfBirth').touched">
+            <span class="field__label">Date of birth <span class="req">*</span></span>
+            <input type="date" formControlName="dateOfBirth" [max]="today" />
+            <mc-field-error [control]="control('dateOfBirth')" label="Date of birth" />
+          </label>
+
+          <div class="field">
+            <span class="field__label">Age</span>
+            <output class="field__derived num">
+              {{ age() === null ? '—' : age() + ' years' }}
+              @if (isMinor()) {
+                <span class="badge badge--warning">Minor</span>
+              }
+            </output>
+          </div>
+
+          <label class="field" [class.is-invalid]="control('gender').invalid && control('gender').touched">
+            <span class="field__label">Gender <span class="req">*</span></span>
+            <select formControlName="gender">
+              <option value="">Select…</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other">Other</option>
+            </select>
+            <mc-field-error [control]="control('gender')" label="Gender" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Blood group</span>
+            <select formControlName="bloodGroup">
+              @for (group of bloodGroups; track group) {
+                <option [value]="group">{{ group === 'unknown' ? 'Not known' : group }}</option>
+              }
+            </select>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>How to reach them</legend>
+
+        <div class="field-grid">
+          <label class="field" [class.is-invalid]="control('mobile').invalid && control('mobile').touched">
+            <span class="field__label">Mobile <span class="req">*</span></span>
+            <input formControlName="mobile" inputmode="tel" />
+            <mc-field-error [control]="control('mobile')" label="Mobile number" [serverError]="serverError('mobile')" />
+          </label>
+
+          <label class="field" [class.is-invalid]="(control('email').invalid && control('email').touched) || serverError('email')">
+            <span class="field__label">Email <span class="req">*</span></span>
+            <input type="email" formControlName="email" />
+            <mc-field-error [control]="control('email')" label="Email" [serverError]="serverError('email')" />
+            <span class="field__hint">This becomes their sign-in.</span>
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="field__label">Address</span>
+          <input formControlName="address" />
+        </label>
+
+        <div class="field-grid">
+          <label class="field" [class.is-invalid]="control('city').invalid && control('city').touched">
+            <span class="field__label">City <span class="req">*</span></span>
+            <input formControlName="city" />
+            <mc-field-error [control]="control('city')" label="City" />
+          </label>
+
+          <label class="field" [class.is-invalid]="control('state').invalid && control('state').touched">
+            <span class="field__label">State <span class="req">*</span></span>
+            <input formControlName="state" />
+            <mc-field-error [control]="control('state')" label="State" />
+          </label>
+
+          <label class="field" [class.is-invalid]="control('pincode').invalid && control('pincode').touched">
+            <span class="field__label">PIN code</span>
+            <input formControlName="pincode" inputmode="numeric" maxlength="6" />
+            <mc-field-error [control]="control('pincode')" label="PIN code" [serverError]="serverError('pincode')" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Home branch</span>
+            <select formControlName="preferredBranchId">
+              @for (branch of catalog.branches(); track branch.id) {
+                <option [value]="branch.id">{{ branch.name }} · {{ branch.city }}</option>
+              }
+            </select>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Emergency contact</legend>
+        <p class="field__hint">Who the hospital calls if the patient cannot speak for themselves.</p>
+
+        <div class="field-grid">
+          <label class="field" [class.is-invalid]="control('emergencyContactName').invalid && control('emergencyContactName').touched">
+            <span class="field__label">Name <span class="req">*</span></span>
+            <input formControlName="emergencyContactName" />
+            <mc-field-error [control]="control('emergencyContactName')" label="Contact name" />
+          </label>
+
+          <label class="field" [class.is-invalid]="control('emergencyContact').invalid && control('emergencyContact').touched">
+            <span class="field__label">Number <span class="req">*</span></span>
+            <input formControlName="emergencyContact" inputmode="tel" />
+            <mc-field-error [control]="control('emergencyContact')" label="Emergency contact" />
+          </label>
+
+          <label class="field" [class.is-invalid]="control('emergencyContactRelationship').invalid && control('emergencyContactRelationship').touched">
+            <span class="field__label">Relationship <span class="req">*</span></span>
+            <input formControlName="emergencyContactRelationship" placeholder="Spouse, Father…" />
+            <mc-field-error [control]="control('emergencyContactRelationship')" label="Relationship" />
+          </label>
+        </div>
+      </fieldset>
+
+      @if (isMinor()) {
+        <fieldset class="fieldset is-required">
+          <legend>Parent or guardian (required — patient is {{ age() }})</legend>
+
+          <mc-note tone="warning">
+            A patient under 18 cannot be the responsible adult on their own record.
+          </mc-note>
+
+          <div class="field-grid">
+            <label class="field" [class.is-invalid]="control('guardianName').invalid && control('guardianName').touched">
+              <span class="field__label">Guardian name <span class="req">*</span></span>
+              <input formControlName="guardianName" />
+              <mc-field-error
+                [control]="control('guardianName')"
+                label="Guardian name"
+                [serverError]="serverError('guardianName')"
+              />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Guardian mobile</span>
+              <input formControlName="guardianMobile" inputmode="tel" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Relationship</span>
+              <select formControlName="guardianRelationship">
+                <option value="">Select…</option>
+                <option value="Father">Father</option>
+                <option value="Mother">Mother</option>
+                <option value="Guardian">Guardian</option>
+              </select>
+            </label>
+          </div>
+        </fieldset>
+      }
+
+      <fieldset class="fieldset">
+        <legend>Anything urgent to record now</legend>
+
+        <div class="field-grid">
+          <label class="field">
+            <span class="field__label">Allergies</span>
+            <input formControlName="allergies" placeholder="Penicillin, Sulfa drugs" />
+            <span class="field__hint">
+              Doctors are warned before prescribing anything on this list, so it is worth asking.
+            </span>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Existing conditions</span>
+            <input formControlName="conditions" placeholder="Type 2 Diabetes, Hypertension" />
+          </label>
+        </div>
+
+        <div class="field-grid">
+          <label class="field">
+            <span class="field__label">Insurance provider</span>
+            <input formControlName="insuranceProvider" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Policy number</span>
+            <input formControlName="insuranceNumber" />
+            <span class="field__hint">A covered patient pays a 40% co-pay at billing.</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" (click)="registerAnother()">Clear the form</button>
+        <button type="submit" class="btn btn--primary btn--lg" [disabled]="action.busy()">
+          @if (action.busy()) {
+            <span class="btn__spinner" aria-hidden="true"></span>
+          }
+          Create the record
+        </button>
+      </div>
+    </form>
+  }
+</section>

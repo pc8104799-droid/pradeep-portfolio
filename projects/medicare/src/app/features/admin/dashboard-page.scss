@@ -1,0 +1,75 @@
+h2 {
+  font-size: 0.95rem;
+}
+
+.alerts {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.kv__value.warn {
+  color: var(--warning);
+  font-weight: 700;
+}
+
+/* ----------------------------------------------------------------- rows */
+
+.rows li a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.7rem;
+  align-items: center;
+  padding: 0.6rem var(--pad-card);
+  border-bottom: 1px solid var(--stroke);
+  transition: background var(--t-fast) var(--ease);
+}
+
+.rows--tight li a {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.rows li:last-child a {
+  border-bottom: 0;
+}
+
+.rows li a:hover {
+  background: var(--surface-2);
+}
+
+.rows strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.rows span.muted {
+  display: block;
+}
+
+/* The token is what reception calls out, so it leads the row. */
+.token {
+  display: grid;
+  place-items: center;
+  min-width: 2.2rem;
+  height: 2.2rem;
+  padding-inline: 0.45rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+  color: var(--primary-ink);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  flex: none;
+}
+
+.token--ghost {
+  background: var(--surface-3);
+  color: var(--ink-3);
+  font-size: 0.75rem;
+}
+
+@media (min-width: 1080px) {
+  aside {
+    position: sticky;
+    top: calc(var(--header-h) + 1rem);
+  }
+}

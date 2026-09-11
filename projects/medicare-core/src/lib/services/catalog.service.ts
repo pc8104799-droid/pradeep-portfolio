@@ -99,6 +99,11 @@ export class CatalogService {
     return this.api.get('/departments', query);
   }
 
+  /** The branch list as a request, for a screen that wants it fresh. */
+  branchList(): Promise<{ items: HospitalBranch[] }> {
+    return this.api.get('/branches');
+  }
+
   departmentDetail(id: string): Promise<Department> {
     return this.api.get(`/departments/${id}`);
   }
@@ -127,6 +132,14 @@ export class CatalogService {
 
   medicine(id: string): Promise<Medicine> {
     return this.api.get(`/medicines/${id}`);
+  }
+
+  /** Restocking or repricing from the pharmacy's inventory screen. */
+  updateMedicine(
+    id: string,
+    patch: { stock?: number; price?: number; expiryDate?: string },
+  ): Promise<Medicine> {
+    return this.api.patch(`/medicines/${id}`, patch);
   }
 
   coupons(appliesTo: 'pharmacy' | 'consultation'): Promise<{ items: Coupon[] }> {

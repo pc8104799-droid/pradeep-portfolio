@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { store } from '../db/store.js';
 import { ageFrom } from '../lib/dates.js';
 import { badRequest, forbidden, notFound } from '../lib/http-error.js';
+import { visiblePatient } from '../lib/visibility.js';
 import { requireAuth } from '../middleware/auth.js';
 
 /**
@@ -61,7 +62,11 @@ function resolve(req, rawCode) {
 
   assertScanAccess(req, resolver.kind, row);
 
-  return { kind: resolver.kind, code, summary: summarise(resolver.kind, row), record: row };
+  // A resolved patient goes through the same field-level filter as every other
+  // route that returns one — otherwise scanning a card would be a way around it.
+  const record = resolver.kind === 'patient' ? visiblePatient(row, req.auth.role) : row;
+
+  return { kind: resolver.kind, code, summary: summarise(resolver.kind, row), record };
 }
 
 /**

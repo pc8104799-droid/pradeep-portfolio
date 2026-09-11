@@ -111,7 +111,13 @@ export class QrCode {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule],
   template: `
-    <div class="scanner stack">
+    <!--
+      Camera and manual entry sit side by side rather than stacked. Typing an ID
+      is not a fallback people reach for after the camera fails — on a desktop
+      with no camera it is the only path, so it gets equal billing and the
+      preview stays small enough that both fit without scrolling.
+    -->
+    <div class="scanner">
       @if (cameraSupported) {
         <div class="scanner__stage" [class.is-live]="scanning()">
           <!-- muted + playsinline are what let the preview autoplay on iOS. -->
@@ -119,7 +125,7 @@ export class QrCode {
 
           @if (!scanning()) {
             <div class="scanner__idle">
-              <p class="muted text-sm">The camera preview appears here.</p>
+              <span class="scanner__mark" aria-hidden="true">▦</span>
               <button type="button" class="btn btn--primary btn--sm" (click)="start()">
                 Start camera
               </button>
@@ -131,15 +137,6 @@ export class QrCode {
             </button>
           }
         </div>
-      } @else {
-        <p class="field__hint">
-          This browser cannot scan with the camera. Type or paste the ID instead — every
-          MediCare360 card and printout shows it under the code.
-        </p>
-      }
-
-      @if (cameraError(); as message) {
-        <p class="field__error" role="alert">{{ message }}</p>
       }
 
       <form class="scanner__manual" (ngSubmit)="submitManual()">
@@ -148,24 +145,61 @@ export class QrCode {
           <input
             name="code"
             [(ngModel)]="manual"
-            placeholder="PT-000001, AP-20260911-0003, RX-000012…"
+            placeholder="PT-000001, RX-000012…"
             autocapitalize="characters"
             autocomplete="off"
             spellcheck="false"
           />
         </label>
 
-        <button type="submit" class="btn btn--outline" [disabled]="!manual().trim()">Look up</button>
+        <button type="submit" class="btn btn--primary" [disabled]="!manual().trim()">Look up</button>
+
+        @if (!cameraSupported) {
+          <p class="field__hint">
+            This browser cannot scan with the camera. Every MediCare360 card and printout shows
+            the ID under the code.
+          </p>
+        }
       </form>
     </div>
+
+    @if (cameraError(); as message) {
+      <p class="field__error scanner__error" role="alert">{{ message }}</p>
+    }
   `,
   styles: `
+    :host {
+      display: block;
+      /* A container query, not a media query: this component sits in a narrow
+         column on the QR page and full-width elsewhere, so what matters is the
+         space it actually has, not how wide the window is. */
+      container-type: inline-size;
+    }
+
+    .scanner {
+      display: grid;
+      gap: var(--gap);
+      align-items: center;
+    }
+
+    /* Two columns as soon as there is room for them; stacked when there is not,
+       where the camera is the likely path anyway. */
+    @container (min-width: 27rem) {
+      .scanner:has(.scanner__stage) {
+        grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+      }
+    }
+
     .scanner__stage {
       position: relative;
       display: grid;
       place-items: center;
-      aspect-ratio: 4 / 3;
-      max-height: 20rem;
+      /* Squarer and shorter than a video frame: a QR is square, so a tall
+         preview is mostly wasted height. */
+      aspect-ratio: 1;
+      max-height: 13rem;
+      margin-inline: auto;
+      width: 100%;
       border-radius: var(--radius);
       border: 1px solid var(--stroke);
       background: var(--surface-3);
@@ -185,37 +219,41 @@ export class QrCode {
 
     .scanner__idle {
       display: grid;
-      gap: 0.6rem;
+      gap: 0.5rem;
       justify-items: center;
       text-align: center;
-      padding: 1rem;
+      padding: 0.75rem;
+    }
+
+    .scanner__mark {
+      font-size: 1.6rem;
+      color: var(--ink-3);
+      line-height: 1;
     }
 
     .scanner__reticle {
       position: absolute;
-      width: 58%;
+      width: 62%;
       aspect-ratio: 1;
       border: 2px solid var(--primary);
-      border-radius: var(--radius);
+      border-radius: var(--radius-sm);
       box-shadow: 0 0 0 100vmax rgb(6 18 26 / 35%);
     }
 
     .scanner__stop {
       position: absolute;
-      bottom: 0.6rem;
+      bottom: 0.5rem;
       background: var(--surface);
     }
 
     .scanner__manual {
-      display: flex;
+      display: grid;
       gap: var(--gap-sm);
-      align-items: flex-end;
-      flex-wrap: wrap;
+      align-content: center;
     }
 
-    .scanner__manual .field {
-      flex: 1;
-      min-width: min(100%, 16rem);
+    .scanner__error {
+      margin-top: var(--gap-sm);
     }
   `,
 })

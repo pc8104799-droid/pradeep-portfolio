@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from '@an
 import { RouterLink } from '@angular/router';
 import {
   ActionState,
+  AuthService,
   ORDER_STAGES,
   PharmacyService,
   ToastService,
@@ -30,6 +31,11 @@ const STAGE_COPY: Record<string, { label: string; note: string }> = {
  * The timeline is built from what the server actually recorded, not from a
  * guess: each stage carries the moment it happened, and stages still ahead are
  * shown greyed rather than hidden, so a patient can see what is left.
+ *
+ * The pharmacy and reception mount the same page and get the control the
+ * patient does not: moving the order to its next stage. Everyone reads the same
+ * timeline, which is the point — the patient's tracking screen and the counter's
+ * worklist cannot disagree.
  */
 @Component({
   selector: 'mc-order-detail',
@@ -57,7 +63,17 @@ const STAGE_COPY: Record<string, { label: string; note: string }> = {
             </div>
 
             <div class="row row--wrap">
-              <a class="btn btn--outline" routerLink="/patient/pharmacy/orders">← All orders</a>
+              <a class="btn btn--outline" [routerLink]="ordersLink()">← All orders</a>
+
+              @if (nextStage(); as next) {
+                <button type="button" class="btn btn--primary" [disabled]="action.busy()" (click)="advance()">
+                  @if (action.busy()) {
+                    <span class="btn__spinner" aria-hidden="true"></span>
+                  }
+                  Mark {{ next | label }}
+                </button>
+              }
+
               @if (canCancel()) {
                 <button type="button" class="btn btn--ghost" [disabled]="action.busy()" (click)="cancel()">
                   Cancel order
@@ -74,9 +90,13 @@ const STAGE_COPY: Record<string, { label: string; note: string }> = {
                   The pharmacy starts preparing this order once the payment goes through.
                 </p>
               </div>
-              <a class="btn btn--primary" [routerLink]="['/patient/pay', record.paymentId]">
-                Pay {{ record.bill.total | inr }}
-              </a>
+              @if (!isStaff()) {
+                <a class="btn btn--primary" [routerLink]="['/patient/pay', record.paymentId]">
+                  Pay {{ record.bill.total | inr }}
+                </a>
+              } @else {
+                <span class="badge badge--warning">{{ record.bill.total | inr }} outstanding</span>
+              }
             </div>
           }
 
@@ -121,9 +141,13 @@ const STAGE_COPY: Record<string, { label: string; note: string }> = {
                       @for (line of record.lines; track line.medicineId) {
                         <tr>
                           <td>
-                            <a [routerLink]="['/patient/pharmacy', line.medicineId]">
+                            @if (panel() === 'admin') {
                               <strong>{{ line.name }}</strong>
-                            </a>
+                            } @else {
+                              <a [routerLink]="[medicineBase(), line.medicineId]">
+                                <strong>{{ line.name }}</strong>
+                              </a>
+                            }
                             <div class="muted text-xs">
                               {{ line.strength }} · {{ line.form }}
                               @if (line.prescriptionRequired) {
@@ -174,8 +198,8 @@ const STAGE_COPY: Record<string, { label: string; note: string }> = {
                   <strong class="num">{{ record.bill.total | inr }}</strong>
                 </div>
 
-                @if (record.paymentStatus === 'successful') {
-                  <a class="btn btn--outline btn--block" [routerLink]="['/patient/payments', record.paymentId]">
+                @if (record.paymentStatus === 'successful' && panel() !== 'pharmacy') {
+                  <a class="btn btn--outline btn--block" [routerLink]="['/' + panel() + '/payments', record.paymentId]">
                     View receipt
                   </a>
                 }
@@ -201,7 +225,7 @@ const STAGE_COPY: Record<string, { label: string; note: string }> = {
                     <span class="mono">{{ prescriptionId }}</span>
                     <mc-status [status]="record.prescriptionStatus" />
                   </p>
-                  <a class="btn btn--outline btn--sm" [routerLink]="['/patient/prescriptions', prescriptionId]">
+                  <a class="btn btn--outline btn--sm" [routerLink]="['/' + panel() + '/prescriptions', prescriptionId]">
                     View prescription
                   </a>
                 </article>
@@ -226,8 +250,31 @@ export class OrderDetailPage {
   private readonly pharmacy = inject(PharmacyService);
   private readonly toasts = inject(ToastService);
   private readonly confirm = inject(ConfirmService);
+  private readonly auth = inject(AuthService);
 
   protected readonly action = new ActionState();
+
+  protected readonly panel = computed(() => this.auth.panel());
+  protected readonly isStaff = computed(() => this.panel() !== 'patient');
+
+  /** Where this panel keeps its order list. */
+  protected readonly ordersLink = computed(() =>
+    this.panel() === 'patient' ? '/patient/pharmacy/orders' : `/${this.panel()}/orders`,
+  );
+
+  /** And where it keeps the medicine catalogue. */
+  protected readonly medicineBase = computed(() =>
+    this.panel() === 'pharmacy' ? '/pharmacy/catalogue' : '/patient/pharmacy',
+  );
+
+  /** The next stage this order can be pushed to, if any. */
+  protected readonly nextStage = computed(() => {
+    const order = this.order.data();
+    if (!order || !this.isStaff()) return null;
+
+    const next = ORDER_STAGES[ORDER_STAGES.indexOf(order.stage) + 1];
+    return next ?? null;
+  });
 
   protected readonly order = trackedState(
     () => this.orderId(),
@@ -238,6 +285,21 @@ export class OrderDetailPage {
     const stage = this.order.data()?.stage;
     return !!stage && !['out-for-delivery', 'delivered', 'cancelled'].includes(stage);
   });
+
+  /** Pushes the order along. The server decides what "next" means. */
+  protected async advance(): Promise<void> {
+    const order = this.order.data();
+    if (!order) return;
+
+    const updated = await this.action.run(() => this.pharmacy.advanceOrder(order.id));
+    if (!updated) {
+      this.toasts.error('Could not update the order', this.action.error()?.message);
+      return;
+    }
+
+    this.order.set(updated);
+    this.toasts.success(`Order ${updated.stage.replaceAll('-', ' ')}`, 'The patient has been notified.');
+  }
 
   /** The full stage list, annotated with what has happened and when. */
   protected track(order: MedicineOrder) {
